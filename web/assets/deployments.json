@@ -1,0 +1,28 @@
+{
+  "_comment": "Single source of truth for what is live on chain. The site reads this at load: fill in `token` as soon as PONS has created HOODZ, and the addresses under `contracts` after running /deploy. Anything left null stays hidden on the landing rather than showing a placeholder. Commit this file to publish.",
+  "chainId": 4663,
+  "explorer": "https://robinhoodchain.blockscout.com",
+  "token": null,
+  "deployedAt": null,
+  "contracts": {
+    "HoodzAuthority": null,
+    "sHOODZ": null,
+    "gHOODZ": null,
+    "HoodzTreasury": null,
+    "HoodzBondingCalculator": null,
+    "HoodzStaking": null,
+    "Distributor": null,
+    "BondDepository": null,
+    "CoolerFactory": null,
+    "Clearinghouse": null,
+    "HoodzTimelock": null,
+    "HoodzGovernor": null,
+    "PonsLaunchConfig": null,
+    "HoodzLaunchGuard": null,
+    "CreatorFeeSplitter": null,
+    "FeeRouterBuyback": null,
+    "EmissionsManager": null,
+    "YieldRepurchaseFacility": null,
+    "ConvertibleDepository": null
+  }
+}

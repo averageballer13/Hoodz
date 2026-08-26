@@ -142,25 +142,27 @@
             <div class="home-protocol__card">
 
               <div class="metric-block">
-                <div class="mar-bot-8"><h3 class="t-24">Treasury Value</h3></div>
-                <div class="t-80">&mdash;</div>
-                <div class="metric-delta" aria-hidden="true">Live at launch</div>
+                <div class="mar-bot-8"><h3 class="t-24">Market cap</h3></div>
+                <div class="t-80" data-stat="marketcap">&mdash;</div>
+                <div class="metric-delta" data-stat-note="marketcap">Live at launch</div>
               </div>
 
               <div class="metric-block">
-                <div class="mar-bot-8"><h3 class="t-24">Liquid Backing per HOODZ</h3></div>
-                <div class="t-80">&mdash;</div>
-                <div class="metric-delta" aria-hidden="true">Live at launch</div>
+                <div class="mar-bot-8"><h3 class="t-24">Holders</h3></div>
+                <div class="t-80" data-stat="holders">&mdash;</div>
+                <div class="metric-delta" data-stat-note="holders">Live at launch</div>
               </div>
 
               <div class="metric-block">
-                <div class="mar-bot-8"><h3 class="t-24">Operating Since</h3></div>
-                <div class="t-80">Not yet live</div>
-                <div class="metric-delta" aria-hidden="true">Launching on PONS</div>
+                <div class="mar-bot-8"><h3 class="t-24">Circulating supply</h3></div>
+                <div class="t-80" data-stat="supply">&mdash;</div>
+                <div class="metric-delta" data-stat-note="supply">Fixed at launch</div>
               </div>
 
             </div>
           </div>
+        </div>
+      </div>
         </div>
       </div>
 
@@ -592,6 +594,23 @@
 
 </div><!-- /.s-features -->
 
+<!-- ════════════════════════════════════════════ CONTRACTS ═════════════ -->
+<div class="s-contracts" id="contracts" hidden>
+  <div class="vertical-container">
+    <div class="horizontal-container">
+      <div class="mar-bot-40">
+        <h2 class="t-align-center">Contracts</h2>
+        <p class="t-align-center contracts-sub" id="contracts-count"></p>
+      </div>
+      <div class="contracts-grid" id="contracts-grid"></div>
+      <p class="t-align-center contracts-sub" style="margin-top:2.3vw">
+        Every address is live on Robinhood Chain. Read the source before you trust it with anything.
+        <a data-token-link href="#" hidden class="link-underline" target="_blank" rel="noopener">View token</a>
+      </p>
+    </div>
+  </div>
+</div>
+
 <!-- ═══════════════════════════════════════════ PREFOOTER CTA ═══════════ -->
 <div class="s-cta-prefooter">
   <div class="vertical-container cta-prefooter">
@@ -695,5 +714,6 @@
 </footer>
 
 <script src="js/hoodz.js" defer></script>
+<script src="js/live.js?v=2" defer></script>
 </body>
 </html>

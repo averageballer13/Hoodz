@@ -32,6 +32,14 @@ The mock dApp moved to `app-preview/` — **outside** the deployed directory. It
 balances and yields, which is fine as a design preview and actively misleading on a live finance
 site, so it is not served. Nothing about it is lost; point Vercel's output at it if you want it back.
 
+`web/assets/deployments.json` is what the live site reads. Set `token` to the address PONS
+produced and paste the deployed addresses under `contracts`, and the landing fills in market cap,
+holders and circulating supply from the Blockscout API — public, CORS-open, no key — and renders
+every address as a button linking to the explorer. Holder count is deliberately taken from the
+indexer rather than the chain: ERC20 has no way to report it, so an indexer is the only honest
+source. Anything left `null` stays hidden rather than showing a placeholder. `/deploy` emits this
+file ready to drop in.
+
 `web/deploy.html` is a browser deployer for the contract stack. It reads creation bytecode from
 `web/assets/deploy/bytecode.json` (regenerate it from `contracts/out/artifacts.json` after any
 contract change) and sends one transaction per contract from the connected wallet, saving progress
