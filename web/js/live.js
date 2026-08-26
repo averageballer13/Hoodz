@@ -181,6 +181,54 @@
     return a;
   }
 
+  /* --------------------------------------------------- auto-discovery ---- */
+  /**
+   * Ask the explorer which contracts a wallet has created, so the site can pick
+   * up a deployment without waiting for anyone to commit a file.
+   *
+   * Only contracts whose verified name matches one we know about are shown. That
+   * filter matters: the dev wallet may deploy other things, and an unlabelled
+   * address on the landing page is worse than nothing. It also means the names
+   * only appear once the contracts are verified on Blockscout - before that the
+   * explorer has nothing to match on.
+   *
+   * The committed manifest always wins, so publishing a file overrides whatever
+   * the explorer thinks.
+   */
+  function autodiscover(manifest, known) {
+    var wallet = manifest.autodiscover;
+    if (!wallet) return Promise.resolve(known);
+
+    var base = (manifest.explorer || '').replace(/\/$/, '');
+    var url = base + '/api/v2/addresses/' + wallet + '/transactions?filter=from';
+
+    return fetch(url, { headers: { accept: 'application/json' } })
+      .then(function (r) {
+        if (!r.ok) throw new Error('explorer returned ' + r.status);
+        return r.json();
+      })
+      .then(function (d) {
+        var found = 0;
+        (d.items || []).forEach(function (tx) {
+          var c = tx.created_contract;
+          if (!c || !c.hash) return;
+          var name = c.name;
+          if (!name || !Object.prototype.hasOwnProperty.call(LABELS, name)) return;
+          if (known[name]) return;                       // the committed file wins
+          known[name] = c.hash;
+          found++;
+        });
+        if (found && window.console) {
+          console.info('[hoodz] discovered ' + found + ' contract(s) from ' + wallet);
+        }
+        return known;
+      })
+      .catch(function (e) {
+        if (window.console) console.warn('[hoodz] autodiscovery unavailable:', e.message);
+        return known;                                     // fall back to the file
+      });
+  }
+
   /* ---------------------------------------------------------------- boot */
 
   function boot() {
@@ -188,7 +236,14 @@
       .then(function (r) { return r.json(); })
       .then(function (m) {
         loadToken(m);
-        loadContracts(m);
+        var known = {};
+        Object.keys(m.contracts || {}).forEach(function (k) {
+          if (m.contracts[k]) known[k] = m.contracts[k];
+        });
+        return autodiscover(m, known).then(function (merged) {
+          m.contracts = merged;
+          loadContracts(m);
+        });
       })
       .catch(function (e) {
         if (window.console) console.warn('[hoodz] deployments.json unreadable:', e.message);

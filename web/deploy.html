@@ -241,14 +241,19 @@
   /* A contract is skipped when one of these config keys is still the zero address:
      deploying it anyway would produce a permanently misconfigured contract. */
   var REQUIRES = {
-    Clearinghouse: ['reserve', 'sReserve'],
-    PonsLaunchConfig: ['ponsCurve'],
+    HoodzTreasury: ['hoodz'],
+    HoodzBondingCalculator: ['hoodz'],
+    HoodzStaking: ['hoodz'],
+    Distributor: ['hoodz'],
+    BondDepository: ['hoodz'],
+    Clearinghouse: ['hoodz', 'reserve', 'sReserve'],
+    PonsLaunchConfig: ['hoodz', 'ponsCurve'],
     HoodzLaunchGuard: ['ponsLaunchpad'],
-    CreatorFeeSplitter: ['wrappedNative', 'swapRouter'],
+    CreatorFeeSplitter: ['hoodz', 'wrappedNative', 'swapRouter'],
     FeeRouterBuyback: ['ponsFeeRouter', 'swapRouter'],
-    EmissionsManager: ['auctioneer', 'priceFeed'],
-    YieldRepurchaseFacility: ['auctioneer', 'priceFeed', 'sReserve'],
-    ConvertibleDepository: ['reserve', 'sReserve']
+    EmissionsManager: ['hoodz', 'auctioneer', 'priceFeed'],
+    YieldRepurchaseFacility: ['hoodz', 'auctioneer', 'priceFeed', 'sReserve'],
+    ConvertibleDepository: ['hoodz', 'reserve', 'sReserve']
   };
 
   var ZERO = '0x0000000000000000000000000000000000000000';
@@ -392,10 +397,6 @@
     if (account && !D.NETWORKS[chainId]) {
       b.push('Connected to chain ' + chainId + '. Switch to Robinhood Chain.');
     }
-    var h = document.getElementById('f_hoodz');
-    if (h && (!h.value.trim() || h.value.trim() === ZERO)) {
-      b.push('HOODZ token address is empty — launch on PONS first, then paste it into Parameters.');
-    }
     try {
       var sum = BigInt($('f_stakersBps').value || 0) + BigInt($('f_burnBps').value || 0) +
                 BigInt($('f_treasuryBps').value || 0);
@@ -408,8 +409,14 @@
     var b = blockers();
     var el = $('status');
     if (!b.length) {
+      var cfg, willDeploy = 0, total = bundle ? bundle.order.length : 0;
+      try { cfg = readCfg(); willDeploy = plannedQueue(cfg).length; } catch (e) {}
+      var noToken = !cfg || !cfg.hoodz || cfg.hoodz === ZERO;
       el.className = 'status ok';
-      el.innerHTML = '<b>Ready.</b> Run the pre-flight, then deploy.';
+      el.innerHTML = '<b>Ready — ' + willDeploy + ' of ' + total + ' contracts will deploy.</b>' +
+        (noToken
+          ? '· No HOODZ token set, so everything that depends on one is skipped. The rest deploy and verify fine.'
+          : '· The remainder are skipped for missing parameters, listed as skipped once you run.');
       return true;
     }
     el.className = 'status bad';

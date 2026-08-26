@@ -2,6 +2,7 @@
   "_comment": "Single source of truth for what is live on chain. The site reads this at load: fill in `token` as soon as PONS has created HOODZ, and the addresses under `contracts` after running /deploy. Anything left null stays hidden on the landing rather than showing a placeholder. Commit this file to publish.",
   "chainId": 4663,
   "explorer": "https://robinhoodchain.blockscout.com",
+  "autodiscover": "0x9aA5e1Bd45375700B7C26E0277Bac6b48cE95719",
   "token": null,
   "deployedAt": null,
   "contracts": {
