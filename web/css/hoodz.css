@@ -18,7 +18,9 @@ p, figure, blockquote, dl, dd { margin: 0; }
 
 ul[class], ol[class] { list-style: none; margin: 0; padding: 0; }
 
-img, svg, video { display: block; max-width: 100%; }
+/* height:auto so an intrinsic width/height attribute pair never stretches an image
+   that CSS only sizes on one axis. Class rules that set an explicit height still win. */
+img, svg, video { display: block; max-width: 100%; height: auto; }
 
 button, input, select, textarea { font: inherit; color: inherit; }
 

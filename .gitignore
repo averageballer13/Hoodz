@@ -41,3 +41,10 @@ $RECYCLE.BIN/
 *.log
 npm-debug.log*
 yarn-error.log*
+
+# --- loose source artwork at the repo root ---
+# Working files only. Everything the site actually ships lives in web/assets/img,
+# already cut out, resized and converted. Keeps stray downloads out of the repo.
+/*.png
+/*.jpg
+/*.jpeg
