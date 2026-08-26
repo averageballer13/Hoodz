@@ -44,7 +44,7 @@ a { color: inherit; text-decoration: none; }
   --white:          #ffffff;
   --grey:           #7e7e7e;
   --gray-600:       #2c2e37;   /* feature card */
-  --slate:          #798399;   /* hairline + "liquidity" card */
+  --slate:          #708791;   /* brand slate, taken from the logo mark */
   --gold-card:      #f3ce8c;   /* "borrow" card */
 
   /* motion */
@@ -333,7 +333,7 @@ p { max-width: 80ch; }
 }
 
 .nav__brand { display: block; padding-left: 0; }
-.nav__brand__icon { width: 7.5vw; max-width: 144px; }
+.nav__brand__icon { width: 7.5vw; max-width: 144px; height: auto; }
 
 .nav__links-wrp {
   display: grid;
@@ -1170,7 +1170,7 @@ ul.docs-list { list-style: disc; }
   row-gap: 3vw;
   color: var(--primary);
 }
-.footer__brand-icon { width: 11.1vw; max-width: 213.12px; }
+.footer__brand-icon { width: 11.1vw; max-width: 213.12px; height: auto; }
 .footer__col-title {
   font-size: .85vw;
   text-transform: uppercase;

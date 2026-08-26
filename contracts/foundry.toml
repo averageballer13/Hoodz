@@ -16,6 +16,8 @@ bytecode_hash = "none"
 via_ir = false
 auto_detect_solc = false
 ffi = false
+# script/Deploy.s.sol writes deployments/<chainid>.json and deployments/pons-launch.json
+fs_permissions = [{access = "read-write", path = "./"}]
 gas_reports = ["*"]
 remappings = [
   "@openzeppelin/contracts/=node_modules/@openzeppelin/contracts/",
