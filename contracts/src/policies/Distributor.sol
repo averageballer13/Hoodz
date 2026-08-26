@@ -52,6 +52,13 @@ contract Distributor is IDistributor, HoodzAccessControlled {
     event AdjustmentSet(uint256 indexed index, bool add, uint256 rate, uint256 target);
     /// @notice Emitted once per recipient per epoch.
     event Distributed(uint256 indexed index, address indexed recipient, uint256 amount);
+
+    /// @notice The treasury could not cover the full emission; `paid` went out instead.
+    /// @param index     Recipient index.
+    /// @param recipient Recipient address.
+    /// @param owed      What the rate called for.
+    /// @param paid      What the treasury could actually cover.
+    event EmissionShortfall(uint256 indexed index, address indexed recipient, uint256 owed, uint256 paid);
     /// @notice Emitted when a ramp step moves a rate. `finished` is true when the target was hit.
     event RateAdjusted(uint256 indexed index, uint256 newRate, bool finished);
 
@@ -119,9 +126,17 @@ contract Distributor is IDistributor, HoodzAccessControlled {
     /* ======================================== MUTATIVE ======================================== */
 
     /**
-     * @notice Mint the epoch's emission to every recipient, then advance their rate ramps.
+     * @notice Pay the epoch's emission to every recipient, then advance their rate ramps.
      * @dev    Called by `HoodzStaking.rebase()` on every epoch rollover. Retired recipients
      *         carry rate 0 and are skipped, so the array is never compacted.
+     *
+     *         MUST NOT REVERT. Under the fixed-supply model the treasury does not mint - it pays
+     *         out of inventory - so running dry is the expected end state, not an edge case. And
+     *         `distribute()` is called from `rebase()`, which is called from `stake()` and
+     *         `unstake()`: a revert here would brick staking outright and trap everyone's deposits.
+     *         So each recipient is paid whatever is actually available and the shortfall is
+     *         emitted rather than thrown. Emissions simply stop when the treasury is empty, which
+     *         is the correct behaviour for a token whose supply cannot grow.
      */
     function distribute() external override {
         if (msg.sender != staking) revert Distributor_OnlyStaking(msg.sender);
@@ -132,11 +147,30 @@ contract Distributor is IDistributor, HoodzAccessControlled {
             if (recipientInfo.rate == 0) continue;
 
             uint256 amount = nextRewardAt(recipientInfo.rate);
+
+            uint256 available = payableNow();
+            if (amount > available) {
+                emit EmissionShortfall(i, recipientInfo.recipient, amount, available);
+                amount = available;
+            }
+
             if (amount != 0) treasury.payout(recipientInfo.recipient, amount);
             emit Distributed(i, recipientInfo.recipient, amount);
 
             _adjust(i);
         }
+    }
+
+    /**
+     * @notice The most the treasury can pay out right now.
+     * @dev    The binding constraint is whichever is smaller: the HOODZ actually held, or the
+     *         excess-reserve ceiling that keeps backing per token honest.
+     * @return Payable HOODZ, 9 decimals.
+     */
+    function payableNow() public view returns (uint256) {
+        uint256 held = treasury.inventory();
+        uint256 excess = treasury.excessReserves();
+        return held < excess ? held : excess;
     }
 
     /* ========================================= ADMIN ========================================== */
