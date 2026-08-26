@@ -165,7 +165,7 @@
 
     var count = $('#contracts-count');
     if (count) {
-      count.textContent = live.length + (manifest.token ? 1 : 0) + ' contracts verified on Blockscout';
+      count.textContent = live.length + (manifest.token ? 1 : 0) + ' contracts live on Robinhood Chain';
     }
     section.hidden = false;
   }

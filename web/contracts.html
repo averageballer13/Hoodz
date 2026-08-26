@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contracts — Hoodz</title>
+<meta name="description" content="Every Hoodz contract deployed on Robinhood Chain. Click any name to open it on Blockscout.">
+<meta name="theme-color" content="#0e151d">
+
+<link rel="canonical" href="https://hoodz.finance/contracts">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Hoodz">
+<meta property="og:url" content="https://hoodz.finance/contracts">
+<meta property="og:title" content="Contracts — Hoodz">
+<meta property="og:description" content="Every Hoodz contract deployed on Robinhood Chain.">
+<meta property="og:image" content="https://hoodz.finance/assets/img/banner.png">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" href="assets/img/favicon.svg?v=2" type="image/svg+xml">
+<link rel="icon" href="assets/img/favicon-32.png?v=2" sizes="32x32">
+<link rel="apple-touch-icon" href="assets/img/favicon-180.png?v=2">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap">
+
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  body,h1,p,ul{margin:0}
+  ul{list-style:none;padding:0}
+  img{display:block;max-width:100%;height:auto}
+  a{color:inherit;text-decoration:none}
+
+  :root{
+    --bg:#0e151d; --card:rgba(239,233,224,.05); --card-hover:rgba(239,233,224,.1);
+    --line:rgba(121,131,153,.3); --ink:#efe9e0; --dim:#9fb3bf;
+    --gold:#f8cc82; --ease:cubic-bezier(.19,1,.22,1);
+  }
+
+  body{
+    background:
+      radial-gradient(60% 40% at 50% 0%, rgba(112,135,145,.28) 0%, rgba(112,135,145,0) 70%),
+      var(--bg);
+    color:var(--ink);
+    font-family:"Inter Tight","Helvetica Neue",Helvetica,Arial,sans-serif;
+    line-height:1.5;
+    min-height:100svh;
+    padding:clamp(28px,5vw,64px) clamp(18px,5vw,40px) 60px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:760px;margin:0 auto}
+
+  header{display:flex;align-items:center;gap:14px;margin-bottom:10px}
+  header img{width:46px}
+  h1{font-size:clamp(26px,4.5vw,36px);font-weight:700;letter-spacing:-.015em;line-height:1.1}
+  .sub{color:var(--dim);font-size:14.5px;margin-bottom:6px}
+  .chain{
+    display:inline-flex;align-items:center;gap:8px;margin-bottom:30px;
+    padding:7px 15px;border-radius:100vw;
+    box-shadow:inset 0 0 0 1px rgba(248,204,130,.45);
+    color:var(--gold);font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  }
+
+  li{margin-bottom:9px}
+  .item{
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+    padding:16px 20px;border-radius:14px;
+    background:var(--card);box-shadow:inset 0 0 0 1px var(--line);
+    transition:all .5s var(--ease);
+  }
+  .item:hover{
+    background:var(--card-hover);
+    box-shadow:inset 0 0 0 1px var(--gold);
+    transform:translateY(-2px);
+  }
+  .item__left{min-width:0}
+  .item__name{font-size:16.5px;font-weight:600;margin-bottom:2px}
+  .item__role{font-size:12.5px;color:var(--dim)}
+  .item__right{display:flex;align-items:center;gap:12px;flex:none}
+  .item__addr{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:12px;color:var(--dim);
+  }
+  .item__go{color:var(--gold);font-size:17px;transition:transform .4s var(--ease)}
+  .item:hover .item__go{transform:translateX(4px)}
+
+  .empty{padding:26px;border-radius:14px;background:var(--card);
+         box-shadow:inset 0 0 0 1px var(--line);color:var(--dim);font-size:14.5px}
+
+  footer{margin-top:34px;padding-top:22px;border-top:1px solid rgba(239,233,224,.14);
+         font-size:12.5px;color:var(--dim);display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:space-between}
+  footer a:hover{color:var(--ink)}
+
+  .note{margin-top:20px;padding:14px 17px;border-radius:12px;font-size:13px;
+        background:rgba(248,204,130,.08);box-shadow:inset 0 0 0 1px rgba(248,204,130,.32)}
+
+  @media (max-width:560px){
+    .item{flex-direction:column;align-items:flex-start;gap:8px}
+    .item__right{width:100%;justify-content:space-between}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition-duration:.001ms!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <img src="assets/img/coin-3d.webp?v=2" alt="">
+    <h1>Contracts</h1>
+  </header>
+  <p class="sub">Click any contract to open it on the block explorer.</p>
+  <span class="chain" id="chain">Robinhood Chain · 4663</span>
+
+  <ul id="list">
+    <li><div class="empty">Loading…</div></li>
+  </ul>
+
+  <div class="note" id="note" hidden></div>
+
+  <footer>
+    <span>Unaudited software. Read the source before you trust it.</span>
+    <span>
+      <a href="/">hoodz.finance</a> ·
+      <a href="https://github.com/averageballer13/Hoodz" target="_blank" rel="noopener">Source</a>
+    </span>
+  </footer>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* What each contract actually does, so the list reads as something other than
+     nineteen opaque names. */
+  var INFO = {
+    HoodzAuthority:          ['Authority', 'Holds the four roles every other contract checks against'],
+    sHOODZ:                  ['sHOODZ', 'Staked HOODZ — the rebasing receipt token'],
+    gHOODZ:                  ['gHOODZ', 'Governance HOODZ — voting power and loan collateral'],
+    HoodzTreasury:           ['Treasury', 'Holds the reserves and pays out HOODZ inventory'],
+    HoodzBondingCalculator:  ['Bonding calculator', 'Values liquidity positions for the treasury'],
+    HoodzStaking:            ['Staking', 'Stake, unstake, and the epoch rebase'],
+    Distributor:             ['Distributor', 'Pays the epoch emission to stakers'],
+    BondDepository:          ['Bond depository', 'Sells HOODZ at a discount for reserves'],
+    CoolerFactory:           ['Loan factory', 'Creates the per-borrower loan escrows'],
+    Clearinghouse:           ['Clearinghouse', 'Lends reserves at 0.5% against gHOODZ'],
+    HoodzTimelock:           ['Timelock', 'Two-day delay between a passed vote and execution'],
+    HoodzGovernor:           ['Governor', 'On-chain proposals and voting'],
+    PonsLaunchConfig:        ['Launch config', 'Immutable record of the PONS launch parameters'],
+    HoodzLaunchGuard:        ['Launch guard', 'Withholds mint authority until PONS graduation'],
+    CreatorFeeSplitter:      ['Fee splitter', 'Splits PONS creator fees 33/33/34'],
+    FeeRouterBuyback:        ['Buyback router', 'Buys HOODZ with fees and burns it'],
+    EmissionsManager:        ['Emissions manager', 'Sizes emissions from the premium over backing'],
+    YieldRepurchaseFacility: ['Yield repurchase', 'Spends reserve yield buying HOODZ back'],
+    ConvertibleDepository:   ['Convertible deposits', 'Reserves deposited against a HOODZ strike']
+  };
+
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text) n.textContent = text;
+    return n;
+  }
+
+  function row(name, address, base, isToken) {
+    var meta = INFO[name] || [name, ''];
+    var a = el('a', 'item');
+    a.href = base + (isToken ? '/token/' : '/address/') + address;
+    a.target = '_blank';
+    a.rel = 'noopener';
+
+    var left = el('div', 'item__left');
+    left.appendChild(el('div', 'item__name', isToken ? 'HOODZ' : meta[0]));
+    left.appendChild(el('div', 'item__role', isToken ? 'The token itself, launched on PONS' : meta[1]));
+
+    var right = el('div', 'item__right');
+    right.appendChild(el('span', 'item__addr', address.slice(0, 8) + '…' + address.slice(-6)));
+    right.appendChild(el('span', 'item__go', '↗'));
+
+    a.appendChild(left);
+    a.appendChild(right);
+
+    var li = document.createElement('li');
+    li.appendChild(a);
+    return li;
+  }
+
+  fetch('assets/deployments.json?v=3', { headers: { accept: 'application/json' } })
+    .then(function (r) { return r.json(); })
+    .then(function (m) {
+      var base = (m.explorer || '').replace(/\/$/, '');
+      var list = document.getElementById('list');
+      list.innerHTML = '';
+
+      if (m.chainId) {
+        document.getElementById('chain').textContent =
+          (m.chainId === 4663 ? 'Robinhood Chain' : 'Chain ' + m.chainId) + ' · ' + m.chainId;
+      }
+
+      if (m.token) list.appendChild(row('token', m.token, base, true));
+
+      var n = 0;
+      Object.keys(m.contracts || {}).forEach(function (k) {
+        if (!m.contracts[k]) return;
+        list.appendChild(row(k, m.contracts[k], base, false));
+        n++;
+      });
+
+      if (!n && !m.token) {
+        list.innerHTML = '';
+        var li = document.createElement('li');
+        li.appendChild(el('div', 'empty', 'Nothing deployed yet.'));
+        list.appendChild(li);
+        return;
+      }
+
+      var pending = Object.keys(m.contracts || {}).length - n;
+      if (pending > 0) {
+        var note = document.getElementById('note');
+        note.textContent = pending + ' more contracts deploy once the HOODZ token exists on PONS. ' +
+                           'They depend on its address, so they cannot be deployed before it.';
+        note.hidden = false;
+      }
+    })
+    .catch(function (e) {
+      document.getElementById('list').innerHTML =
+        '<li><div class="empty">Could not load the contract list.</div></li>';
+      if (window.console) console.warn('[hoodz]', e.message);
+    });
+})();
+</script>
+</body>
+</html>
