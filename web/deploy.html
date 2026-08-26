@@ -56,6 +56,7 @@
   .btn:disabled{opacity:.35;cursor:not-allowed}
   .btn--ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
   .btn--gold{background:var(--gold);color:#141722}
+  .btn--waiting{opacity:.45}
 
   .pill{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:100vw;
         font-size:12px;font-weight:600;box-shadow:inset 0 0 0 1px var(--line);color:var(--dim)}
@@ -88,6 +89,14 @@
     box-shadow:inset 0 0 0 1px var(--line);white-space:pre-wrap;word-break:break-all;
   }
   #log{max-height:260px}
+  .status{
+    margin:0 0 16px;padding:12px 15px;border-radius:10px;font-size:13.5px;
+    background:rgba(248,204,130,.1);box-shadow:inset 0 0 0 1px rgba(248,204,130,.4);
+  }
+  .status:empty{display:none}
+  .status.ok{background:rgba(111,207,151,.1);box-shadow:inset 0 0 0 1px rgba(111,207,151,.4)}
+  .status.bad{background:rgba(224,122,106,.12);box-shadow:inset 0 0 0 1px rgba(224,122,106,.5)}
+  .status b{display:block;margin-bottom:3px}
   .muted{color:var(--dim);font-size:13px}
 </style>
 </head>
@@ -150,12 +159,13 @@
 <div class="panel">
   <h2>4 · Deploy</h2>
   <div class="row" style="margin-bottom:16px">
-    <button class="btn btn--ghost" id="preflight" disabled>Run pre-flight</button>
-    <button class="btn btn--gold" id="run" disabled>Deploy stack</button>
+    <button class="btn btn--ghost btn--waiting" id="preflight">Run pre-flight</button>
+    <button class="btn btn--gold btn--waiting" id="run">Deploy stack</button>
     <button class="btn btn--ghost" id="reset">Clear progress</button>
     <span class="pill" id="progress">0 / 0</span>
     <span class="pill" id="estimate">not estimated</span>
   </div>
+  <p id="status" class="status"></p>
   <table>
     <thead><tr><th style="width:30%">Contract</th><th style="width:46%">Address</th><th>Gas</th></tr></thead>
     <tbody id="rows"></tbody>
@@ -292,7 +302,7 @@
     });
     $('cfg').innerHTML = html;
     FIELDS.forEach(function (f) {
-      $('f_' + f[0]).addEventListener('change', saveCfg);
+      $('f_' + f[0]).addEventListener('input', function () { saveCfg(); refreshWallet(); });
     });
   }
 
@@ -350,6 +360,44 @@
   }
 
   /* ------------------------------------------------------------- wallet -- */
+  /**
+   * Everything standing between the current state and a deployment.
+   * A disabled button that does not say why is indistinguishable from a broken
+   * one, so this drives both the button state and a line the user can actually see.
+   */
+  function blockers() {
+    var b = [];
+    if (!window.ethereum) b.push('No wallet extension detected in this browser.');
+    else if (!account) b.push('Wallet not connected — press Connect wallet.');
+    if (!bundle) b.push('Bytecode bundle failed to load.');
+    if (account && !D.NETWORKS[chainId]) {
+      b.push('Connected to chain ' + chainId + '. Switch to Robinhood Chain.');
+    }
+    var h = document.getElementById('f_hoodz');
+    if (h && (!h.value.trim() || h.value.trim() === ZERO)) {
+      b.push('HOODZ token address is empty — launch on PONS first, then paste it into Parameters.');
+    }
+    try {
+      var sum = BigInt($('f_stakersBps').value || 0) + BigInt($('f_burnBps').value || 0) +
+                BigInt($('f_treasuryBps').value || 0);
+      if (sum !== 10000n) b.push('Fee split totals ' + sum + ' bps, it must total 10000.');
+    } catch (e) { b.push('Fee split values must be whole numbers.'); }
+    return b;
+  }
+
+  function renderStatus() {
+    var b = blockers();
+    var el = $('status');
+    if (!b.length) {
+      el.className = 'status ok';
+      el.innerHTML = '<b>Ready.</b> Run the pre-flight, then deploy.';
+      return true;
+    }
+    el.className = 'status bad';
+    el.innerHTML = '<b>Not ready yet</b>' + b.map(function (x) { return '· ' + x; }).join('<br>');
+    return false;
+  }
+
   function refreshWallet() {
     $('acct').textContent = account ? account.slice(0, 6) + '…' + account.slice(-4) : 'not connected';
     var isDev = account && account.toLowerCase() === D.DEV_WALLET;
@@ -361,9 +409,9 @@
     var net = chainId ? (D.NETWORKS[chainId] ? D.NETWORKS[chainId].chainName : 'chain ' + chainId) : 'no network';
     $('net').textContent = net;
     $('net').className = 'pill ' + (D.NETWORKS[chainId] ? 'ok' : (chainId ? 'bad' : ''));
-    var ready = !!(account && bundle && D.NETWORKS[chainId]);
-    $('run').disabled = !ready;
-    $('preflight').disabled = !ready;
+    var ready = renderStatus();
+    $('run').classList.toggle('btn--waiting', !ready);
+    $('preflight').classList.toggle('btn--waiting', !ready);
     document.title = (chainId === 4663 ? 'MAINNET · ' : '') + 'Deploy — Hoodz';
   }
 
@@ -433,6 +481,10 @@
    * reported as deferred rather than guessed at.
    */
   function preflight() {
+    if (!renderStatus()) {
+      $('status').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
     var cfg = readCfg(); saveCfg();
     var queue = plannedQueue(cfg);
     if (!queue.length) { log('pre-flight: nothing left to deploy'); return; }
@@ -467,22 +519,21 @@
             (deferred ? ' · ' + deferred + ' deferred until their dependencies exist' : '') +
             (failed ? ' · ' + failed + ' WOULD REVERT' : ''));
         if (failed) log('Fix the reverting constructors before deploying. They will fail the same way and still cost gas.');
-        $('preflight').disabled = false;
       });
-    }).catch(function (e) { log('pre-flight ERROR ' + e.message); $('preflight').disabled = false; });
+    }).catch(function (e) {
+      log('pre-flight ERROR ' + e.message);
+      $('status').className = 'status bad';
+      $('status').innerHTML = '<b>Pre-flight failed</b>· ' + e.message;
+    });
   }
 
   function run() {
     var cfg = readCfg();
     saveCfg();
 
-    if (cfg.hoodz === ZERO) {
-      log('ERROR HOODZ token address is required. Launch on PONS first.');
-      return;
-    }
-    var bps = BigInt(cfg.stakersBps) + BigInt(cfg.burnBps) + BigInt(cfg.treasuryBps);
-    if (bps !== 10000n) {
-      log('ERROR fee split must total 10000 bps, got ' + bps);
+    if (!renderStatus()) {
+      log('blocked: ' + blockers().join(' | '));
+      $('status').scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
 
@@ -498,11 +549,11 @@
       if (!ok) { log('mainnet deployment cancelled'); return; }
     }
 
-    $('run').disabled = true;
+    $('run').classList.add('btn--waiting');
     var queue = bundle.order.slice();
 
     function step() {
-      if (!queue.length) { $('run').disabled = false; log('done.'); return; }
+      if (!queue.length) { $('run').classList.remove('btn--waiting'); log('done.'); return; }
       var name = queue.shift();
 
       if (state.deployed[name]) { log('skip ' + name + ' (already deployed)'); return step(); }
@@ -540,7 +591,10 @@
         setRow(name, 'failed');
         log('FAILED ' + name + ' — ' + e.message);
         log('Progress is saved. Fix the cause and press Deploy again to resume.');
-        $('run').disabled = false;
+        $('status').className = 'status bad';
+        $('status').innerHTML = '<b>' + name + ' failed</b>· ' + e.message +
+          '<br>· Progress is saved. Fix the cause and press Deploy again to resume from here.';
+        $('run').classList.remove('btn--waiting');
       });
     }
     step();
@@ -557,6 +611,7 @@
     .catch(function (e) { log('ERROR could not load bytecode bundle — ' + e.message); });
 
   buildForm();
+  refreshWallet();
 
   $('connect').addEventListener('click', connect);
   $('switch').addEventListener('click', switchNetwork);
