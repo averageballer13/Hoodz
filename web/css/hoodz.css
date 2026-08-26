@@ -1163,6 +1163,10 @@ ul.docs-list { list-style: disc; }
 }
 .cta-prefooter { padding-bottom: 0; }
 
+/* The prefooter render is 689px wide at source. Cap the display so it is never
+   upscaled into mush; the surrounding container can still be wider. */
+.prefooter-art { width: min(760px, 80vw); margin: 0 auto; }
+
 /* ------------------------------------------------------------ 14. footer */
 .footer { background-color: var(--brand-black); color: var(--primary); }
 .footer__container {
