@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hoodz — Coming Soon</title>
+<meta name="description" content="A treasury-backed reserve currency for Robinhood Chain, launching on PONS. Coming soon.">
+<meta name="theme-color" content="#5f7581">
+
+<link rel="canonical" href="https://hoodz.finance/soon">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Hoodz">
+<meta property="og:url" content="https://hoodz.finance/soon">
+<meta property="og:title" content="Hoodz — Coming Soon">
+<meta property="og:description" content="A treasury-backed reserve currency for Robinhood Chain, launching on PONS.">
+<meta property="og:image" content="https://hoodz.finance/assets/img/banner.png">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" href="assets/img/favicon.svg?v=2" type="image/svg+xml">
+<link rel="icon" href="assets/img/favicon-32.png?v=2" sizes="32x32">
+<link rel="apple-touch-icon" href="assets/img/favicon-180.png?v=2">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap">
+<link rel="preload" as="image" href="assets/img/h-3d.webp?v=2">
+
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body,h1,p,figure{margin:0}
+  img{display:block;max-width:100%;height:auto}
+  button,input{font:inherit;color:inherit}
+  a{color:inherit;text-decoration:none}
+
+  :root{
+    --slate-1:#8296a3;
+    --slate-2:#708791;
+    --slate-3:#4e626e;
+    --marble:#f4f1ea;
+    --gold:#f8cc82;
+    --gold-deep:#c9a458;
+    --ink:#141722;
+    --ease:cubic-bezier(.19,1,.22,1);
+  }
+
+  body{
+    min-height:100svh;
+    display:flex;
+    flex-direction:column;
+    font-family:"Inter Tight","Helvetica Neue",Helvetica,Arial,sans-serif;
+    color:#fff;
+    background:
+      radial-gradient(58% 42% at 50% 22%, rgba(196,210,218,.42) 0%, rgba(196,210,218,0) 70%),
+      linear-gradient(170deg, var(--slate-1) 0%, var(--slate-2) 45%, var(--slate-3) 100%);
+    background-attachment:fixed;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* drifting marble coins, echoing the brand banner */
+  .field{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+  .field img{
+    position:absolute;
+    height:auto;
+    filter:drop-shadow(0 24px 34px rgba(11,18,25,.34));
+    will-change:transform;
+  }
+  .c1{width:132px;top:12%;left:7%;  animation:drift-a 19s ease-in-out infinite}
+  .c2{width:86px; top:26%;right:11%;animation:drift-b 23s ease-in-out infinite}
+  .c3{width:58px; top:64%;left:14%; animation:drift-c 17s ease-in-out infinite;opacity:.85}
+  .c4{width:110px;bottom:9%;right:16%;animation:drift-a 21s ease-in-out infinite reverse}
+  .c5{width:46px; top:46%;right:5%;  animation:drift-c 26s ease-in-out infinite;opacity:.7}
+
+  @keyframes drift-a{0%,100%{transform:translate3d(0,0,0) rotate(-6deg)}50%{transform:translate3d(0,-26px,0) rotate(6deg)}}
+  @keyframes drift-b{0%,100%{transform:translate3d(0,0,0) rotate(8deg)} 50%{transform:translate3d(-14px,20px,0) rotate(-6deg)}}
+  @keyframes drift-c{0%,100%{transform:translate3d(0,0,0) rotate(0)}    50%{transform:translate3d(10px,-18px,0) rotate(12deg)}}
+
+  main{
+    position:relative;z-index:1;
+    flex:1;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;
+    padding:40px 24px 20px;
+  }
+
+  /* the hero H */
+  .mark{
+    width:min(260px,44vw);
+    height:auto;
+    filter:drop-shadow(0 40px 56px rgba(11,18,25,.45));
+    animation:float 7s ease-in-out infinite;
+    will-change:transform;
+  }
+  @keyframes float{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-20px) rotate(1.5deg)}}
+
+  .wordmark{
+    margin-top:18px;
+    font-size:clamp(44px,8vw,84px);
+    font-weight:700;
+    letter-spacing:-.02em;
+    line-height:1;
+  }
+
+  .tagline{
+    margin-top:14px;
+    max-width:30ch;
+    font-size:clamp(15px,2.1vw,19px);
+    line-height:1.5;
+    color:#e2eaee;
+  }
+
+  .badge{
+    display:inline-flex;align-items:center;gap:10px;
+    margin-top:26px;
+    padding:14px 30px;
+    border-radius:100vw;
+    background:rgba(248,204,130,.14);
+    box-shadow:inset 0 0 0 1.5px rgba(248,204,130,.55);
+    color:var(--gold);
+    font-size:clamp(12px,1.6vw,14px);font-weight:700;
+    letter-spacing:.22em;text-transform:uppercase;
+  }
+  .dot{
+    width:8px;height:8px;border-radius:50%;background:var(--gold);
+    animation:pulse 2.4s var(--ease) infinite;
+  }
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(248,204,130,.6)}
+    70%{box-shadow:0 0 0 11px rgba(248,204,130,0)}
+    100%{box-shadow:0 0 0 0 rgba(248,204,130,0)}
+  }
+
+  .actions{
+    display:flex;flex-wrap:wrap;gap:12px;justify-content:center;
+    margin-top:24px;
+  }
+  .btn{
+    display:inline-flex;align-items:center;gap:9px;
+    padding:15px 30px;
+    border:0;border-radius:100vw;
+    font-size:14px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+    cursor:pointer;
+    transition:all .5s var(--ease);
+  }
+  .btn--primary{
+    background:var(--marble);color:var(--ink);
+    box-shadow:inset 0 0 0 2px var(--marble);
+  }
+  .btn--primary:hover{background:transparent;color:var(--marble)}
+  .btn--ghost{
+    background:transparent;color:#fff;
+    box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.42);
+  }
+  .btn--ghost:hover{background:rgba(255,255,255,.14);box-shadow:inset 0 0 0 1.5px #fff}
+  .btn[aria-disabled="true"]{opacity:.42;cursor:not-allowed}
+  .btn[aria-disabled="true"]:hover{background:transparent;color:#fff;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.42)}
+
+  /* notify */
+  .notify{
+    position:relative;
+    display:flex;align-items:center;
+    width:min(400px,100%);
+    margin-top:22px;
+  }
+  .notify input{
+    width:100%;height:56px;
+    padding:0 132px 0 24px;
+    border:0;border-radius:100vw;
+    background:rgba(255,255,255,.14);
+    box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.3);
+    color:#fff;font-size:15px;
+    transition:box-shadow .4s var(--ease),background .4s var(--ease);
+  }
+  .notify input::placeholder{color:rgba(255,255,255,.62)}
+  .notify input:focus{outline:0;background:rgba(255,255,255,.2);box-shadow:inset 0 0 0 1.5px rgba(248,204,130,.85)}
+  .notify button{
+    position:absolute;right:6px;
+    height:44px;padding:0 22px;
+    border:0;border-radius:100vw;
+    background:var(--marble);color:var(--ink);
+    font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+    cursor:pointer;transition:opacity .3s;
+  }
+  .notify button:hover{opacity:.84}
+  .notify-msg{margin-top:12px;font-size:13px;color:var(--gold);min-height:18px}
+
+  footer{
+    position:relative;z-index:1;
+    display:flex;flex-wrap:wrap;gap:14px 26px;
+    align-items:center;justify-content:space-between;
+    padding:22px clamp(20px,4vw,56px);
+    border-top:1px solid rgba(255,255,255,.16);
+    font-size:12.5px;color:rgba(255,255,255,.66);
+  }
+  .socials{display:flex;gap:10px}
+  .socials a{
+    display:flex;align-items:center;justify-content:center;
+    width:38px;height:38px;border-radius:50%;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.3);
+    transition:all .5s var(--ease);
+  }
+  .socials a:hover{background:#fff;color:var(--ink)}
+  .socials svg{width:16px;height:16px}
+  .meta{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center}
+  .meta b{color:rgba(255,255,255,.9);font-weight:600}
+
+  @media (max-width:600px){
+    .c1,.c3,.c5{display:none}
+    .notify input{padding-right:118px}
+    footer{justify-content:center;text-align:center}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation:none!important;transition-duration:.001ms!important}
+  }
+</style>
+</head>
+
+<body>
+
+<div class="field" aria-hidden="true">
+  <img class="c1" src="assets/img/coin-3d.webp?v=2" alt="" width="700" height="700" loading="eager" decoding="async">
+  <img class="c2" src="assets/img/coin-3d.webp?v=2" alt="" width="700" height="700" decoding="async">
+  <img class="c3" src="assets/img/coin-3d.webp?v=2" alt="" width="700" height="700" decoding="async">
+  <img class="c4" src="assets/img/coin-3d.webp?v=2" alt="" width="700" height="700" decoding="async">
+  <img class="c5" src="assets/img/coin-3d.webp?v=2" alt="" width="700" height="700" decoding="async">
+</div>
+
+<main>
+  <img class="mark" src="assets/img/h-3d.webp?v=2" alt="Hoodz" width="760" height="760" fetchpriority="high">
+
+  <h1 class="wordmark">HOODZ</h1>
+
+  <p class="tagline">A treasury-backed reserve currency for Robinhood&nbsp;Chain.</p>
+
+  <span class="badge"><span class="dot" aria-hidden="true"></span>Coming Soon</span>
+
+  <div class="actions">
+    <a class="btn btn--ghost" href="#" aria-disabled="true" title="Not live yet">Launch on PONS</a>
+    <a class="btn btn--ghost" href="#" aria-disabled="true" title="Not live yet">Enter App</a>
+  </div>
+
+  <form class="notify" id="notify" novalidate>
+    <label class="visually-hidden" for="email" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Email address</label>
+    <input id="email" type="email" placeholder="Get notified at launch" autocomplete="email" required>
+    <button type="submit">Notify me</button>
+  </form>
+  <p class="notify-msg" id="msg" role="status" aria-live="polite"></p>
+</main>
+
+<footer>
+  <div class="socials">
+    <a href="https://x.com/hoodzdao" target="_blank" rel="noopener" aria-label="Hoodz on X">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.9 2H22l-7 8 8.2 12h-6.4l-5-7.3L5.9 22H2.8l7.5-8.6L2.4 2h6.6l4.5 6.6zm-1.1 18h1.7L7.3 3.8H5.5z"/></svg>
+    </a>
+    <a href="https://github.com/averageballer13/Hoodz" target="_blank" rel="noopener" aria-label="Hoodz on GitHub">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-3.2 19.5c.5.1.7-.2.7-.5v-1.8c-2.8.6-3.4-1.3-3.4-1.3-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.6 1 1.6 1 .9 1.6 2.4 1.1 3 .9.1-.7.4-1.1.6-1.4-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.7 1a9.4 9.4 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.9-2.4 4.7-4.6 5 .4.3.7.9.7 1.9v2.8c0 .3.2.6.7.5A10 10 0 0 0 12 2z"/></svg>
+    </a>
+  </div>
+
+  <div class="meta">
+    <span>Launching on <b>PONS</b></span>
+    <span>·</span>
+    <span><b>Robinhood Chain</b> · 4663</span>
+    <span>·</span>
+    <span>hoodz.finance</span>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var form = document.getElementById('notify');
+    var msg = document.getElementById('msg');
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var v = document.getElementById('email').value.trim();
+      // No backend yet: store locally so nothing is silently thrown away, and say so.
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
+        msg.textContent = 'That email does not look right.';
+        return;
+      }
+      try { localStorage.setItem('hoodz.notify', v); } catch (err) {}
+      form.reset();
+      msg.textContent = 'Saved on this device. Mailing list is not live yet.';
+    });
+  })();
+</script>
+</body>
+</html>

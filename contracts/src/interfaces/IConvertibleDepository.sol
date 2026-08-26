@@ -2,6 +2,26 @@
 // UNAUDITED. Do not use in production without a full audit.
 pragma solidity ^0.8.24;
 
+/*
+        ██╗  ██╗ ██████╗  ██████╗ ██████╗ ███████╗
+        ██║  ██║██╔═══██╗██╔═══██╗██╔══██╗╚══███╔╝
+        ███████║██║   ██║██║   ██║██║  ██║  ███╔╝
+        ██╔══██║██║   ██║██║   ██║██║  ██║ ███╔╝
+        ██║  ██║╚██████╔╝╚██████╔╝██████╔╝███████╗
+        ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═════╝ ╚══════╝
+
+        A treasury-backed reserve currency for Robinhood Chain.
+        Fixed supply, launched on PONS. Staking is paid out of real
+        trading fees, never out of new supply - there is no mint.
+
+        Web    https://hoodz.finance
+        X      https://x.com/hoodzdao
+        Code   https://github.com/averageballer13/Hoodz
+
+        UNAUDITED. This code has never been audited. Read it before you
+        trust it with anything you would miss.
+*/
+
 /// @title  IConvertibleDepository
 /// @notice Interface of the Hoodz Convertible Deposit (CD) facility. A depositor locks
 ///         reserve tokens and receives a position that may be converted into HOODZ at a fixed

@@ -1,7 +1,25 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.24;
 
-/// @dev UNAUDITED. Do not use in production without a full audit.
+/*
+        ██╗  ██╗ ██████╗  ██████╗ ██████╗ ███████╗
+        ██║  ██║██╔═══██╗██╔═══██╗██╔══██╗╚══███╔╝
+        ███████║██║   ██║██║   ██║██║  ██║  ███╔╝
+        ██╔══██║██║   ██║██║   ██║██║  ██║ ███╔╝
+        ██║  ██║╚██████╔╝╚██████╔╝██████╔╝███████╗
+        ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═════╝ ╚══════╝
+
+        A treasury-backed reserve currency for Robinhood Chain.
+        Fixed supply, launched on PONS. Staking is paid out of real
+        trading fees, never out of new supply - there is no mint.
+
+        Web    https://hoodz.finance
+        X      https://x.com/hoodzdao
+        Code   https://github.com/averageballer13/Hoodz
+
+        UNAUDITED. This code has never been audited. Read it before you
+        trust it with anything you would miss.
+*/
 
 /// @notice Minimal mirror of the Uniswap v4 `PoolKey`.
 /// @dev The real v4 type wraps `currency0`/`currency1` in the `Currency` user-defined value type and

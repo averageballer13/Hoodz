@@ -253,6 +253,10 @@ p { max-width: 80ch; }
   align-items: center;
 }
 
+/* CTAs for surfaces that are not deployed yet. Dimmed and inert, rather than
+   linking somewhere that does not exist or looping back to this page. */
+.btn-pr.is-soon { opacity: .42; cursor: not-allowed; pointer-events: none; }
+
 /* text link with an animated underline */
 .link-underline {
   position: relative;
