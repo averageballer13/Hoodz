@@ -1,0 +1,24 @@
+{
+  "name": "@hoodz/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Hoodz Solidity contracts - Olympus-equivalent staking/treasury/bonding stack for Robinhood Chain, PONS-launched HOODZ token.",
+  "license": "AGPL-3.0-or-later",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "compile": "node compile.js",
+    "compile:quiet": "node compile.js --quiet",
+    "build": "node compile.js",
+    "clean": "node -e \"require('fs').rmSync('out',{recursive:true,force:true})\"",
+    "forge:build": "forge build",
+    "forge:test": "forge test -vvv",
+    "forge:fmt": "forge fmt",
+    "hardhat:compile": "hardhat compile"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.2",
+    "solc": "^0.8.26"
+  }
+}

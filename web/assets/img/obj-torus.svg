@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 480" role="img" aria-label="Torus">
+  <defs>
+    <linearGradient id="tOut" x1=".1" y1="0" x2=".9" y2="1">
+      <stop offset="0" stop-color="#fbf6ec"/><stop offset=".42" stop-color="#c9c9cf"/>
+      <stop offset=".72" stop-color="#798399"/><stop offset="1" stop-color="#3c4354"/>
+    </linearGradient>
+    <linearGradient id="tIn" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2c2e37"/><stop offset=".5" stop-color="#5d677d"/><stop offset="1" stop-color="#a6adbd"/>
+    </linearGradient>
+    <radialGradient id="tSpec" cx=".33" cy=".24" r=".42">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".85"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="tSh" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="22" stdDeviation="22" flood-color="#141722" flood-opacity=".3"/>
+    </filter>
+  </defs>
+  <g filter="url(#tSh)" transform="rotate(18 240 240)">
+    <ellipse cx="240" cy="240" rx="200" ry="132" fill="url(#tOut)"/>
+    <ellipse cx="240" cy="240" rx="104" ry="60" fill="url(#tIn)"/>
+    <ellipse cx="240" cy="228" rx="200" ry="132" fill="url(#tSpec)"/>
+    <ellipse cx="240" cy="240" rx="200" ry="132" fill="none" stroke="#fbf6ec" stroke-opacity=".45" stroke-width="2.5"/>
+    <ellipse cx="240" cy="240" rx="104" ry="60" fill="none" stroke="#141722" stroke-opacity=".35" stroke-width="2.5"/>
+  </g>
+</svg>

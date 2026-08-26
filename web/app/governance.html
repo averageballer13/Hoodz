@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Governance — Hoodz</title>
+<meta name="description" content="Hoodz governance: proposal states, For/Against/Abstain voting with gHOODZ, and vote delegation on Robinhood Chain.">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../css/hoodz.css">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body class="app-body" data-page="governance">
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="app-shell">
+
+  <aside class="rail" id="rail" data-open="false" aria-label="Hoodz app">
+    <a class="rail__brand" href="index.html" aria-label="Hoodz — dashboard">
+      <img src="../assets/img/logo-light.svg" alt="Hoodz" width="288" height="64">
+    </a>
+    <nav class="rail__nav" aria-label="Primary">
+      <a class="rail__link" href="index.html">
+        <svg class="rail__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Dashboard
+      </a>
+      <a class="rail__link" href="stake.html">
+        <svg class="rail__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v5c0 1.66 3.58 3 8 3s8-1.34 8-3V6"/><path d="M4 12v5c0 1.66 3.58 3 8 3s8-1.34 8-3v-5"/></svg>
+        Stake
+      </a>
+      <a class="rail__link" href="bond.html">
+        <svg class="rail__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.8v18.4"/><path d="M16.8 7.4c0-1.9-2.1-2.9-4.8-2.9s-4.8.9-4.8 2.8 2.3 2.5 4.8 3 5 1.2 5 3.1-2.3 3.2-5 3.2-4.8-1.1-4.8-3"/></svg>
+        Bond
+      </a>
+      <a class="rail__link" href="borrow.html">
+        <svg class="rail__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.2"/><circle cx="12" cy="12" r="3.2"/><path d="M12 8.8V6.4M12 17.6v-2.4"/></svg>
+        Borrow
+      </a>
+      <a class="rail__link" href="governance.html" aria-current="page">
+        <svg class="rail__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18"/><path d="M5 8h14"/><path d="M5 8 2.6 15h4.8L5 8Z"/><path d="M19 8l-2.4 7h4.8L19 8Z"/><path d="M8 21h8"/></svg>
+        Governance
+      </a>
+    </nav>
+    <div class="rail__foot">
+      <div class="rail__net">
+        <span class="chip__dot" aria-hidden="true"></span>
+        <span><b>Robinhood Chain</b><span>Chain ID 4663 · gas in ETH</span></span>
+      </div>
+      <p class="rail__ext">
+        <a class="link-underline" href="../index.html">Website</a>
+        <a class="link-underline" href="https://robinhoodchain.blockscout.com" rel="noopener noreferrer" target="_blank">Explorer</a>
+        <a class="link-underline" href="governance.html">Forum</a>
+      </p>
+    </div>
+  </aside>
+
+  <div class="rail-scrim" data-open="false"></div>
+
+  <div class="app-col">
+
+    <header class="topbar">
+      <button class="rail-toggle" type="button" data-rail-toggle aria-expanded="false" aria-controls="rail">
+        <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
+        <span class="visually-hidden">Open navigation</span>
+      </button>
+      <div class="topbar__titles">
+        <span class="topbar__eyebrow">Hoodz</span>
+        <h1 class="topbar__title">Governance</h1>
+      </div>
+      <div class="topbar__spacer"></div>
+      <div class="topbar__actions">
+        <span class="chip chip--net" data-wallet-status>
+          <span class="chip__dot is-off" aria-hidden="true"></span>
+          <span data-wallet-status-text>Wallet disconnected</span>
+        </span>
+        <a class="btn-pr dark btn-sm" href="#" data-connect role="button">
+          <span class="btn-text-cont">
+            <span class="btn-text-ghost" data-wallet-label aria-hidden="true">Connect Wallet</span>
+            <span class="btn-text" data-wallet-label>Connect Wallet</span>
+          </span>
+        </a>
+      </div>
+    </header>
+
+    <p class="mock-banner">
+      <strong>Mock data</strong>
+      <span>Proposals, tallies and delegation are simulated. Only the wallet connection touches Robinhood Chain.</span>
+    </p>
+
+    <main class="app-main" id="main">
+
+      <div class="page-head">
+        <div>
+          <h2 class="metric__value">gHOODZ votes. One token, one vote.</h2>
+          <p class="muted">Every parameter of the protocol — emissions, bond capacity, the Hoodz Loans
+            oLTC, treasury allocations — moves through this queue. Proposals that pass sit in the
+            timelock before anyone can execute them.</p>
+        </div>
+      </div>
+
+      <section class="grid cols-4" aria-label="Governance summary">
+        <article class="app-card">
+          <div class="metric">
+            <span class="metric__label">Your voting power</span>
+            <span class="metric__value sm"><span data-bind="votingPower">6.4218</span> gHOODZ</span>
+            <span class="metric__sub">Delegated to <span data-bind="delegateLabel">Not delegated</span></span>
+          </div>
+        </article>
+        <article class="app-card">
+          <div class="metric">
+            <span class="metric__label">Quorum</span>
+            <span class="metric__value sm">8,000 gHOODZ</span>
+            <span class="metric__sub">≈ 4% of the gHOODZ supply</span>
+          </div>
+        </article>
+        <article class="app-card">
+          <div class="metric">
+            <span class="metric__label">Voting period</span>
+            <span class="metric__value sm">7 days</span>
+            <span class="metric__sub">1-day delay before voting opens</span>
+          </div>
+        </article>
+        <article class="app-card">
+          <div class="metric">
+            <span class="metric__label">Timelock</span>
+            <span class="metric__value sm">48 hours</span>
+            <span class="metric__sub">Between queue and execution</span>
+          </div>
+        </article>
+      </section>
+
+      <!-- --------------------------------------------------- delegation -->
+      <section class="app-card" aria-labelledby="delegate-title">
+        <div class="card-head">
+          <h3 class="card-title" id="delegate-title">Delegation</h3>
+          <span class="metric__sub">Voting power is inactive until it is delegated — to yourself or someone else.</span>
+        </div>
+
+        <div class="grid split" style="align-items:start">
+          <form class="stack gap-16" id="delegate-form" novalidate>
+            <div class="field">
+              <label class="field__label" for="delegate-address">
+                <span>Delegate to</span>
+                <span class="field__hint">Any address that should vote on your behalf</span>
+              </label>
+              <input class="input-line addr" id="delegate-address" name="delegate" type="text"
+                     autocomplete="off" spellcheck="false" placeholder="0x…"
+                     pattern="0x[a-fA-F0-9]{40}">
+            </div>
+            <div class="btn-row">
+              <button class="btn-pr dark btn-sm" type="submit">
+                <span class="btn-text-cont">
+                  <span class="btn-text-ghost" aria-hidden="true">Delegate</span>
+                  <span class="btn-text">Delegate</span>
+                </span>
+              </button>
+              <button class="btn-ghost" type="button" id="delegate-self">Self-delegate</button>
+            </div>
+          </form>
+
+          <dl class="kv">
+            <div class="kv__row"><dt>Connected wallet</dt><dd class="addr" data-bind="walletLabel">Not connected</dd></div>
+            <div class="kv__row"><dt>Current delegate</dt><dd class="addr" data-bind="delegateLabel">Not delegated</dd></div>
+            <div class="kv__row"><dt>gHOODZ balance</dt><dd><span data-bind="walletGHoodz">6.4218</span></dd></div>
+            <div class="kv__row is-total"><dt>Votes</dt><dd class="kv__v"><span data-bind="votingPower">6.4218</span></dd></div>
+          </dl>
+        </div>
+
+        <hr class="hairline" style="margin:1.4vw 0">
+        <p class="notice">
+          <span class="notice__mark" aria-hidden="true">i</span>
+          <span><b>sHOODZ does not vote.</b> Rebasing balances cannot be checkpointed, so governance
+            weight lives in gHOODZ. Wrap on the <a class="link-underline" href="stake.html">stake page</a>
+            to make your stake countable — the underlying HOODZ keeps compounding either way.</span>
+        </p>
+      </section>
+
+      <!-- ---------------------------------------------------- proposals -->
+      <section aria-labelledby="proposals-title">
+        <div class="app-card" style="margin-bottom:1.4vw">
+          <div class="card-head" style="margin-bottom:0">
+            <h3 class="card-title" id="proposals-title">
+              Proposals <span class="muted-soft">(<span data-proposal-count>6</span>)</span>
+            </h3>
+          </div>
+          <hr class="hairline" style="margin:1.1vw 0">
+          <div class="seg filter-row" id="proposal-filters" data-seg role="group" aria-label="Filter proposals by state">
+            <button type="button" data-value="all" aria-pressed="true">All</button>
+            <button type="button" data-value="pending" aria-pressed="false">Pending</button>
+            <button type="button" data-value="active" aria-pressed="false">Active</button>
+            <button type="button" data-value="succeeded" aria-pressed="false">Succeeded</button>
+            <button type="button" data-value="queued" aria-pressed="false">Queued</button>
+            <button type="button" data-value="executed" aria-pressed="false">Executed</button>
+            <button type="button" data-value="defeated" aria-pressed="false">Defeated</button>
+          </div>
+        </div>
+
+        <div class="stack gap-24" id="proposal-list">
+
+          <!-- HIP-15 · Pending -->
+          <article class="app-card proposal" data-proposal-state="pending">
+            <div>
+              <div class="proposal__head">
+                <span class="pill pill--pending">Pending</span>
+                <span class="proposal__id">HIP-15</span>
+              </div>
+              <h4 class="proposal__title">Route 5% of PONS pool fees into buyback-and-burn</h4>
+              <p class="proposal__body">Points the FeeRouterBuyback contract at the graduated
+                HOODZ-USDC v4 pool and sets the protocol fee share to 5%. Bought HOODZ is burned, not
+                held.</p>
+              <p class="proposal__meta">
+                <span>Proposed by 0x8a41…c2d9</span>
+                <span>Voting opens in <span class="countdown" data-countdown-in="79200">22h 00m 00s</span></span>
+              </p>
+            </div>
+            <div class="stack gap-16">
+              <div class="vote">
+                <div class="vote__row">
+                  <span class="vote__meta"><span>For</span><b>0.00 gHOODZ · 0%</b></span>
+                  <span class="vote__track"><span class="vote__fill for" data-fill="0" role="img" aria-label="For: 0 percent"></span></span>
+                </div>
+                <div class="vote__row">
+                  <span class="vote__meta"><span>Against</span><b>0.00 gHOODZ · 0%</b></span>
+                  <span class="vote__track"><span class="vote__fill against" data-fill="0" role="img" aria-label="Against: 0 percent"></span></span>
+                </div>
+                <div class="vote__row">
+                  <span class="vote__meta"><span>Abstain</span><b>0.00 gHOODZ · 0%</b></span>
+                  <span class="vote__track"><span class="vote__fill abstain" data-fill="0" role="img" aria-label="Abstain: 0 percent"></span></span>
+                </div>
+              </div>
+              <p class="quorum">Quorum 0 / 8,000 gHOODZ — voting has not started.</p>
+              <div class="action-row">
+                <button class="btn-ghost is-quiet" type="button" disabled aria-disabled="true">For</button>
+                <button class="btn-ghost is-quiet" type="button" disabled aria-disabled="true">Against</button>
+                <button class="btn-ghost is-quiet" type="button" disabled aria-disabled="true">Abstain</button>
+              </div>
+            </div>
+          </article>
+
+          <!-- HIP-14 · Active -->
+          <article class="app-card proposal" data-proposal-state="active">
+            <div>
+              <div class="proposal__head">
+                <span class="pill pill--active">Active</span>
+                <span class="proposal__id">HIP-14</span>
+              </div>
+              <h4 class="proposal__title">Switch on the Yield Repurchase Facility</h4>
+              <p class="proposal__body">Spends treasury yield on open-market HOODZ whenever the market
+                price sits below liquid backing. Weekly budget capped at 15% of realised yield.</p>
+              <p class="proposal__meta">
+                <span>Proposed by 0x1f77…9ab3</span>
+                <span>Voting ends in <span class="countdown" data-countdown-in="270000" data-countdown-style="long">3d 3h</span></span>
+              </p>
+            </div>
+            <div class="stack gap-16">
+              <div class="vote">
+                <div class="vote__row">
+                  <span class="vote__meta"><span>For</span><b>6,812.44 gHOODZ · 81.73%</b></span>
+                  <span class="vote__track"><span class="vote__fill for" data-fill="0.8173" role="img" aria-label="For: 81.73 percent"></span></span>
+                </div>
+                <div class="vote__row">
+                  <span class="vote__meta"><span>Against</span><b>1,204.09 gHOODZ · 14.45%</b></span>
+                  <span class="vote__track"><span class="vote__fill against" data-fill="0.1445" role="img" aria-label="Against: 14.45 percent"></span></span>
+                </div>
+                <div class="vote__row">
+                  <span class="vote__meta"><span>Abstain</span><b>318.72 gHOODZ · 3.82%</b></span>
+                  <span class="vote__track"><span class="vote__fill abstain" data-fill="0.0382" role="img" aria-label="Abstain: 3.82 percent"></span></span>
+                </div>
+              </div>
+              <p class="quorum">Quorum 8,335 / 8,000 gHOODZ — met.</p>
+              <div class="action-row">
+                <button class="btn-ghost" type="button" data-vote="For" data-proposal="HIP-14">For</button>
+                <button class="btn-ghost" type="button" data-vote="Against" data-proposal="HIP-14">Against</button>
+                <button class="btn-ghost is-quiet" type="button" data-vote="Abstain" data-proposal="HIP-14">Abstain</button>
+              </div>
+            </div>
+          </article>
+
+          <!-- HIP-13 · Succeeded -->
+          <article class="app-card proposal" data-proposal-state="succeeded">
+            <div>
+              <div class="proposal__head">
+                <span class="pill pill--succeeded">Succeeded</span>
+                <span class="proposal__id">HIP-13</span>
+              </div>
+              <h4 class="proposal__title">Raise the Hoodz Loans clearinghouse capacity to 12M reserve</h4>
+              <p class="proposal__body">Funds the Clearinghouse with a further 4M USDC and leaves the
+                oLTC untouched. Ready to be queued into the timelock.</p>
+              <p class="proposal__meta">
+                <span>Proposed by 0x64bc…10f2</span>
+                <span>Voting closed 2 days ago</span>
+              </p>
+            </div>
+            <div class="stack gap-16">
+              <div class="vote">
+                <div class="vote__row">
+                  <span class="vote__meta"><span>For</span><b>11,204.88 gHOODZ · 95.74%</b></span>
+                  <span class="vote__track"><span class="vote__fill for" data-fill="0.9574" role="img" aria-label="For: 95.74 percent"></span></span>
+                </div>
+                <div class="vote__row">
+                  <span class="vote__meta"><span>Against</span><b>402.11 gHOODZ · 3.44%</b></span>
+                  <span class="vote__track"><span class="vote__fill against" data-fill="0.0344" role="img" aria-label="Against: 3.44 percent"></span></span>
+                </div>
+                <div class="vote__row">
+                  <span class="vote__meta"><span>Abstain</span><b>96.40 gHOODZ · 0.82%</b></span>
+                  <span class="vote__track"><span class="vote__fill abstain" data-fill="0.0082" role="img" aria-label="Abstain: 0.82 percent"></span></span>
+                </div>
+              </div>
+              <p class="quorum">Quorum 11,703 / 8,000 gHOODZ — met.</p>
+              <div class="action-row">
+                <button class="btn-ghost" type="button" data-mock-action="Queued for execution"
+                        data-mock-note="HIP-13 entered the 48-hour timelock — mock data, nothing was signed."
+                        data-mock-kind="ok">Queue</button>
+              </div>
+            </div>
+          </article>
+
+          <!-- HIP-12 · Queued -->
+          <article class="app-card proposal" data-proposal-state="queued">
+            <div>
+              <div class="proposal__head">
+                <span class="pill pill--queued">Queued</span>
+                <span class="proposal__id">HIP-12</span>
+              </div>
+              <h4 class="proposal__title">Add wstETH as a bond quote token</h4>
+              <p class="proposal__body">Whitelists wstETH in the Treasury and opens a 750k capacity
+                market on the depository with a 5-day term.</p>
+              <p class="proposal__meta">
+                <span>Proposed by 0x1f77…9ab3</span>
+                <span>Executable in <span class="countdown" data-countdown-in="118800" data-countdown-style="long">33h 00m</span></span>
+              </p>
+            </div>
+            <div class="stack gap-16">
+              <div class="vote">
+                <div class="vote__row">
+                  <span class="vote__meta"><span>For</span><b>9,441.02 gHOODZ · 81.66%</b></span>
+                  <span class="vote__track"><span class="vote__fill for" data-fill="0.8166" role="img" aria-label="For: 81.66 percent"></span></span>
+                </div>
+                <div class="vote__row">
+                  <span class="vote__meta"><span>Against</span><b>1,880.33 gHOODZ · 16.26%</b></span>
+                  <span class="vote__track"><span class="vote__fill against" data-fill="0.1626" role="img" aria-label="Against: 16.26 percent"></span></span>
+                </div>
+                <div class="vote__row">
+                  <span class="vote__meta"><span>Abstain</span><b>240.55 gHOODZ · 2.08%</b></span>
+                  <span class="vote__track"><span class="vote__fill abstain" data-fill="0.0208" role="img" aria-label="Abstain: 2.08 percent"></span></span>
+                </div>
+              </div>
+              <p class="quorum">Quorum 11,562 / 8,000 gHOODZ — met.</p>
+              <div class="action-row">
+                <button class="btn-ghost is-quiet" type="button" disabled aria-disabled="true"
+                        title="Still inside the 48-hour timelock">Execute</button>
+              </div>
+            </div>
+          </article>
+
+          <!-- HIP-11 · Executed -->
+          <article class="app-card proposal" data-proposal-state="executed">
+            <div>
+              <div class="proposal__head">
+                <span class="pill pill--executed">Executed</span>
+                <span class="proposal__id">HIP-11</span>
+              </div>
+              <h4 class="proposal__title">Set the Emissions Manager base rate to 0.0021%</h4>
+              <p class="proposal__body">Trims per-epoch emissions after three consecutive months of
+                backing growth. Took effect at epoch 4,712.</p>
+              <p class="proposal__meta">
+                <span>Proposed by 0x64bc…10f2</span>
+                <span>Executed 14 days ago</span>
+              </p>
+            </div>
+            <div class="stack gap-16">
+              <div class="vote">
+                <div class="vote__row">
+                  <span class="vote__meta"><span>For</span><b>14,320.77 gHOODZ · 95.98%</b></span>
+                  <span class="vote__track"><span class="vote__fill for" data-fill="0.9598" role="img" aria-label="For: 95.98 percent"></span></span>
+                </div>
+                <div class="vote__row">
+                  <span class="vote__meta"><span>Against</span><b>88.15 gHOODZ · 0.59%</b></span>
+                  <span class="vote__track"><span class="vote__fill against" data-fill="0.0059" role="img" aria-label="Against: 0.59 percent"></span></span>
+                </div>
+                <div class="vote__row">
+                  <span class="vote__meta"><span>Abstain</span><b>512.30 gHOODZ · 3.43%</b></span>
+                  <span class="vote__track"><span class="vote__fill abstain" data-fill="0.0343" role="img" aria-label="Abstain: 3.43 percent"></span></span>
+                </div>
+              </div>
+              <p class="quorum">Quorum 14,921 / 8,000 gHOODZ — met.</p>
+              <div class="action-row">
+                <a class="btn-ghost is-quiet" href="https://robinhoodchain.blockscout.com" rel="noopener noreferrer" target="_blank">View transaction</a>
+              </div>
+            </div>
+          </article>
+
+          <!-- HIP-10 · Defeated -->
+          <article class="app-card proposal" data-proposal-state="defeated">
+            <div>
+              <div class="proposal__head">
+                <span class="pill pill--defeated">Defeated</span>
+                <span class="proposal__id">HIP-10</span>
+              </div>
+              <h4 class="proposal__title">Migrate treasury allocations to the v2 allocator</h4>
+              <p class="proposal__body">Would have moved 9M of reserves into an external yield
+                strategy. Rejected over custody risk during the PONS graduation window.</p>
+              <p class="proposal__meta">
+                <span>Proposed by 0xc0de…4471</span>
+                <span>Defeated 26 days ago</span>
+              </p>
+            </div>
+            <div class="stack gap-16">
+              <div class="vote">
+                <div class="vote__row">
+                  <span class="vote__meta"><span>For</span><b>2,113.60 gHOODZ · 19.14%</b></span>
+                  <span class="vote__track"><span class="vote__fill for" data-fill="0.1914" role="img" aria-label="For: 19.14 percent"></span></span>
+                </div>
+                <div class="vote__row">
+                  <span class="vote__meta"><span>Against</span><b>7,904.28 gHOODZ · 71.60%</b></span>
+                  <span class="vote__track"><span class="vote__fill against" data-fill="0.716" role="img" aria-label="Against: 71.60 percent"></span></span>
+                </div>
+                <div class="vote__row">
+                  <span class="vote__meta"><span>Abstain</span><b>1,022.14 gHOODZ · 9.26%</b></span>
+                  <span class="vote__track"><span class="vote__fill abstain" data-fill="0.0926" role="img" aria-label="Abstain: 9.26 percent"></span></span>
+                </div>
+              </div>
+              <p class="quorum">Quorum 11,040 / 8,000 gHOODZ — met, but Against carried the vote.</p>
+              <div class="action-row">
+                <a class="btn-ghost is-quiet" href="https://robinhoodchain.blockscout.com" rel="noopener noreferrer" target="_blank">View transaction</a>
+              </div>
+            </div>
+          </article>
+
+        </div>
+
+        <p class="app-card is-flat t-align-center muted" id="proposal-empty" hidden>
+          No proposals in that state yet.
+        </p>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<div class="toast-stack" role="status" aria-live="polite"></div>
+
+<script src="js/abi.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

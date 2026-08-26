@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 460" role="img" aria-label="Accessible backing">
+  <defs>
+    <linearGradient id="abVault" x1=".1" y1="0" x2=".9" y2="1">
+      <stop offset="0" stop-color="#4a5468"/><stop offset=".5" stop-color="#2c3241"/><stop offset="1" stop-color="#161b26"/>
+    </linearGradient>
+    <linearGradient id="abGold" x1=".2" y1="0" x2=".8" y2="1">
+      <stop offset="0" stop-color="#ffe9bd"/><stop offset=".5" stop-color="#f8cc82"/><stop offset="1" stop-color="#a0853e"/>
+    </linearGradient>
+    <linearGradient id="abEdge" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c9a458"/><stop offset="1" stop-color="#6d5722"/>
+    </linearGradient>
+    <radialGradient id="abGlow" cx=".5" cy=".45" r=".55">
+      <stop offset="0" stop-color="#f8cc82" stop-opacity=".34"/><stop offset="1" stop-color="#f8cc82" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="abSh" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="#000" flood-opacity=".4"/>
+    </filter>
+  </defs>
+  <ellipse cx="300" cy="230" rx="280" ry="200" fill="url(#abGlow)"/>
+  <g filter="url(#abSh)">
+    <rect x="132" y="86" width="336" height="288" rx="40" fill="url(#abVault)"/>
+    <rect x="152" y="106" width="296" height="248" rx="28" fill="none" stroke="#798399" stroke-opacity=".45" stroke-width="2"/>
+    <circle cx="300" cy="230" r="86" fill="#10141d"/>
+    <circle cx="300" cy="230" r="86" fill="none" stroke="url(#abEdge)" stroke-width="7"/>
+    <circle cx="300" cy="230" r="58" fill="none" stroke="#798399" stroke-opacity=".5" stroke-width="3"/>
+    <g stroke="url(#abGold)" stroke-width="9" stroke-linecap="round">
+      <path d="M300 230 300 178"/><path d="M300 230 344 258"/>
+    </g>
+    <circle cx="300" cy="230" r="13" fill="url(#abGold)"/>
+    <g fill="url(#abGold)" opacity=".9">
+      <circle cx="300" cy="130" r="5"/><circle cx="300" cy="330" r="5"/>
+      <circle cx="200" cy="230" r="5"/><circle cx="400" cy="230" r="5"/>
+    </g>
+  </g>
+  <g filter="url(#abSh)">
+    <ellipse cx="118" cy="376" rx="72" ry="26" fill="url(#abEdge)"/>
+    <ellipse cx="118" cy="364" rx="72" ry="26" fill="url(#abGold)"/>
+    <ellipse cx="118" cy="344" rx="72" ry="26" fill="url(#abEdge)"/>
+    <ellipse cx="118" cy="334" rx="72" ry="26" fill="url(#abGold)"/>
+    <ellipse cx="482" cy="380" rx="62" ry="22" fill="url(#abEdge)"/>
+    <ellipse cx="482" cy="370" rx="62" ry="22" fill="url(#abGold)"/>
+  </g>
+  <path d="M198 364h56" stroke="#f8cc82" stroke-opacity=".35" stroke-width="2" stroke-dasharray="5 7"/>
+</svg>

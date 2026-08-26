@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Transparency — Hoodz</title>
+<meta name="description" content="Quarterly reports, policy reports, governance records and live dashboards for the Hoodz treasury on Robinhood Chain.">
+<meta name="theme-color" content="#efe9e0">
+<link rel="canonical" href="https://hoodz.finance/transparency">
+<meta property="og:url" content="https://hoodz.finance/transparency">
+<meta property="og:site_name" content="Hoodz">
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700&display=swap">
+<link rel="stylesheet" href="css/hoodz.css">
+<script>document.documentElement.classList.add('js');</script>
+</head>
+
+<body class="page-transparency">
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="navigation-bar" role="banner" id="navbar">
+  <div class="nav__horizontal-container">
+    <a href="index.html" class="nav__brand" aria-label="Hoodz home">
+      <img src="assets/img/logo.svg" alt="Hoodz" class="nav__brand__icon" width="288" height="64">
+    </a>
+    <div class="nav__links-wrp">
+      <nav class="nav__menu" id="nav-menu" data-open="false" aria-label="Main">
+        <div class="nav__menu__container">
+          <a href="https://github.com/averageballer13/Hoodz/blob/main/docs/SECURITY.md" rel="noopener" class="nav__link nav-bar__link">Security</a>
+          <a href="docs.html" class="nav__link nav-bar__link">Docs</a>
+          <a href="transparency.html" class="nav__link nav-bar__link" aria-current="page">Transparency</a>
+          <div class="nav-bar__dd">
+            <button class="nav-bar__dd__toggle nav__link nav-bar__link" aria-expanded="false" aria-haspopup="true">
+              Governance <span class="nav-bar__dd__caret" aria-hidden="true"></span>
+            </button>
+            <div class="nav-bar__dd__list">
+              <div class="nav-bar__dd__links-wrp">
+                <a href="app/governance.html" class="nav__link nav-bar__link dd">Vote</a>
+                <a href="#forum" class="nav__link nav-bar__link dd">Forum</a>
+                <a href="#delegate" class="nav__link nav-bar__link dd">Delegate</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+      <button class="nav__menu-btn" id="nav-burger" aria-label="Open menu" aria-expanded="false" aria-controls="nav-menu">
+        <span class="nav__burger"><span></span><span></span><span></span></span>
+      </button>
+      <a href="app/index.html" class="btn-pr">
+        <span class="btn-text-cont">
+          <span class="btn-text-ghost" aria-hidden="true">Enter App</span>
+          <span class="btn-text">Enter App</span>
+        </span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<main id="main">
+
+<!-- ══════════════════════════════════════════════ HERO + METRICS ═══════ -->
+<div class="s-hero transparency-hero">
+  <div class="vertical-container">
+    <div class="horizontal-container">
+      <div class="transparency-hero__grid">
+        <div>
+          <div class="mar-bot-32"><h1>Transparency</h1></div>
+          <p class="max-width-80ch">Everything the protocol does happens on-chain, and everything the
+            DAO decides is written down. Below are the quarterly reports, the monetary policy
+            reports, the governance record and the live dashboards for the Hoodz treasury.</p>
+        </div>
+        <div class="transparency-metrics">
+          <div class="transparency-metric">
+            <div class="t-24 mar-bot-8">Holders</div>
+            <div class="t-80" data-count-to="18420" data-count-format="int">0</div>
+          </div>
+          <div class="transparency-metric">
+            <div class="t-24 mar-bot-8">gHOODZ votes cast (HIP-12)</div>
+            <div class="t-80" data-count-to="94743" data-count-format="int">0</div>
+          </div>
+          <div class="transparency-metric">
+            <div class="t-24 mar-bot-8">Participants (HIP-12)</div>
+            <div class="t-80" data-count-to="357" data-count-format="int">0</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ TABS ════════════ -->
+<div class="s-transparency">
+  <div class="vertical-container">
+    <div class="horizontal-container">
+
+      <div class="tabs" data-tabs>
+        <div class="tabs__list" role="tablist" aria-label="Transparency sections">
+          <button class="tabs__tab" role="tab" aria-selected="true"  aria-controls="tab-reports"    id="t-reports">Reports</button>
+          <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-policy"     id="t-policy">Policy reports</button>
+          <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-governance" id="t-governance">Governance</button>
+          <button class="tabs__tab" role="tab" aria-selected="false" aria-controls="tab-dashboards" id="t-dashboards">Dashboards</button>
+        </div>
+
+        <!-- Reports -->
+        <div class="tabs__panel" id="tab-reports" role="tabpanel" aria-labelledby="t-reports">
+          <div class="report-grid">
+            <article class="report-card c-card__anm _w-border slide-in">
+              <div class="report-card__date">26 August 2026</div>
+              <h3 class="report-card__title">Genesis Report — Launch on PONS</h3>
+              <p class="report-card__body">Curve distribution, graduation metrics, the locked v4
+                position, and the initial treasury composition at handover.</p>
+              <span class="link-underline">Read report</span>
+            </article>
+            <article class="report-card c-card__anm _w-border slide-in">
+              <div class="report-card__date">Scheduled — Q4 2026</div>
+              <h3 class="report-card__title">Q4 2026 Treasury Report</h3>
+              <p class="report-card__body">Reserve composition, backing per HOODZ, emissions issued,
+                bonds sold and loans outstanding for the quarter.</p>
+              <span class="link-underline">Coming soon</span>
+            </article>
+            <article class="report-card c-card__anm _w-border slide-in">
+              <div class="report-card__date">Scheduled — Q1 2027</div>
+              <h3 class="report-card__title">Q1 2027 Treasury Report</h3>
+              <p class="report-card__body">Quarter-over-quarter change in liquid backing, POL depth
+                and the realised cost of emissions.</p>
+              <span class="link-underline">Coming soon</span>
+            </article>
+          </div>
+        </div>
+
+        <!-- Policy -->
+        <div class="tabs__panel" id="tab-policy" role="tabpanel" aria-labelledby="t-policy" hidden>
+          <div class="report-grid">
+            <article class="report-card c-card__anm _w-border slide-in">
+              <div class="report-card__date">Monthly</div>
+              <h3 class="report-card__title">Emissions Manager beat log</h3>
+              <p class="report-card__body">Every daily beat: premium observed, emission sized,
+                bond market opened, and the resulting change in backing.</p>
+              <span class="link-underline">View log</span>
+            </article>
+            <article class="report-card c-card__anm _w-border slide-in">
+              <div class="report-card__date">Weekly</div>
+              <h3 class="report-card__title">Yield Repurchase Facility</h3>
+              <p class="report-card__body">Yield harvested on reserves and the HOODZ repurchased with
+                it, epoch by epoch.</p>
+              <span class="link-underline">View log</span>
+            </article>
+            <article class="report-card c-card__anm _w-border slide-in">
+              <div class="report-card__date">Per launch</div>
+              <h3 class="report-card__title">Convertible Deposit terms</h3>
+              <p class="report-card__body">Strike, expiry, size and conversion outcome for every
+                convertible deposit facility the DAO has opened.</p>
+              <span class="link-underline">View terms</span>
+            </article>
+          </div>
+        </div>
+
+        <!-- Governance -->
+        <div class="tabs__panel" id="tab-governance" role="tabpanel" aria-labelledby="t-governance" hidden>
+          <div class="gov-flow">
+            <ol class="gov-steps">
+              <li class="gov-step"><span class="gov-step__no">01</span>
+                <h3>Forum discussion</h3>
+                <p>Any holder posts a Hoodz Improvement Proposal (HIP) for open discussion.</p></li>
+              <li class="gov-step"><span class="gov-step__no">02</span>
+                <h3>Temperature check</h3>
+                <p>An off-chain signal vote establishes whether the idea has support before code is written.</p></li>
+              <li class="gov-step"><span class="gov-step__no">03</span>
+                <h3>On-chain proposal</h3>
+                <p>gHOODZ holders above the 1,000 gHOODZ threshold submit the executable calldata.</p></li>
+              <li class="gov-step"><span class="gov-step__no">04</span>
+                <h3>Vote &amp; timelock</h3>
+                <p>Five days of voting at a 4% quorum, then a two-day timelock before execution.</p></li>
+            </ol>
+            <div class="gov-links">
+              <a href="app/governance.html" class="btn-pr alt">
+                <span class="btn-text-cont">
+                  <span class="btn-text-ghost" aria-hidden="true">View proposals</span>
+                  <span class="btn-text">View proposals</span>
+                </span>
+              </a>
+              <a href="#forum" class="btn-pr alt">
+                <span class="btn-text-cont">
+                  <span class="btn-text-ghost" aria-hidden="true">Open the forum</span>
+                  <span class="btn-text">Open the forum</span>
+                </span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dashboards -->
+        <div class="tabs__panel" id="tab-dashboards" role="tabpanel" aria-labelledby="t-dashboards" hidden>
+          <div class="report-grid">
+            <a class="report-card c-card__anm _w-border slide-in" href="app/index.html">
+              <div class="report-card__date">Live</div>
+              <h3 class="report-card__title">Treasury dashboard</h3>
+              <p class="report-card__body">Reserve balances, market value, liquid backing per HOODZ
+                and runway, refreshed every block.</p>
+              <span class="link-underline">Open dashboard</span>
+            </a>
+            <a class="report-card c-card__anm _w-border slide-in" href="app/borrow.html">
+              <div class="report-card__date">Live</div>
+              <h3 class="report-card__title">Hoodz Loans metrics</h3>
+              <p class="report-card__body">Principal outstanding, collateral escrowed, interest
+                accrued and the current oLTC.</p>
+              <span class="link-underline">Open dashboard</span>
+            </a>
+            <a class="report-card c-card__anm _w-border slide-in" href="https://robinhoodchain.blockscout.com" rel="noopener">
+              <div class="report-card__date">Explorer</div>
+              <h3 class="report-card__title">On-chain contracts</h3>
+              <p class="report-card__body">Every deployed and verified Hoodz contract on the
+                Robinhood Chain Blockscout explorer.</p>
+              <span class="link-underline">Open explorer</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Related links -->
+  <div class="vertical-container">
+    <div class="horizontal-container">
+      <div class="mar-bot-40"><h2 class="slide-in">Related links</h2></div>
+      <div class="related-grid">
+        <a class="related-card c-card__anm _w-border slide-in" href="app/bond.html"><span>Bonding</span></a>
+        <a class="related-card c-card__anm _w-border slide-in" href="docs.html"><span>Docs</span></a>
+        <a class="related-card c-card__anm _w-border slide-in" href="#forum"><span>Forum</span></a>
+        <a class="related-card c-card__anm _w-border slide-in" href="app/governance.html"><span>Proposals</span></a>
+        <a class="related-card c-card__anm _w-border slide-in" href="app/stake.html"><span>Staking</span></a>
+        <a class="related-card c-card__anm _w-border slide-in" href="index.html#pons"><span>PONS launch</span></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="s-cta-prefooter">
+  <div class="vertical-container cta-prefooter">
+    <div class="horizontal-container">
+      <div class="vertical-center">
+        <div class="mar-bot-40"><div class="max-width-550">
+          <div class="slide-in"><h2 class="t-align-center">Be smart, use HOODZ</h2></div>
+        </div></div>
+        <div class="mar-bot-58"><div class="slide-in">
+          <a href="app/index.html" class="btn-pr dark">
+            <span class="btn-text-cont">
+              <span class="btn-text-ghost" aria-hidden="true">Enter Hoodz</span>
+              <span class="btn-text">Enter Hoodz</span>
+            </span>
+          </a>
+        </div></div>
+        <div class="max-width-1300"><div class="slide-in">
+          <img src="assets/img/art-prefooter.svg" alt="" loading="lazy">
+        </div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<footer class="footer">
+  <div class="vertical-container">
+    <div class="horizontal-container">
+      <div class="footer__container">
+        <div>
+          <div class="mar-bot-32">
+            <img src="assets/img/logo-light.svg" alt="Hoodz" class="footer__brand-icon" width="288" height="64">
+          </div>
+          <p class="t-16 mar-bot-32" style="opacity:.62;max-width:38ch;">
+            A treasury-backed, liquidity-enabling reserve currency for Robinhood Chain.
+          </p>
+          <div class="footer__social-links__wrp">
+            <a class="footer__social__icon" href="#x" aria-label="Hoodz on X">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.9 2H22l-7 8 8.2 12h-6.4l-5-7.3L5.9 22H2.8l7.5-8.6L2.4 2h6.6l4.5 6.6zm-1.1 18h1.7L7.3 3.8H5.5z"/></svg>
+            </a>
+            <a class="footer__social__icon" href="#github" aria-label="Hoodz on GitHub">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-3.2 19.5c.5.1.7-.2.7-.5v-1.8c-2.8.6-3.4-1.3-3.4-1.3-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.6 1 1.6 1 .9 1.6 2.4 1.1 3 .9.1-.7.4-1.1.6-1.4-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.7 1a9.4 9.4 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.9-2.4 4.7-4.6 5 .4.3.7.9.7 1.9v2.8c0 .3.2.6.7.5A10 10 0 0 0 12 2z"/></svg>
+            </a>
+          </div>
+        </div>
+        <div>
+          <div class="footer__col-title">Protocol</div>
+          <nav class="footer__links" aria-label="Protocol">
+            <a href="app/index.html">Dashboard</a>
+            <a href="app/stake.html">Stake</a>
+            <a href="app/bond.html">Bond</a>
+            <a href="app/borrow.html">Hoodz Loans</a>
+          </nav>
+        </div>
+        <div>
+          <div class="footer__col-title">Governance</div>
+          <nav class="footer__links" aria-label="Governance">
+            <a href="app/governance.html">Proposals</a>
+            <a href="#delegate">Delegation</a>
+            <a href="#forum">Forum</a>
+          </nav>
+        </div>
+        <div>
+          <div class="footer__col-title">Resources</div>
+          <nav class="footer__links" aria-label="Resources">
+            <a href="docs.html">Documentation</a>
+            <a href="index.html#pons">PONS launch</a>
+            <a href="https://robinhoodchain.blockscout.com" rel="noopener">Block explorer</a>
+          </nav>
+        </div>
+      </div>
+      <div class="footer__legal">
+        <span>© 2026 Hoodz. Unaudited software — use at your own risk.</span>
+        <span>Robinhood Chain · Chain ID 4663 · Launched on PONS</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="js/hoodz.js" defer></script>
+</body>
+</html>

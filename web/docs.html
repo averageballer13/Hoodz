@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Docs — Hoodz</title>
+<meta name="description" content="How the Hoodz protocol works: HOODZ, sHOODZ, gHOODZ, staking, bonds, Hoodz Loans, automated monetary policy, governance and the PONS launch.">
+<meta name="theme-color" content="#141722">
+<link rel="canonical" href="https://hoodz.finance/docs">
+<meta property="og:url" content="https://hoodz.finance/docs">
+<meta property="og:site_name" content="Hoodz">
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700&display=swap">
+<link rel="stylesheet" href="css/hoodz.css">
+<script>document.documentElement.classList.add('js');</script>
+</head>
+
+<body class="page-docs">
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="navigation-bar is-dark" role="banner" id="navbar">
+  <div class="nav__horizontal-container">
+    <a href="index.html" class="nav__brand" aria-label="Hoodz home">
+      <img src="assets/img/logo-light.svg" alt="Hoodz" class="nav__brand__icon" width="288" height="64">
+    </a>
+    <div class="nav__links-wrp">
+      <nav class="nav__menu" id="nav-menu" data-open="false" aria-label="Main">
+        <div class="nav__menu__container">
+          <a href="https://github.com/averageballer13/Hoodz/blob/main/docs/SECURITY.md" rel="noopener" class="nav__link nav-bar__link">Security</a>
+          <a href="docs.html" class="nav__link nav-bar__link" aria-current="page">Docs</a>
+          <a href="transparency.html" class="nav__link nav-bar__link">Transparency</a>
+          <div class="nav-bar__dd">
+            <button class="nav-bar__dd__toggle nav__link nav-bar__link" aria-expanded="false" aria-haspopup="true">
+              Governance <span class="nav-bar__dd__caret" aria-hidden="true"></span>
+            </button>
+            <div class="nav-bar__dd__list">
+              <div class="nav-bar__dd__links-wrp">
+                <a href="app/governance.html" class="nav__link nav-bar__link dd">Vote</a>
+                <a href="#governance" class="nav__link nav-bar__link dd">Process</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+      <button class="nav__menu-btn" id="nav-burger" aria-label="Open menu" aria-expanded="false" aria-controls="nav-menu">
+        <span class="nav__burger"><span></span><span></span><span></span></span>
+      </button>
+      <a href="app/index.html" class="btn-pr dark">
+        <span class="btn-text-cont">
+          <span class="btn-text-ghost" aria-hidden="true">Enter App</span>
+          <span class="btn-text">Enter App</span>
+        </span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<main id="main">
+<div class="s-docs">
+  <div class="vertical-container">
+    <div class="horizontal-container">
+
+      <div class="docs-hero">
+        <h1 class="mar-bot-24">Documentation</h1>
+        <p class="max-width-80ch">Hoodz is an Olympus-equivalent reserve protocol. HOODZ is backed by
+          assets the DAO owns, staking distributes the growth in those assets, bonds and emissions
+          expand supply only when the market pays a premium over backing, and Hoodz Loans let you
+          borrow against the reserves without a liquidation risk.</p>
+      </div>
+
+      <div class="docs-layout">
+        <aside class="docs-toc" aria-label="On this page">
+          <div class="docs-toc__inner">
+            <div class="footer__col-title">On this page</div>
+            <nav class="docs-toc__links">
+              <a href="#overview">Overview</a>
+              <a href="#tokens">The three tokens</a>
+              <a href="#staking">Staking &amp; rebases</a>
+              <a href="#treasury">Treasury &amp; backing</a>
+              <a href="#bonds">Bond markets</a>
+              <a href="#loans">Hoodz Loans</a>
+              <a href="#policy">Monetary policy</a>
+              <a href="#governance">Governance</a>
+              <a href="#pons-launch">The PONS launch</a>
+              <a href="#contracts">Contracts</a>
+              <a href="#risks">Risks</a>
+            </nav>
+            <div class="docs-toc__foot">
+              <a class="link-underline" href="https://github.com/averageballer13/Hoodz/blob/main/docs/PROTOCOL.md" rel="noopener">Full protocol spec</a>
+              <a class="link-underline" href="https://github.com/averageballer13/Hoodz/blob/main/docs/PONS_LAUNCH.md" rel="noopener">Launch runbook</a>
+              <a class="link-underline" href="https://github.com/averageballer13/Hoodz/blob/main/docs/SECURITY.md" rel="noopener">Security notes</a>
+            </div>
+          </div>
+        </aside>
+
+        <article class="docs-body">
+
+          <section id="overview">
+            <h2>Overview</h2>
+            <p>Every HOODZ in circulation is supported by reserves held in the Hoodz treasury. The
+              protocol never promises a peg. What it defends is <em>backing</em>: the reserve value
+              attributable to each token. Policy expands supply only when the market pays more than
+              backing, and buys HOODZ back when it pays less.</p>
+            <div class="docs-callout">
+              <strong>The loop in one sentence.</strong> Bonds and emissions sell HOODZ for reserves at
+              a premium → reserves grow faster than supply → backing per HOODZ rises → stakers receive
+              the difference as a rebase.
+            </div>
+          </section>
+
+          <section id="tokens">
+            <h2>The three tokens</h2>
+            <div class="docs-table-wrap">
+              <table class="docs-table">
+                <thead><tr><th>Token</th><th>Decimals</th><th>Behaviour</th><th>Used for</th></tr></thead>
+                <tbody>
+                  <tr><td><code>HOODZ</code></td><td>9</td><td>Fixed balance</td>
+                      <td>The reserve currency. Trades, bonds, treasury accounting.</td></tr>
+                  <tr><td><code>sHOODZ</code></td><td>9</td><td>Rebasing</td>
+                      <td>Staked HOODZ. Balance grows every epoch; price tracks HOODZ 1:1.</td></tr>
+                  <tr><td><code>gHOODZ</code></td><td>18</td><td>Fixed balance, rising index</td>
+                      <td>Wrapped sHOODZ. Governance voting power, loan collateral, bond vesting unit.</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p>gHOODZ is sHOODZ with the rebase folded into an index instead of the balance:
+              <code>gHOODZ = sHOODZ × 1e9 / index</code>. That makes it safe to use inside contracts
+              that would otherwise be confused by a balance that changes underneath them.</p>
+          </section>
+
+          <section id="staking">
+            <h2>Staking &amp; rebases</h2>
+            <p>Staking locks HOODZ in the staking contract and mints sHOODZ 1:1. Once per epoch the
+              staking contract calls <code>rebase()</code>, which:</p>
+            <ol class="docs-list">
+              <li>asks the Distributor to mint the epoch's reward into the staking contract;</li>
+              <li>computes <code>distribute = contractBalance − circulatingStaked</code>;</li>
+              <li>calls <code>sHOODZ.rebase(distribute, epochNumber)</code>, which raises total supply
+                  and re-prices every gon;</li>
+              <li>advances <code>epoch.end</code> and <code>epoch.number</code>.</li>
+            </ol>
+            <p>New stakes pass through a warmup so that a deposit landing one second before a rebase
+              cannot capture a full epoch of rewards.</p>
+            <h3 class="docs-h3">The reward rate, and where the APY comes from</h3>
+            <p>The Distributor mints a fixed percentage of supply every epoch. Because an epoch is 8
+              hours, that percentage compounds <strong>1,095 times a year</strong> — which is the only
+              reason the headline numbers look the way they do.</p>
+            <div class="docs-table-wrap">
+              <table class="docs-table">
+                <thead><tr><th>Supply band</th><th>Rate (1e6)</th><th>Per epoch</th><th>APY</th></tr></thead>
+                <tbody>
+                  <tr><td>Bootstrap (2021 launch rate)</td><td><code>5750</code></td><td>0.5750%</td><td>53,184%</td></tr>
+                  <tr><td>&lt; 1M HOODZ <em>(default)</em></td><td><code>3058</code></td><td>0.3058%</td><td>2,732%</td></tr>
+                  <tr><td>1M – 10M</td><td><code>1587</code></td><td>0.1587%</td><td>468%</td></tr>
+                  <tr><td>10M – 100M</td><td><code>1186</code></td><td>0.1186%</td><td>266%</td></tr>
+                  <tr><td>100M – 1B</td><td><code>793</code></td><td>0.0793%</td><td>138%</td></tr>
+                  <tr><td>1B – 10B</td><td><code>397</code></td><td>0.0397%</td><td>54%</td></tr>
+                  <tr><td>&gt; 10B</td><td><code>198</code></td><td>0.0198%</td><td>24%</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p>This is Olympus's OIP-18 framework: the rate steps down as supply grows, so early
+              stakers are paid most and the emission slows as the protocol matures.</p>
+            <div class="docs-callout docs-callout--warn">
+              <strong>Read this before you get excited about the APY.</strong> That yield is paid in
+              <em>newly minted HOODZ</em>, not in revenue. Your share of the supply only grows if you
+              stake; in value terms you gain nothing unless the treasury grows faster than the supply.
+              The money that funds it comes from bond buyers — people paying above backing for
+              discounted HOODZ. When bond demand stops, the premium collapses and the price falls
+              toward backing. That is exactly what happened to OHM in early 2022, and it is why
+              Olympus itself has since taken this rate to 0%. Hoodz ships the 2021 model on purpose,
+              but the rate is a governance parameter: <code>HOODZ_REWARD_RATE=0</code> switches it off.
+            </div>
+          </section>
+
+          <section id="treasury">
+            <h2>Treasury &amp; backing</h2>
+            <p>The treasury is the only contract allowed to mint HOODZ, and it only does so against
+              value received. <code>deposit(amount, token, profit)</code> takes in a reserve asset,
+              values it in 9-decimal HOODZ terms, and mints <code>value − profit</code>; the
+              <code>profit</code> slice is what accrues to backing.</p>
+            <p>Excess reserves — the buffer available for policy and loans — is
+              <code>totalReserves − (baseSupply − totalDebt)</code>. Every privileged role
+              (depositor, spender, manager, debtor, reward manager) is registered behind a
+              queue with a block timelock.</p>
+          </section>
+
+          <section id="bonds">
+            <h2>Bond markets</h2>
+            <p>A bond market sells HOODZ at a discount in exchange for a reserve asset, vesting over a
+              fixed term. Price is driven by a control variable that decays with time and is retuned
+              toward a target debt level, so the discount widens when demand is weak and narrows when
+              it is strong.</p>
+            <p>Payouts are recorded as notes denominated in gHOODZ, so a bonder keeps earning the
+              staking rebase while their bond vests.</p>
+          </section>
+
+          <section id="loans">
+            <h2>Hoodz Loans</h2>
+            <p>Hoodz Loans let a holder escrow gHOODZ and borrow the reserve asset against the liquid
+              backing underneath it.</p>
+            <div class="docs-table-wrap">
+              <table class="docs-table">
+                <tbody>
+                  <tr><th>Interest</th><td>0.5% fixed, annualised — <code>principal × rate × duration / 365d / 1e18</code></td></tr>
+                  <tr><th>Liquidations</th><td>None. Price cannot force a close.</td></tr>
+                  <tr><th>Term</th><td>121 days, rollable indefinitely</td></tr>
+                  <tr><th>Collateral</th><td>gHOODZ, held in a per-borrower escrow contract</td></tr>
+                  <tr><th>oLTC</th><td>Origination loan-to-collateral, dripping upward as backing grows</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p>If a loan expires unpaid, the lender claims the escrowed gHOODZ. That is the only
+              way a position closes against the borrower's will — and it depends on time, never
+              on price.</p>
+          </section>
+
+          <section id="policy">
+            <h2>Automated monetary policy</h2>
+            <h3 class="docs-h3">Emissions Manager</h3>
+            <p>Once a day the manager measures the premium of market price over backing. If the
+              premium clears a floor, it mints and sells:</p>
+            <pre class="docs-code">premium  = price / backing − 1
+emission = supply × (premium − minimumPremium) / (1 + premium) × baseEmissionRate</pre>
+            <p>Below the floor it emits nothing, so supply never expands into weakness.</p>
+            <h3 class="docs-h3">Yield Repurchase Facility</h3>
+            <p>Reserves earn yield. Each week the YRF opens a market that spends that yield buying
+              HOODZ back, which raises backing per token for everyone who did not sell.</p>
+            <h3 class="docs-h3">Convertible Deposits</h3>
+            <p>Depositors hand over reserves for a right to convert into HOODZ at a strike before an
+              expiry. If they do not convert, the reserves come back. The DAO gets a cheap option on
+              permanent capital; the depositor gets upside without dilution risk.</p>
+          </section>
+
+          <section id="governance">
+            <h2>Governance</h2>
+            <p>gHOODZ is an <code>ERC20Votes</code> token, so voting power is checkpointed and
+              delegable. Proposals run through an OpenZeppelin Governor into a
+              <code>TimelockController</code>.</p>
+            <div class="docs-table-wrap">
+              <table class="docs-table">
+                <tbody>
+                  <tr><th>Proposal threshold</th><td>1,000 gHOODZ</td></tr>
+                  <tr><th>Voting delay</th><td>43,200 blocks (~1 day)</td></tr>
+                  <tr><th>Voting period</th><td>216,000 blocks (~5 days)</td></tr>
+                  <tr><th>Quorum</th><td>4% of gHOODZ supply</td></tr>
+                  <tr><th>Timelock</th><td>2 days before execution</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section id="pons-launch">
+            <h2>The PONS launch</h2>
+            <p>HOODZ was distributed through PONS, the non-custodial launchpad native to Robinhood
+              Chain. Under the V2 model every token starts on a bonding curve rather than an instant
+              liquidity pool, and graduation migrates the curve reserves into a permanently locked
+              Uniswap&nbsp;v4 position.</p>
+            <p>The protocol cannot mint a single HOODZ until that has demonstrably happened.
+              <code>HoodzLaunchGuard</code> holds the vault role and will only hand it to the treasury
+              when all three conditions hold simultaneously:</p>
+            <ol class="docs-list">
+              <li><code>IPonsLaunchpad.isGraduated(HOODZ)</code> is true;</li>
+              <li>the graduated LP position is verified locked with no unlock path;</li>
+              <li>a governor-signed <code>arm()</code> happened at least 48 hours earlier.</li>
+            </ol>
+            <p>The guardian can <code>abort()</code> during that window, which resets the clock. The
+              release is one-way and one-shot, and the treasury address is immutable — governance
+              chooses <em>when</em>, never <em>where</em>.</p>
+            <p>The protocol's share of PONS trading fees flows into <code>FeeRouterBuyback</code>,
+              which buys HOODZ on the graduated pool and burns it.</p>
+          </section>
+
+          <section id="contracts">
+            <h2>Contracts</h2>
+            <div class="docs-table-wrap">
+              <table class="docs-table">
+                <thead><tr><th>Network</th><th>Chain ID</th><th>RPC</th><th>Explorer</th></tr></thead>
+                <tbody>
+                  <tr><td>Robinhood Chain</td><td><code>4663</code></td>
+                      <td><code>rpc.mainnet.chain.robinhood.com</code></td>
+                      <td><code>robinhoodchain.blockscout.com</code></td></tr>
+                  <tr><td>Robinhood Testnet</td><td><code>46630</code></td>
+                      <td><code>rpc.testnet.chain.robinhood.com</code></td>
+                      <td><code>testnet.robinhoodchain.blockscout.com</code></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p>Gas is paid in ETH. Deployed addresses are written to
+              <code>contracts/deployments/&lt;chainid&gt;.json</code> by the deploy script and
+              mirrored in the app's <code>ADDRESSES</code> map.</p>
+          </section>
+
+          <section id="risks">
+            <h2>Risks</h2>
+            <div class="docs-callout docs-callout--warn">
+              <strong>This code is unaudited.</strong> It is a faithful re-implementation of a
+              well-known protocol, not a fork of audited bytecode. Do not deploy it with real value
+              until it has been through a full audit.
+            </div>
+            <ul class="docs-list">
+              <li><strong>Price risk.</strong> HOODZ is not a stablecoin. Backing sets a floor in
+                theory, not a guarantee in practice.</li>
+              <li><strong>Dilution.</strong> Emissions increase supply. If the premium assumption is
+                wrong, stakers are paid in tokens rather than value.</li>
+              <li><strong>Oracle risk.</strong> The Emissions Manager reads a price feed. A stale or
+                manipulated feed mis-sizes emissions.</li>
+              <li><strong>Governance risk.</strong> A sufficiently large gHOODZ holder can pass a
+                proposal. The timelock is the only delay between a decision and its execution.</li>
+              <li><strong>Launch risk.</strong> A bonding-curve distribution is open to anyone,
+                including a well-capitalised buyer taking a large share of the curve.</li>
+            </ul>
+          </section>
+
+        </article>
+      </div>
+
+    </div>
+  </div>
+</div>
+</main>
+
+<footer class="footer">
+  <div class="vertical-container">
+    <div class="horizontal-container">
+      <div class="footer__container">
+        <div>
+          <div class="mar-bot-32">
+            <img src="assets/img/logo-light.svg" alt="Hoodz" class="footer__brand-icon" width="288" height="64">
+          </div>
+          <p class="t-16" style="opacity:.62;max-width:38ch;">
+            A treasury-backed, liquidity-enabling reserve currency for Robinhood Chain.
+          </p>
+        </div>
+        <div>
+          <div class="footer__col-title">Protocol</div>
+          <nav class="footer__links" aria-label="Protocol">
+            <a href="app/index.html">Dashboard</a>
+            <a href="app/stake.html">Stake</a>
+            <a href="app/bond.html">Bond</a>
+            <a href="app/borrow.html">Hoodz Loans</a>
+          </nav>
+        </div>
+        <div>
+          <div class="footer__col-title">Docs</div>
+          <nav class="footer__links" aria-label="Docs">
+            <a href="https://github.com/averageballer13/Hoodz/blob/main/docs/PROTOCOL.md" rel="noopener">Protocol spec</a>
+            <a href="https://github.com/averageballer13/Hoodz/blob/main/docs/TOKENOMICS.md" rel="noopener">Tokenomics</a>
+            <a href="https://github.com/averageballer13/Hoodz/blob/main/docs/DEPLOYMENT.md" rel="noopener">Deployment</a>
+            <a href="https://github.com/averageballer13/Hoodz/blob/main/docs/SECURITY.md" rel="noopener">Security</a>
+          </nav>
+        </div>
+        <div>
+          <div class="footer__col-title">Resources</div>
+          <nav class="footer__links" aria-label="Resources">
+            <a href="index.html">Home</a>
+            <a href="transparency.html">Transparency</a>
+            <a href="https://robinhoodchain.blockscout.com" rel="noopener">Block explorer</a>
+          </nav>
+        </div>
+      </div>
+      <div class="footer__legal">
+        <span>© 2026 Hoodz. Unaudited software — use at your own risk.</span>
+        <span>Robinhood Chain · Chain ID 4663 · Launched on PONS</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="js/hoodz.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Borrow — Hoodz</title>
+<meta name="description" content="Hoodz Loans: borrow reserve against gHOODZ collateral at a fixed 0.5% with no liquidations, on Robinhood Chain.">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../css/hoodz.css">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body class="app-body" data-page="borrow">
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="app-shell">
+
+  <aside class="rail" id="rail" data-open="false" aria-label="Hoodz app">
+    <a class="rail__brand" href="index.html" aria-label="Hoodz — dashboard">
+      <img src="../assets/img/logo-light.svg" alt="Hoodz" width="288" height="64">
+    </a>
+    <nav class="rail__nav" aria-label="Primary">
+      <a class="rail__link" href="index.html">
+        <svg class="rail__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Dashboard
+      </a>
+      <a class="rail__link" href="stake.html">
+        <svg class="rail__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v5c0 1.66 3.58 3 8 3s8-1.34 8-3V6"/><path d="M4 12v5c0 1.66 3.58 3 8 3s8-1.34 8-3v-5"/></svg>
+        Stake
+      </a>
+      <a class="rail__link" href="bond.html">
+        <svg class="rail__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.8v18.4"/><path d="M16.8 7.4c0-1.9-2.1-2.9-4.8-2.9s-4.8.9-4.8 2.8 2.3 2.5 4.8 3 5 1.2 5 3.1-2.3 3.2-5 3.2-4.8-1.1-4.8-3"/></svg>
+        Bond
+      </a>
+      <a class="rail__link" href="borrow.html" aria-current="page">
+        <svg class="rail__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.2"/><circle cx="12" cy="12" r="3.2"/><path d="M12 8.8V6.4M12 17.6v-2.4"/></svg>
+        Borrow
+      </a>
+      <a class="rail__link" href="governance.html">
+        <svg class="rail__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18"/><path d="M5 8h14"/><path d="M5 8 2.6 15h4.8L5 8Z"/><path d="M19 8l-2.4 7h4.8L19 8Z"/><path d="M8 21h8"/></svg>
+        Governance
+      </a>
+    </nav>
+    <div class="rail__foot">
+      <div class="rail__net">
+        <span class="chip__dot" aria-hidden="true"></span>
+        <span><b>Robinhood Chain</b><span>Chain ID 4663 · gas in ETH</span></span>
+      </div>
+      <p class="rail__ext">
+        <a class="link-underline" href="../index.html">Website</a>
+        <a class="link-underline" href="https://robinhoodchain.blockscout.com" rel="noopener noreferrer" target="_blank">Explorer</a>
+        <a class="link-underline" href="governance.html">Forum</a>
+      </p>
+    </div>
+  </aside>
+
+  <div class="rail-scrim" data-open="false"></div>
+
+  <div class="app-col">
+
+    <header class="topbar">
+      <button class="rail-toggle" type="button" data-rail-toggle aria-expanded="false" aria-controls="rail">
+        <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
+        <span class="visually-hidden">Open navigation</span>
+      </button>
+      <div class="topbar__titles">
+        <span class="topbar__eyebrow">Hoodz</span>
+        <h1 class="topbar__title">Hoodz Loans</h1>
+      </div>
+      <div class="topbar__spacer"></div>
+      <div class="topbar__actions">
+        <span class="chip chip--net" data-wallet-status>
+          <span class="chip__dot is-off" aria-hidden="true"></span>
+          <span data-wallet-status-text>Wallet disconnected</span>
+        </span>
+        <a class="btn-pr dark btn-sm" href="#" data-connect role="button">
+          <span class="btn-text-cont">
+            <span class="btn-text-ghost" data-wallet-label aria-hidden="true">Connect Wallet</span>
+            <span class="btn-text" data-wallet-label>Connect Wallet</span>
+          </span>
+        </a>
+      </div>
+    </header>
+
+    <p class="mock-banner">
+      <strong>Mock data</strong>
+      <span>Loans, terms and balances are simulated. Only the wallet connection touches Robinhood Chain.</span>
+    </p>
+
+    <main class="app-main" id="main">
+
+      <div class="page-head">
+        <div>
+          <h2 class="metric__value">Borrow against gHOODZ. Never get liquidated.</h2>
+          <p class="muted">The Clearinghouse lends treasury reserve against gHOODZ at a fixed rate for a
+            fixed term. There is no oracle, no health factor and no liquidation engine — if a loan is
+            never repaid, the Treasury simply keeps the collateral it already holds.</p>
+        </div>
+      </div>
+
+      <!-- ------------------------------------------------------- terms -->
+      <section class="grid cols-4" aria-label="Loan terms">
+        <article class="app-card">
+          <div class="metric">
+            <span class="metric__label">
+              oLTC
+              <span class="info" tabindex="0" role="img"
+                    title="Loan-to-collateral: reserve lent per gHOODZ, set by governance below liquid backing."
+                    aria-label="Loan-to-collateral: reserve lent per gHOODZ, set by governance below liquid backing.">i</span>
+            </span>
+            <span class="metric__value"><span data-bind="oltc">2,894.12</span></span>
+            <span class="metric__sub"><span data-bind="reserveSymbol">USDC</span> per gHOODZ</span>
+          </div>
+        </article>
+        <article class="app-card">
+          <div class="metric">
+            <span class="metric__label">Interest rate</span>
+            <span class="metric__value" data-bind="loanRate">0.50%</span>
+            <span class="metric__sub">Fixed for the whole term, no accrual surprises</span>
+          </div>
+        </article>
+        <article class="app-card">
+          <div class="metric">
+            <span class="metric__label">Term</span>
+            <span class="metric__value" data-bind="loanDuration">121 days</span>
+            <span class="metric__sub">Roll forward any time before expiry</span>
+          </div>
+        </article>
+        <article class="app-card">
+          <div class="metric">
+            <span class="metric__label">Liquidations</span>
+            <span class="metric__value">None</span>
+            <span class="metric__sub">Default costs you the collateral, nothing else</span>
+          </div>
+        </article>
+      </section>
+
+      <section class="grid split" aria-label="Open a loan">
+
+        <!-- ------------------------------------------------ borrow form -->
+        <article class="app-card pad-lg">
+          <div class="card-head">
+            <h3 class="card-title">New loan</h3>
+            <span class="metric__sub">Collateral is escrowed in your own Cooler</span>
+          </div>
+
+          <form class="stack gap-24" id="borrow-form" novalidate>
+
+            <div class="field">
+              <label class="field__label" for="borrow-collateral">
+                <span>Collateral</span>
+                <span class="field__hint">Available <span data-bind="walletGHoodz">6.4218</span> gHOODZ</span>
+              </label>
+              <div class="input-pill">
+                <input id="borrow-collateral" name="collateral" type="text" inputmode="decimal"
+                       autocomplete="off" spellcheck="false" placeholder="0.0000"
+                       aria-describedby="borrow-collateral-usd">
+                <span class="input-pill__unit">gHOODZ</span>
+                <button class="btn-max" type="button" id="borrow-max">Max</button>
+              </div>
+              <p class="field__hint" id="borrow-collateral-usd">≈ <span data-borrow-collateral-usd>$0.00</span> at the current index</p>
+              <p class="notice is-gold" data-borrow-overdraft hidden>
+                <span class="notice__mark" aria-hidden="true">!</span>
+                <span>That is more gHOODZ than this demo wallet holds.</span>
+              </p>
+            </div>
+
+            <dl class="kv">
+              <div class="kv__row"><dt>You receive</dt><dd><span data-borrow-principal>0.00 USDC</span></dd></div>
+              <div class="kv__row"><dt>Interest owed</dt><dd><span data-borrow-interest>0.00 USDC</span></dd></div>
+              <div class="kv__row"><dt>Expiry</dt><dd><span data-borrow-expiry>—</span></dd></div>
+              <div class="kv__row is-total"><dt>Repay by expiry</dt><dd class="kv__v"><span data-borrow-total>0.00 USDC</span></dd></div>
+            </dl>
+
+            <button class="btn-pr dark btn-block" type="submit" id="borrow-submit">
+              <span class="btn-text-cont">
+                <span class="btn-text-ghost" aria-hidden="true">Borrow</span>
+                <span class="btn-text">Borrow</span>
+              </span>
+            </button>
+
+            <p class="notice">
+              <span class="notice__mark" aria-hidden="true">i</span>
+              <span><b>Rolling.</b> At any point before expiry you can roll a loan into a fresh term.
+                If governance has raised the oLTC since you borrowed, the roll pays out the difference;
+                if it has fallen, you top up the gap. Interest for the new term is charged up front.</span>
+            </p>
+          </form>
+        </article>
+
+        <!-- ---------------------------------------------------- sidebar -->
+        <div class="stack gap-24">
+          <article class="app-card">
+            <div class="card-head"><h3 class="card-title">Your position</h3></div>
+            <dl class="kv">
+              <div class="kv__row"><dt>gHOODZ available</dt><dd><span data-bind="walletGHoodz">6.4218</span></dd></div>
+              <div class="kv__row"><dt>Collateral escrowed</dt><dd><span data-bind="loanCollateral">7.7500</span> gHOODZ</dd></div>
+              <div class="kv__row"><dt>Open loans</dt><dd data-bind="openLoans">3</dd></div>
+              <div class="kv__row"><dt>Max new borrow</dt><dd><span data-bind="maxBorrow">18,585.45</span> <span data-bind="reserveSymbol">USDC</span></dd></div>
+              <div class="kv__row is-total"><dt>Total debt</dt><dd class="kv__v"><span data-bind="loanDebt">22,466.60</span> <span data-bind="reserveSymbol">USDC</span></dd></div>
+            </dl>
+          </article>
+
+          <article class="app-card">
+            <div class="card-head"><h3 class="card-title">How Hoodz Loans works</h3></div>
+            <ol class="ol-steps muted">
+              <li>Deposit gHOODZ into a Cooler you own. Nobody else can move it.</li>
+              <li>The Clearinghouse lends <span data-bind="oltc">2,894.12</span> reserve per gHOODZ
+                  — deliberately below liquid backing, so the Treasury is never underwater.</li>
+              <li>Repay any amount at any time to release the matching slice of collateral.</li>
+              <li>Miss the expiry and the Treasury claims the collateral. That is the whole
+                  downside — no oracle, no cascade, no penalty.</li>
+            </ol>
+          </article>
+        </div>
+      </section>
+
+      <!-- ------------------------------------------------------- loans -->
+      <section class="app-card" aria-labelledby="loans-title">
+        <div class="card-head">
+          <h3 class="card-title" id="loans-title">Your loans</h3>
+          <span class="metric__sub">Repay in full or in part at any time.</span>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data-table is-wide">
+            <caption class="visually-hidden">Open Hoodz Loans with collateral, principal, interest and expiry</caption>
+            <thead>
+              <tr>
+                <th scope="col">Loan</th>
+                <th scope="col">Collateral</th>
+                <th scope="col">Principal</th>
+                <th scope="col">Interest</th>
+                <th scope="col">Expires</th>
+                <th scope="col"><span class="visually-hidden">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="Loan">
+                  <span class="asset"><span class="asset__mark" aria-hidden="true">12</span> Loan #12 <small>Opened 37 days ago</small></span>
+                </td>
+                <td data-label="Collateral" class="num-strong">4.5000 gHOODZ</td>
+                <td data-label="Principal" class="num-strong">13,023.54 USDC</td>
+                <td data-label="Interest">21.58 USDC</td>
+                <td data-label="Expires">
+                  <span class="countdown" data-countdown-in="7257600" data-countdown-style="long">84d 0h</span>
+                </td>
+                <td class="cell-action">
+                  <span class="action-row">
+                    <button class="btn-ghost is-quiet" type="button" data-mock-action="Roll submitted"
+                            data-mock-note="Loan #12 rolled for another 121 days — mock data, nothing was signed.">Roll</button>
+                    <button class="btn-ghost" type="button" data-mock-action="Repayment submitted"
+                            data-mock-note="13,045.12 USDC repaid on loan #12 — mock data, nothing was signed."
+                            data-mock-kind="ok">Repay</button>
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <td data-label="Loan">
+                  <span class="asset"><span class="asset__mark" aria-hidden="true">9</span> Loan #9 <small>Expiring soon</small></span>
+                </td>
+                <td data-label="Collateral" class="num-strong">2.0000 gHOODZ</td>
+                <td data-label="Principal" class="num-strong">5,788.24 USDC</td>
+                <td data-label="Interest">9.59 USDC</td>
+                <td data-label="Expires">
+                  <span class="countdown gold" data-countdown-in="1036800" data-countdown-style="long">12d 0h</span>
+                </td>
+                <td class="cell-action">
+                  <span class="action-row">
+                    <button class="btn-ghost is-quiet" type="button" data-mock-action="Roll submitted"
+                            data-mock-note="Loan #9 rolled for another 121 days — mock data, nothing was signed.">Roll</button>
+                    <button class="btn-ghost" type="button" data-mock-action="Repayment submitted"
+                            data-mock-note="5,797.83 USDC repaid on loan #9 — mock data, nothing was signed."
+                            data-mock-kind="ok">Repay</button>
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <td data-label="Loan">
+                  <span class="asset"><span class="asset__mark is-slate" aria-hidden="true">4</span> Loan #4 <small>Past expiry</small></span>
+                </td>
+                <td data-label="Collateral" class="num-strong">1.2500 gHOODZ</td>
+                <td data-label="Principal" class="num-strong">3,617.65 USDC</td>
+                <td data-label="Interest">6.00 USDC</td>
+                <td data-label="Expires"><span class="pill pill--expired">Expired 3d ago</span></td>
+                <td class="cell-action">
+                  <span class="action-row">
+                    <button class="btn-ghost is-quiet" type="button" disabled aria-disabled="true"
+                            title="Expired loans can no longer be rolled">Roll</button>
+                    <button class="btn-ghost" type="button" data-mock-action="Repayment submitted"
+                            data-mock-note="3,623.65 USDC repaid on loan #4 — mock data, nothing was signed."
+                            data-mock-kind="ok">Repay</button>
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <hr class="hairline" style="margin:1.4vw 0">
+        <p class="notice is-gold">
+          <span class="notice__mark" aria-hidden="true">!</span>
+          <span><b>Loan #4 is past expiry.</b> The Clearinghouse may claim its 1.2500 gHOODZ at any
+            time. Repaying now still releases the collateral — until someone calls
+            <code>claimDefaulted</code>.</span>
+        </p>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<div class="toast-stack" role="status" aria-live="polite"></div>
+
+<script src="js/abi.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="Provide liquidity">
+  <defs>
+    <linearGradient id="ilA" x1=".2" y1="0" x2=".8" y2="1">
+      <stop offset="0" stop-color="#fffaf0"/><stop offset=".55" stop-color="#efe9e0"/><stop offset="1" stop-color="#b9bcc6"/>
+    </linearGradient>
+    <linearGradient id="ilB" x1=".2" y1="0" x2=".8" y2="1">
+      <stop offset="0" stop-color="#ffe9bd"/><stop offset=".5" stop-color="#f8cc82"/><stop offset="1" stop-color="#a0853e"/>
+    </linearGradient>
+    <filter id="ilSh" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#141722" flood-opacity=".35"/>
+    </filter>
+  </defs>
+  <g filter="url(#ilSh)">
+    <path d="M32 138v14a68 26 0 0 0 136 0v-14z" fill="#5b6478"/>
+    <ellipse cx="100" cy="138" rx="68" ry="26" fill="url(#ilA)"/>
+    <path d="M46 104v13a54 21 0 0 0 108 0v-13z" fill="#7d6329"/>
+    <ellipse cx="100" cy="104" rx="54" ry="21" fill="url(#ilB)"/>
+    <path d="M58 72v12a42 16 0 0 0 84 0V72z" fill="#5b6478"/>
+    <ellipse cx="100" cy="72" rx="42" ry="16" fill="url(#ilA)"/>
+    <ellipse cx="88" cy="66" rx="15" ry="5" fill="#fff" opacity=".6"/>
+  </g>
+</svg>

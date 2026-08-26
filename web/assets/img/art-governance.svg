@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 460" role="img" aria-label="Governed on chain">
+  <defs>
+    <linearGradient id="agGold" x1=".2" y1="0" x2=".8" y2="1">
+      <stop offset="0" stop-color="#ffe9bd"/><stop offset=".5" stop-color="#f8cc82"/><stop offset="1" stop-color="#a0853e"/>
+    </linearGradient>
+    <linearGradient id="agSlate" x1=".2" y1="0" x2=".8" y2="1">
+      <stop offset="0" stop-color="#aeb6c6"/><stop offset="1" stop-color="#4a5468"/>
+    </linearGradient>
+    <linearGradient id="agCard" x1=".1" y1="0" x2=".9" y2="1">
+      <stop offset="0" stop-color="#3b4356"/><stop offset="1" stop-color="#161b26"/>
+    </linearGradient>
+    <radialGradient id="agGlow" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#f8cc82" stop-opacity=".3"/><stop offset="1" stop-color="#f8cc82" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="agSh" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#000" flood-opacity=".4"/>
+    </filter>
+  </defs>
+  <ellipse cx="300" cy="230" rx="280" ry="190" fill="url(#agGlow)"/>
+  <g stroke="#798399" stroke-opacity=".5" stroke-width="2" fill="none">
+    <path d="M300 230 96 128"/><path d="M300 230 512 122"/><path d="M300 230 84 336"/>
+    <path d="M300 230 512 340"/><path d="M300 230 300 62"/><path d="M300 230 300 400"/>
+  </g>
+  <g filter="url(#agSh)">
+    <rect x="196" y="150" width="208" height="164" rx="26" fill="url(#agCard)"/>
+    <rect x="196" y="150" width="208" height="164" rx="26" fill="none" stroke="#798399" stroke-opacity=".45" stroke-width="2"/>
+    <rect x="228" y="188" width="144" height="12" rx="6" fill="url(#agSlate)" opacity=".7"/>
+    <rect x="228" y="214" width="104" height="12" rx="6" fill="url(#agSlate)" opacity=".45"/>
+    <path d="M236 262l26 26 62-62" fill="none" stroke="url(#agGold)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g filter="url(#agSh)">
+    <circle cx="96" cy="128" r="30" fill="url(#agGold)"/>
+    <circle cx="512" cy="122" r="24" fill="url(#agSlate)"/>
+    <circle cx="84" cy="336" r="22" fill="url(#agSlate)"/>
+    <circle cx="512" cy="340" r="30" fill="url(#agGold)"/>
+    <circle cx="300" cy="62" r="20" fill="url(#agSlate)"/>
+    <circle cx="300" cy="400" r="26" fill="url(#agGold)"/>
+  </g>
+  <g fill="#141722" opacity=".72">
+    <path d="M88 118h5v8h7v-8h5v22h-5v-9h-7v9h-5z"/>
+    <path d="M504 330h5v8h7v-8h5v22h-5v-9h-7v9h-5z"/>
+    <path d="M292 390h5v8h7v-8h5v22h-5v-9h-7v9h-5z"/>
+  </g>
+</svg>

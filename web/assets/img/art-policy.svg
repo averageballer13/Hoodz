@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 460" role="img" aria-label="Predictable monetary policy">
+  <defs>
+    <linearGradient id="apArc" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#798399"/><stop offset=".55" stop-color="#f8cc82"/><stop offset="1" stop-color="#ffe9bd"/>
+    </linearGradient>
+    <linearGradient id="apFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f8cc82" stop-opacity=".45"/><stop offset="1" stop-color="#f8cc82" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="apDial" x1=".2" y1="0" x2=".8" y2="1">
+      <stop offset="0" stop-color="#3b4356"/><stop offset="1" stop-color="#161b26"/>
+    </linearGradient>
+    <radialGradient id="apGlow" cx=".5" cy=".55" r=".5">
+      <stop offset="0" stop-color="#f8cc82" stop-opacity=".3"/><stop offset="1" stop-color="#f8cc82" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="apSh" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#000" flood-opacity=".38"/>
+    </filter>
+  </defs>
+  <ellipse cx="300" cy="250" rx="280" ry="190" fill="url(#apGlow)"/>
+  <g opacity=".26" stroke="#798399" stroke-width="1">
+    <path d="M70 350h460M70 286h460M70 222h460M70 158h460"/>
+  </g>
+  <path d="M70 350 L150 322 L216 336 L282 268 L348 288 L412 200 L470 224 L530 138 L530 350Z" fill="url(#apFill)"/>
+  <path d="M70 350 L150 322 L216 336 L282 268 L348 288 L412 200 L470 224 L530 138" fill="none"
+        stroke="url(#apArc)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <g fill="#141722" stroke="#f8cc82" stroke-width="4">
+    <circle cx="282" cy="268" r="9"/><circle cx="412" cy="200" r="9"/><circle cx="530" cy="138" r="10"/>
+  </g>
+  <g filter="url(#apSh)" transform="translate(140 244)">
+    <circle cx="0" cy="0" r="98" fill="url(#apDial)"/>
+    <path d="M-78 22A88 88 0 0 1 78 22" fill="none" stroke="#2c3241" stroke-width="16" stroke-linecap="round"/>
+    <path d="M-78 22A88 88 0 0 1 30 -76" fill="none" stroke="url(#apArc)" stroke-width="16" stroke-linecap="round"/>
+    <path d="M0 12 32 -48" stroke="#efe9e0" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="0" cy="12" r="11" fill="#f8cc82"/>
+    <circle cx="0" cy="0" r="97" fill="none" stroke="#798399" stroke-opacity=".4" stroke-width="2"/>
+  </g>
+</svg>

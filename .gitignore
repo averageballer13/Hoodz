@@ -1,0 +1,43 @@
+# --- deps ---
+node_modules/
+.pnp/
+.pnp.js
+
+# --- env / secrets (NEVER commit a key) ---
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+secrets.json
+
+# --- build output ---
+contracts/out/
+contracts/cache/
+contracts/cache-hardhat/
+contracts/artifacts/
+contracts/broadcast/
+contracts/lib/
+coverage/
+lcov.info
+dist/
+build/
+
+# --- deployment records (keep the manifest, drop the noise) ---
+!docs/pons-launch.json
+deployments/*.local.json
+
+# --- editor / OS ---
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# --- logs ---
+*.log
+npm-debug.log*
+yarn-error.log*

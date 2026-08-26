@@ -1,0 +1,31 @@
+{
+  "name": "hoodz",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Hoodz - a faithful re-implementation of the Olympus DAO protocol on Robinhood Chain (chainId 4663), with HOODZ launched via the PONS launchpad.",
+  "license": "AGPL-3.0-or-later",
+  "workspaces": [
+    "contracts"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "compile": "node contracts/compile.js",
+    "compile:quiet": "node contracts/compile.js --quiet",
+    "build": "npm run compile",
+    "clean": "node -e \"require('fs').rmSync('contracts/out',{recursive:true,force:true})\"",
+    "forge:build": "npm --workspace contracts run forge:build",
+    "forge:test": "npm --workspace contracts run forge:test",
+    "hardhat:compile": "npm --workspace contracts run hardhat:compile",
+    "web": "node -e \"console.log('Static site - open web/index.html directly, or: npx serve web')\""
+  },
+  "keywords": [
+    "hoodz",
+    "olympus",
+    "defi",
+    "robinhood-chain",
+    "pons",
+    "solidity"
+  ]
+}

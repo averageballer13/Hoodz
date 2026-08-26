@@ -1,0 +1,25 @@
+# Foundry
+out/
+cache/
+broadcast/
+lib/
+!lib/.gitkeep
+
+# Hardhat
+artifacts/
+cache-hardhat/
+typechain/
+typechain-types/
+
+# solc / node
+node_modules/
+out/artifacts.json
+
+# env
+.env
+.env.*
+!.env.example
+
+# coverage
+lcov.info
+coverage/

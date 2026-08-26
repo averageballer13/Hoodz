@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 460" role="img" aria-label="Protocol owned liquidity">
+  <defs>
+    <linearGradient id="alTop" x1=".15" y1="0" x2=".85" y2="1">
+      <stop offset="0" stop-color="#ffe9bd"/><stop offset=".45" stop-color="#f8cc82"/><stop offset="1" stop-color="#a0853e"/>
+    </linearGradient>
+    <linearGradient id="alMid" x1=".15" y1="0" x2=".85" y2="1">
+      <stop offset="0" stop-color="#d6dae4"/><stop offset=".5" stop-color="#798399"/><stop offset="1" stop-color="#414a5e"/>
+    </linearGradient>
+    <linearGradient id="alBot" x1=".15" y1="0" x2=".85" y2="1">
+      <stop offset="0" stop-color="#6d778c"/><stop offset="1" stop-color="#242a38"/>
+    </linearGradient>
+    <linearGradient id="alSide" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8a6d2c"/><stop offset="1" stop-color="#4a3a16"/>
+    </linearGradient>
+    <radialGradient id="alGlow" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#f8cc82" stop-opacity=".38"/><stop offset="1" stop-color="#f8cc82" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="alSh" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="#000" flood-opacity=".38"/>
+    </filter>
+  </defs>
+  <ellipse cx="300" cy="250" rx="290" ry="200" fill="url(#alGlow)"/>
+  <g filter="url(#alSh)">
+    <path d="M90 348v22a210 76 0 0 0 420 0v-22z" fill="#1b2130"/>
+    <ellipse cx="300" cy="348" rx="210" ry="76" fill="url(#alBot)"/>
+    <path d="M124 252v20a176 64 0 0 0 352 0v-20z" fill="#3b4356"/>
+    <ellipse cx="300" cy="252" rx="176" ry="64" fill="url(#alMid)"/>
+    <path d="M162 164v18a138 50 0 0 0 276 0v-18z" fill="url(#alSide)"/>
+    <ellipse cx="300" cy="164" rx="138" ry="50" fill="url(#alTop)"/>
+    <ellipse cx="300" cy="164" rx="138" ry="50" fill="none" stroke="#fff6e0" stroke-opacity=".45" stroke-width="2"/>
+    <ellipse cx="262" cy="146" rx="46" ry="16" fill="#fffdf6" opacity=".38" transform="rotate(-8 262 146)"/>
+  </g>
+  <g opacity=".9">
+    <circle cx="128" cy="112" r="9" fill="#f8cc82"/>
+    <circle cx="486" cy="96" r="7" fill="#798399"/>
+    <circle cx="520" cy="216" r="5" fill="#f8cc82" opacity=".7"/>
+    <circle cx="72" cy="238" r="6" fill="#798399" opacity=".7"/>
+  </g>
+  <path d="M128 112c60-38 154-44 214-6" fill="none" stroke="#f8cc82" stroke-opacity=".4" stroke-width="2" stroke-dasharray="6 8"/>
+  <path d="M486 96c-40 44-40 92-4 130" fill="none" stroke="#798399" stroke-opacity=".45" stroke-width="2" stroke-dasharray="6 8"/>
+</svg>

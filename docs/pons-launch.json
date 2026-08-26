@@ -1,0 +1,185 @@
+{
+  "manifestVersion": "0.1.0",
+  "description": "Hoodz - HOODZ launch manifest for the PONS launchpad on Robinhood Chain. Every value below is a PLACEHOLDER until the corresponding step of docs/PONS_LAUNCH.md has actually executed on-chain. Addresses are the zero address, uint256 amounts are decimal STRINGS in base units (never JS numbers), and anything not yet known is null. The deploy script rewrites this file in place and every value must be re-read from the chain before it is trusted.",
+  "status": "UNLAUNCHED",
+  "generatedAt": null,
+  "generatedBy": "contracts/script/DeployPonsLaunch.s.sol",
+
+  "network": {
+    "selected": "robinhood_testnet",
+    "name": "Robinhood Chain Testnet",
+    "chainId": 46630,
+    "rpc": "https://rpc.testnet.chain.robinhood.com",
+    "explorer": "https://testnet.robinhoodchain.blockscout.com",
+    "gasToken": "ETH",
+    "evm": "cancun"
+  },
+
+  "knownNetworks": {
+    "robinhood": {
+      "name": "Robinhood Chain",
+      "chainId": 4663,
+      "rpc": "https://rpc.mainnet.chain.robinhood.com",
+      "explorer": "https://robinhoodchain.blockscout.com",
+      "gasToken": "ETH",
+      "evm": "cancun"
+    },
+    "robinhood_testnet": {
+      "name": "Robinhood Chain Testnet",
+      "chainId": 46630,
+      "rpc": "https://rpc.testnet.chain.robinhood.com",
+      "explorer": "https://testnet.robinhoodchain.blockscout.com",
+      "gasToken": "ETH",
+      "evm": "cancun"
+    }
+  },
+
+  "roles": {
+    "governor": "0x0000000000000000000000000000000000000000",
+    "guardian": "0x0000000000000000000000000000000000000000",
+    "policy": "0x0000000000000000000000000000000000000000",
+    "vault": "0x0000000000000000000000000000000000000000",
+    "vaultNote": "Set to the launch operator for the single pre-launch mint, then pushed to HoodzLaunchGuard, then to HoodzTreasury at release. Nothing else may ever hold it.",
+    "launchOperator": "0x0000000000000000000000000000000000000000"
+  },
+
+  "token": {
+    "name": "Hoodz",
+    "symbol": "HOODZ",
+    "decimals": 9,
+    "address": "0x0000000000000000000000000000000000000000",
+    "launchSupply": "0",
+    "launchSupplyHuman": "TBD",
+    "supplyToCurve": "0",
+    "supplyRetained": "0",
+    "supplyRetainedNote": "Any supply not sold on the curve. Keep at 0 for a clean launch; every retained token is a claim the market will price in.",
+    "ponsCompatibility": {
+      "transferTax": false,
+      "blacklist": false,
+      "pausableTransfers": false,
+      "rebasingBalances": false,
+      "mintGatedBy": "HoodzAuthority.vault()"
+    }
+  },
+
+  "launch": {
+    "launchpad": "0x0000000000000000000000000000000000000000",
+    "curve": "0x0000000000000000000000000000000000000000",
+    "reserveToken": "0x0000000000000000000000000000000000000000",
+    "reserveTokenSymbol": "TBD",
+    "reserveTokenDecimals": 18,
+    "targetRaise": "0",
+    "targetRaiseHuman": "TBD",
+    "graduationThreshold": "0",
+    "graduationThresholdHuman": "TBD",
+    "graduationThresholdNote": "Must satisfy 0 < graduationThreshold <= targetRaise or PonsLaunchConfig reverts with InvalidThreshold().",
+    "lpFeeTier": 10000,
+    "lpFeeTierNote": "Hundredths of a bip. 3000 = 0.30%, 10000 = 1.00%. 0x800000 (8388608) marks a Uniswap v4 dynamic-fee pool.",
+    "tickSpacing": 200,
+    "hooks": "0x0000000000000000000000000000000000000000",
+    "lockBeneficiary": "0x0000000000000000000000000000000000000000",
+    "lockBeneficiaryNote": "Entitled to the locked position's TRADING FEES only. The principal is withdrawable by nobody, this address included.",
+    "creator": "0x0000000000000000000000000000000000000000",
+    "launchTimestamp": null,
+    "launchTxHash": null
+  },
+
+  "graduation": {
+    "graduated": false,
+    "pool": "0x0000000000000000000000000000000000000000",
+    "poolId": "0x0000000000000000000000000000000000000000000000000000000000000000",
+    "poolManager": "0x0000000000000000000000000000000000000000",
+    "poolKey": {
+      "currency0": "0x0000000000000000000000000000000000000000",
+      "currency1": "0x0000000000000000000000000000000000000000",
+      "fee": 10000,
+      "tickSpacing": 200,
+      "hooks": "0x0000000000000000000000000000000000000000"
+    },
+    "positionLocker": "0x0000000000000000000000000000000000000000",
+    "positionId": "0",
+    "liquidity": "0",
+    "unlockable": null,
+    "unlockTime": null,
+    "unlockTimeNote": "Must read 115792089237316195423570985008687907853269984665640564039457584007913129639935 (type(uint256).max) - i.e. never.",
+    "reserveMigrated": "0",
+    "supplyMigrated": "0",
+    "graduatedAt": null,
+    "graduationTxHash": null
+  },
+
+  "contracts": {
+    "HoodzAuthority": "0x0000000000000000000000000000000000000000",
+    "HOODZ": "0x0000000000000000000000000000000000000000",
+    "PonsLaunchConfig": "0x0000000000000000000000000000000000000000",
+    "HoodzLaunchGuard": "0x0000000000000000000000000000000000000000",
+    "HoodzTreasury": "0x0000000000000000000000000000000000000000",
+    "FeeRouterBuyback": "0x0000000000000000000000000000000000000000",
+    "sHOODZ": "0x0000000000000000000000000000000000000000",
+    "gHOODZ": "0x0000000000000000000000000000000000000000",
+    "HoodzStaking": "0x0000000000000000000000000000000000000000",
+    "Distributor": "0x0000000000000000000000000000000000000000",
+    "BondDepository": "0x0000000000000000000000000000000000000000",
+    "deployedAfterRelease": ["sHOODZ", "gHOODZ", "HoodzStaking", "Distributor", "BondDepository"]
+  },
+
+  "guard": {
+    "transferDelaySeconds": 172800,
+    "transferDelayNote": "48h. Compiled in as a constant - it cannot be shortened by governance.",
+    "treasury": "0x0000000000000000000000000000000000000000",
+    "treasuryNote": "Immutable in HoodzLaunchGuard. Governance chooses WHEN mint authority moves, never WHERE.",
+    "graduationVerified": false,
+    "verifiedPool": "0x0000000000000000000000000000000000000000",
+    "armedAt": null,
+    "releaseEligibleAt": null,
+    "released": false,
+    "releasedAt": null,
+    "releaseTxHash": null
+  },
+
+  "fees": {
+    "feeRouter": "0x0000000000000000000000000000000000000000",
+    "swapRouter": "0x0000000000000000000000000000000000000000",
+    "feeRecipient": "0x0000000000000000000000000000000000000000",
+    "feeRecipientNote": "Points at FeeRouterBuyback after graduation.",
+    "protocolFeeShareBps": null,
+    "creatorFeeShareBps": null,
+    "launchpadFeeShareBps": null,
+    "buyback": {
+      "keeperMinReserve": "0",
+      "keeperMinReserveNote": "Do not fire buybackAndBurn below this, or gas eats the burn.",
+      "maxSlippageBps": 100,
+      "deadlineSeconds": 300,
+      "totalBurned": "0"
+    }
+  },
+
+  "treasurySeed": {
+    "initialReserves": [
+      {
+        "token": "0x0000000000000000000000000000000000000000",
+        "symbol": "TBD",
+        "amount": "0",
+        "profit": "0",
+        "profitNote": "deposit(amount, token, profit) - profit is the portion NOT minted back to the depositor."
+      }
+    ],
+    "initialIndex": "1000000000",
+    "initialIndexNote": "1e9, matching HOODZ's 9 decimals.",
+    "epochLengthSeconds": 28800,
+    "firstEpochNumber": 0,
+    "firstEpochTime": null,
+    "initialRewardRateBps": null
+  },
+
+  "verification": {
+    "sourcesVerifiedOnBlockscout": false,
+    "hoodzIsCleanErc20": false,
+    "supplyFrozenAtGuard": false,
+    "curveGraduated": false,
+    "lpPermanentlyLocked": false,
+    "guardVerifyGraduationSimulated": false,
+    "armDelayObserved": false,
+    "mintAuthorityAtTreasury": false
+  }
+}

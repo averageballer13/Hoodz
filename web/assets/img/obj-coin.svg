@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 520" role="img" aria-label="Hood coin">
+  <defs>
+    <linearGradient id="cFace" x1=".18" y1="0" x2=".86" y2="1">
+      <stop offset="0" stop-color="#ffe9bd"/><stop offset=".38" stop-color="#f8cc82"/>
+      <stop offset=".74" stop-color="#c39c4c"/><stop offset="1" stop-color="#8a6d2c"/>
+    </linearGradient>
+    <linearGradient id="cEdge" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c9a458"/><stop offset=".5" stop-color="#8a6d2c"/><stop offset="1" stop-color="#5d4718"/>
+    </linearGradient>
+    <radialGradient id="cSpec" cx=".3" cy=".22" r=".55">
+      <stop offset="0" stop-color="#fffdf6" stop-opacity=".92"/><stop offset="1" stop-color="#fffdf6" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="cRim" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff6e0" stop-opacity=".85"/><stop offset=".5" stop-color="#fff6e0" stop-opacity="0"/>
+      <stop offset="1" stop-color="#fff6e0" stop-opacity=".5"/>
+    </linearGradient>
+    <filter id="cShadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="26" stdDeviation="26" flood-color="#141722" flood-opacity=".28"/>
+    </filter>
+  </defs>
+  <g filter="url(#cShadow)" transform="rotate(-16 260 260)">
+    <ellipse cx="260" cy="292" rx="192" ry="150" fill="url(#cEdge)"/>
+    <ellipse cx="260" cy="266" rx="192" ry="150" fill="url(#cFace)"/>
+    <ellipse cx="260" cy="266" rx="192" ry="150" fill="url(#cSpec)"/>
+    <ellipse cx="260" cy="266" rx="192" ry="150" fill="none" stroke="url(#cRim)" stroke-width="4"/>
+    <ellipse cx="260" cy="266" rx="160" ry="124" fill="none" stroke="#8a6d2c" stroke-opacity=".38" stroke-width="3"/>
+    <g transform="translate(260 266) scale(1 .78) translate(-260 -266)">
+      <path d="M206 200h30v44h48v-44h30v132h-30v-46h-48v46h-30z" fill="#141722" fill-opacity=".82"/>
+    </g>
+  </g>
+</svg>
