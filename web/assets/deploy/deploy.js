@@ -123,6 +123,19 @@
     loadState: loadState,
     saveState: saveState,
 
+    /** Estimate the gas one deployment will take, without sending anything. */
+    estimateOne: function (from, artifact, args) {
+      var data = artifact.bytecode + encodeArgs(artifact.constructor, args);
+      return rpc('eth_estimateGas', [{ from: from, data: data }]).then(function (g) {
+        return BigInt(g);
+      });
+    },
+
+    /** Current gas price, as a BigInt of wei. */
+    gasPrice: function () {
+      return rpc('eth_gasPrice').then(function (p) { return BigInt(p); });
+    },
+
     /** Deploy one contract and return its address. */
     deployOne: function (from, artifact, args) {
       var data = artifact.bytecode + encodeArgs(artifact.constructor, args);

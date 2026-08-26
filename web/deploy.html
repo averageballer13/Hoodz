@@ -103,15 +103,17 @@
 <p class="sub">Deploys the Hoodz contract stack from the dev wallet, one transaction at a time.</p>
 
 <div class="warn">
-  <b>Use this for testnet.</b> For a mainnet deployment of a treasury protocol, run
-  <code>forge script script/Deploy.s.sol:Deploy</code> instead: it simulates the whole sequence
-  before broadcasting, wires every role atomically, and verifies on Blockscout in the same command.
-  This page sends one transaction per contract, so a failure halfway leaves a partially deployed
-  system — recoverable (progress is saved and it resumes where it stopped) but messy.
+  <b>This deploys to Robinhood Chain mainnet with real ETH.</b> Run the pre-flight first: it
+  estimates every contract against the live chain, so anything that would revert fails for free
+  instead of costing a deployment. Nothing is sent until you press Deploy.
   <br><br>
-  It also does <b>not</b> wire roles or permissions. It gives you addresses. The role handover,
-  <code>lockVaultToGuard</code> and the treasury permission queue still have to be run afterwards —
-  see <code>docs/DEPLOYMENT.md</code>.
+  One transaction per contract. If one fails, the rest stop, progress is saved, and pressing
+  Deploy again resumes from that contract — you never redeploy what already landed.
+  <br><br>
+  It gives you <b>addresses, not a working protocol</b>. Roles and permissions are separate:
+  the governor handover, <code>lockVaultToGuard</code> and the treasury permission queue all still
+  have to be run afterwards — see <code>docs/DEPLOYMENT.md</code>. Deploying on testnet once first
+  is cheap insurance; flip the selector above.
 </div>
 
 <div class="panel">
@@ -129,8 +131,8 @@
   <h2>2 · Network</h2>
   <div class="row">
     <select id="chain" style="max-width:280px">
-      <option value="46630">Robinhood Chain Testnet · 46630</option>
       <option value="4663">Robinhood Chain Mainnet · 4663</option>
+      <option value="46630">Robinhood Chain Testnet · 46630</option>
     </select>
     <button class="btn btn--ghost" id="switch">Switch network</button>
   </div>
@@ -148,9 +150,11 @@
 <div class="panel">
   <h2>4 · Deploy</h2>
   <div class="row" style="margin-bottom:16px">
+    <button class="btn btn--ghost" id="preflight" disabled>Run pre-flight</button>
     <button class="btn btn--gold" id="run" disabled>Deploy stack</button>
     <button class="btn btn--ghost" id="reset">Clear progress</button>
     <span class="pill" id="progress">0 / 0</span>
+    <span class="pill" id="estimate">not estimated</span>
   </div>
   <table>
     <thead><tr><th style="width:30%">Contract</th><th style="width:46%">Address</th><th>Gas</th></tr></thead>
@@ -357,7 +361,10 @@
     var net = chainId ? (D.NETWORKS[chainId] ? D.NETWORKS[chainId].chainName : 'chain ' + chainId) : 'no network';
     $('net').textContent = net;
     $('net').className = 'pill ' + (D.NETWORKS[chainId] ? 'ok' : (chainId ? 'bad' : ''));
-    $('run').disabled = !(account && bundle && D.NETWORKS[chainId]);
+    var ready = !!(account && bundle && D.NETWORKS[chainId]);
+    $('run').disabled = !ready;
+    $('preflight').disabled = !ready;
+    document.title = (chainId === 4663 ? 'MAINNET · ' : '') + 'Deploy — Hoodz';
   }
 
   function connect() {
@@ -402,6 +409,69 @@
     return token;
   }
 
+  /** What the deploy loop will actually attempt, in order, given the config. */
+  function plannedQueue(cfg) {
+    return bundle.order.filter(function (name) {
+      if (state.deployed[name]) return false;
+      var need = REQUIRES[name] || [];
+      if (need.some(function (k) { return !cfg[k] || cfg[k] === ZERO; })) return false;
+      try { PLAN[name].map(function (t) { return resolve(t, cfg); }); }
+      catch (e) { return false; }
+      return true;
+    });
+  }
+
+  /**
+   * Estimate every pending deployment against the live chain. This is the whole
+   * point of running it before a mainnet deploy: eth_estimateGas executes the
+   * constructor in a simulated block, so a constructor that would revert - a zero
+   * address it rejects, a bad fee split - shows up here for free instead of
+   * costing a failed deployment.
+   *
+   * Contracts later in the queue depend on addresses that do not exist yet, so
+   * they can only be estimated once their dependencies are deployed. Those are
+   * reported as deferred rather than guessed at.
+   */
+  function preflight() {
+    var cfg = readCfg(); saveCfg();
+    var queue = plannedQueue(cfg);
+    if (!queue.length) { log('pre-flight: nothing left to deploy'); return; }
+
+    $('preflight').disabled = true;
+    log('pre-flight: estimating ' + queue.length + ' contracts …');
+
+    var total = 0n, deferred = 0, failed = 0;
+
+    D.gasPrice().then(function (gp) {
+      return queue.reduce(function (chain, name) {
+        return chain.then(function () {
+          var args;
+          try { args = PLAN[name].map(function (t) { return resolve(t, cfg); }); }
+          catch (e) { deferred++; log('  ' + name + ' — deferred (' + e.message + ')'); return; }
+
+          return D.estimateOne(account, bundle.contracts[name], args).then(function (g) {
+            total += g;
+            log('  ' + name + ' — ' + g.toLocaleString('en-US') + ' gas');
+          }).catch(function (e) {
+            failed++;
+            log('  ' + name + ' — WOULD REVERT: ' + (e.message || e));
+          });
+        });
+      }, Promise.resolve()).then(function () {
+        var wei = total * gp;
+        var eth = Number(wei / 10n ** 12n) / 1e6;
+        $('estimate').textContent = '~' + eth.toFixed(5) + ' ETH';
+        $('estimate').className = 'pill ' + (failed ? 'bad' : 'ok');
+        log('pre-flight: ' + total.toLocaleString('en-US') + ' gas at ' +
+            (Number(gp) / 1e9).toFixed(3) + ' gwei ≈ ' + eth.toFixed(5) + ' ETH' +
+            (deferred ? ' · ' + deferred + ' deferred until their dependencies exist' : '') +
+            (failed ? ' · ' + failed + ' WOULD REVERT' : ''));
+        if (failed) log('Fix the reverting constructors before deploying. They will fail the same way and still cost gas.');
+        $('preflight').disabled = false;
+      });
+    }).catch(function (e) { log('pre-flight ERROR ' + e.message); $('preflight').disabled = false; });
+  }
+
   function run() {
     var cfg = readCfg();
     saveCfg();
@@ -414,6 +484,18 @@
     if (bps !== 10000n) {
       log('ERROR fee split must total 10000 bps, got ' + bps);
       return;
+    }
+
+    if (chainId === 4663) {
+      var pending = plannedQueue(cfg).length;
+      var ok = confirm(
+        'MAINNET DEPLOYMENT\n\n' +
+        'Chain    Robinhood Chain (4663)\n' +
+        'From     ' + account + '\n' +
+        'Deploys  ' + pending + ' contracts, one transaction each\n' +
+        'Cost     ' + $('estimate').textContent + '\n\n' +
+        'This spends real ETH and cannot be undone. Continue?');
+      if (!ok) { log('mainnet deployment cancelled'); return; }
     }
 
     $('run').disabled = true;
@@ -478,6 +560,7 @@
 
   $('connect').addEventListener('click', connect);
   $('switch').addEventListener('click', switchNetwork);
+  $('preflight').addEventListener('click', preflight);
   $('run').addEventListener('click', run);
   $('reset').addEventListener('click', function () {
     if (!confirm('Clear recorded deployments? The contracts stay on-chain; only this page forgets them.')) return;
