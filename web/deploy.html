@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deploy — Hoodz</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#141722">
+<link rel="icon" href="assets/img/favicon.svg?v=2" type="image/svg+xml">
+<link rel="icon" href="assets/img/favicon-32.png?v=2" sizes="32x32">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap">
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  body,h1,h2,h3,p{margin:0}
+  img{display:block;max-width:100%;height:auto}
+  button,input,select{font:inherit;color:inherit}
+  a{color:inherit}
+  :root{
+    --bg:#0e151d; --panel:#161f29; --panel-2:#1d2833;
+    --line:rgba(223,230,234,.16);
+    --ink:#eef3f6; --dim:#9fb3bf;
+    --gold:#f8cc82; --slate:#708791; --ok:#6fcf97; --bad:#e07a6a;
+  }
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:"Inter Tight","Helvetica Neue",Helvetica,Arial,sans-serif;
+    line-height:1.5; padding:32px clamp(16px,4vw,56px) 80px;
+  }
+  .wrap{max-width:1080px;margin:0 auto}
+
+  header{display:flex;align-items:center;gap:14px;margin-bottom:8px}
+  header img{width:44px}
+  h1{font-size:26px;font-weight:700;letter-spacing:-.01em}
+  .sub{color:var(--dim);font-size:14px;margin-bottom:26px}
+
+  .warn{
+    border-radius:14px;padding:18px 20px;margin-bottom:26px;
+    background:rgba(224,122,106,.1);box-shadow:inset 0 0 0 1.5px rgba(224,122,106,.45);
+    font-size:14px;
+  }
+  .warn b{color:var(--bad)}
+  .warn code{background:rgba(0,0,0,.35);padding:.12em .45em;border-radius:5px;font-size:.92em}
+
+  .panel{background:var(--panel);border-radius:16px;padding:22px;margin-bottom:18px;box-shadow:inset 0 0 0 1px var(--line)}
+  .panel h2{font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:16px}
+
+  .row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+  .btn{
+    border:0;border-radius:100vw;padding:12px 24px;cursor:pointer;
+    font-size:13px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;
+    background:var(--ink);color:#111;transition:opacity .25s;
+  }
+  .btn:hover{opacity:.85}
+  .btn:disabled{opacity:.35;cursor:not-allowed}
+  .btn--ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
+  .btn--gold{background:var(--gold);color:#141722}
+
+  .pill{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:100vw;
+        font-size:12px;font-weight:600;box-shadow:inset 0 0 0 1px var(--line);color:var(--dim)}
+  .pill.ok{color:var(--ok);box-shadow:inset 0 0 0 1px rgba(111,207,151,.5)}
+  .pill.bad{color:var(--bad);box-shadow:inset 0 0 0 1px rgba(224,122,106,.5)}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+  label{display:block;font-size:12px;color:var(--dim);margin-bottom:5px}
+  label .req{color:var(--gold)}
+  input,select{
+    width:100%;padding:11px 13px;border:0;border-radius:9px;
+    background:var(--panel-2);box-shadow:inset 0 0 0 1px var(--line);
+    font-size:13px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  input:focus,select:focus{outline:0;box-shadow:inset 0 0 0 1.5px var(--gold)}
+  .hint{font-size:11.5px;color:var(--dim);margin-top:4px;font-family:inherit}
+
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+  th{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);font-weight:600}
+  td.addr{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;word-break:break-all}
+  tr[data-status="done"] td:first-child::before{content:"✓ ";color:var(--ok)}
+  tr[data-status="running"] td:first-child::before{content:"● ";color:var(--gold)}
+  tr[data-status="failed"] td:first-child::before{content:"✕ ";color:var(--bad)}
+  tr[data-status="skipped"]{opacity:.4}
+
+  pre{
+    background:var(--panel-2);border-radius:10px;padding:14px;overflow:auto;max-height:340px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;
+    box-shadow:inset 0 0 0 1px var(--line);white-space:pre-wrap;word-break:break-all;
+  }
+  #log{max-height:260px}
+  .muted{color:var(--dim);font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <img src="assets/img/coin-3d.webp?v=2" alt="">
+  <div>
+    <h1>Hoodz deployer</h1>
+  </div>
+</header>
+<p class="sub">Deploys the Hoodz contract stack from the dev wallet, one transaction at a time.</p>
+
+<div class="warn">
+  <b>Use this for testnet.</b> For a mainnet deployment of a treasury protocol, run
+  <code>forge script script/Deploy.s.sol:Deploy</code> instead: it simulates the whole sequence
+  before broadcasting, wires every role atomically, and verifies on Blockscout in the same command.
+  This page sends one transaction per contract, so a failure halfway leaves a partially deployed
+  system — recoverable (progress is saved and it resumes where it stopped) but messy.
+  <br><br>
+  It also does <b>not</b> wire roles or permissions. It gives you addresses. The role handover,
+  <code>lockVaultToGuard</code> and the treasury permission queue still have to be run afterwards —
+  see <code>docs/DEPLOYMENT.md</code>.
+</div>
+
+<div class="panel">
+  <h2>1 · Wallet</h2>
+  <div class="row">
+    <button class="btn" id="connect">Connect wallet</button>
+    <span class="pill" id="acct">not connected</span>
+    <span class="pill" id="net">no network</span>
+    <span class="pill" id="bal">—</span>
+  </div>
+  <p class="hint" id="walletHint">The connected account must be the dev wallet recorded in the launch manifest.</p>
+</div>
+
+<div class="panel">
+  <h2>2 · Network</h2>
+  <div class="row">
+    <select id="chain" style="max-width:280px">
+      <option value="46630">Robinhood Chain Testnet · 46630</option>
+      <option value="4663">Robinhood Chain Mainnet · 4663</option>
+    </select>
+    <button class="btn btn--ghost" id="switch">Switch network</button>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>3 · Parameters</h2>
+  <div class="grid" id="cfg"></div>
+  <p class="hint" style="margin-top:14px">
+    Anything left blank is deployed with the zero address. Contracts whose required inputs are
+    missing are skipped rather than deployed broken — you will see them marked as skipped below.
+  </p>
+</div>
+
+<div class="panel">
+  <h2>4 · Deploy</h2>
+  <div class="row" style="margin-bottom:16px">
+    <button class="btn btn--gold" id="run" disabled>Deploy stack</button>
+    <button class="btn btn--ghost" id="reset">Clear progress</button>
+    <span class="pill" id="progress">0 / 0</span>
+  </div>
+  <table>
+    <thead><tr><th style="width:30%">Contract</th><th style="width:46%">Address</th><th>Gas</th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table>
+</div>
+
+<div class="panel">
+  <h2>5 · Manifest</h2>
+  <div class="row" style="margin-bottom:14px">
+    <button class="btn btn--ghost" id="copy">Copy JSON</button>
+    <button class="btn btn--ghost" id="download">Download</button>
+  </div>
+  <pre id="manifest">{}</pre>
+</div>
+
+<div class="panel">
+  <h2>Log</h2>
+  <pre id="log"></pre>
+</div>
+
+<p class="muted">Unaudited software. Deploying it puts real value at risk.</p>
+</div>
+
+<script src="assets/deploy/deploy.js?v=2"></script>
+<script>
+(function () {
+  'use strict';
+  var D = window.HoodzDeploy;
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* Which constructor argument comes from where.
+     cfg:<key>  a field in the parameters form
+     dep:<Name> the address of a contract deployed earlier in this run
+     self       the connected account
+     a literal  used as-is                                              */
+  var PLAN = {
+    HoodzAuthority:       ['self', 'cfg:guardian', 'cfg:policy', 'self'],
+    sHOODZ:               ['dep:HoodzAuthority'],
+    gHOODZ:               ['dep:HoodzAuthority', 'dep:sHOODZ'],
+    HoodzTreasury:        ['cfg:hoodz', 'cfg:treasuryTimelock', 'dep:HoodzAuthority'],
+    HoodzBondingCalculator: ['cfg:hoodz'],
+    HoodzStaking:         ['cfg:hoodz', 'dep:sHOODZ', 'dep:gHOODZ', 'cfg:epochLength',
+                           'cfg:firstEpochNumber', 'cfg:firstEpochTime', 'dep:HoodzAuthority'],
+    Distributor:          ['dep:HoodzTreasury', 'cfg:hoodz', 'dep:HoodzStaking', 'dep:HoodzAuthority'],
+    BondDepository:       ['dep:HoodzAuthority', 'cfg:hoodz', 'dep:gHOODZ', 'dep:HoodzStaking', 'dep:HoodzTreasury'],
+    CoolerFactory:        [],
+    Clearinghouse:        ['dep:gHOODZ', 'cfg:hoodz', 'dep:HoodzStaking', 'cfg:reserve',
+                           'cfg:sReserve', 'dep:HoodzTreasury', 'dep:CoolerFactory', 'dep:HoodzAuthority'],
+    HoodzTimelock:        ['cfg:proposers', 'cfg:executors', 'self'],
+    HoodzGovernor:        ['dep:gHOODZ', 'dep:HoodzTimelock'],
+    PonsLaunchConfig:     ['cfg:hoodz', 'cfg:reserve', 'cfg:ponsCurve', 'cfg:targetRaise',
+                           'cfg:graduationThreshold', 'cfg:lpFeeTier', 'cfg:lockBeneficiary', 'cfg:launchTimestamp'],
+    HoodzLaunchGuard:     ['dep:HoodzAuthority', 'dep:PonsLaunchConfig', 'cfg:ponsLaunchpad',
+                           'cfg:ponsLocker', 'cfg:poolManager', 'dep:HoodzTreasury'],
+    CreatorFeeSplitter:   ['dep:HoodzAuthority', 'cfg:hoodz', 'cfg:wrappedNative', 'cfg:swapRouter',
+                           'cfg:lpFeeTier', 'dep:HoodzStaking', 'dep:HoodzTreasury',
+                           'cfg:stakersBps', 'cfg:burnBps', 'cfg:treasuryBps'],
+    FeeRouterBuyback:     ['dep:HoodzAuthority', 'dep:PonsLaunchConfig', 'cfg:ponsFeeRouter', 'cfg:swapRouter'],
+    EmissionsManager:     ['dep:HoodzAuthority', 'cfg:hoodz', 'cfg:reserve', 'dep:HoodzTreasury',
+                           'cfg:auctioneer', 'cfg:priceFeed', 'cfg:maxPriceAge'],
+    YieldRepurchaseFacility: ['dep:HoodzAuthority', 'cfg:hoodz', 'cfg:reserve', 'cfg:sReserve',
+                           'dep:HoodzTreasury', 'cfg:auctioneer', 'cfg:priceFeed', 'cfg:maxPriceAge'],
+    ConvertibleDepository: ['dep:HoodzAuthority', 'cfg:hoodz', 'cfg:reserve', 'cfg:sReserve',
+                           'dep:HoodzTreasury', 'cfg:reclaimRate']
+  };
+
+  /* A contract is skipped when one of these config keys is still the zero address:
+     deploying it anyway would produce a permanently misconfigured contract. */
+  var REQUIRES = {
+    Clearinghouse: ['reserve', 'sReserve'],
+    PonsLaunchConfig: ['ponsCurve'],
+    HoodzLaunchGuard: ['ponsLaunchpad'],
+    CreatorFeeSplitter: ['wrappedNative', 'swapRouter'],
+    FeeRouterBuyback: ['ponsFeeRouter', 'swapRouter'],
+    EmissionsManager: ['auctioneer', 'priceFeed'],
+    YieldRepurchaseFacility: ['auctioneer', 'priceFeed', 'sReserve'],
+    ConvertibleDepository: ['reserve', 'sReserve']
+  };
+
+  var ZERO = '0x0000000000000000000000000000000000000000';
+
+  var FIELDS = [
+    ['hoodz', 'HOODZ token (from PONS)', ZERO, 'required', 'The launchpad deploys it. Paste the address it produced.'],
+    ['guardian', 'Guardian', '', '', 'Defaults to your account.'],
+    ['policy', 'Policy', '', '', 'Defaults to your account.'],
+    ['reserve', 'Reserve token', ZERO, '', 'Stablecoin the treasury holds.'],
+    ['sReserve', 'Savings vault (ERC-4626)', ZERO, '', 'Yield-bearing wrapper of the reserve.'],
+    ['treasuryTimelock', 'Treasury timelock (blocks)', '0', '', ''],
+    ['epochLength', 'Epoch length (seconds)', '28800', '', '8 hours, as Olympus used.'],
+    ['firstEpochNumber', 'First epoch number', '1', '', ''],
+    ['firstEpochTime', 'First epoch time (unix)', '0', '', 'Leave 0 to start one epoch from now.'],
+    ['wrappedNative', 'Wrapped native (WETH)', ZERO, '', 'Fees arrive as ETH and are wrapped before the swap.'],
+    ['swapRouter', 'Swap router', ZERO, '', 'Router for the graduated pool.'],
+    ['ponsLaunchpad', 'PONS launchpad', ZERO, '', ''],
+    ['ponsCurve', 'PONS bonding curve', ZERO, '', ''],
+    ['ponsFeeRouter', 'PONS fee router', ZERO, '', ''],
+    ['ponsLocker', 'PONS position locker', ZERO, '', ''],
+    ['poolManager', 'Uniswap v4 pool manager', ZERO, '', 'Optional cross-check of the locked LP.'],
+    ['lpFeeTier', 'LP fee tier', '3000', '', ''],
+    ['lockBeneficiary', 'Lock beneficiary', '', '', 'Defaults to your account.'],
+    ['targetRaise', 'Target raise (wei)', '0', '', ''],
+    ['graduationThreshold', 'Graduation threshold (wei)', '0', '', ''],
+    ['launchTimestamp', 'Launch timestamp (unix)', '0', '', ''],
+    ['stakersBps', 'Fee split · stakers (bps)', '3300', '', ''],
+    ['burnBps', 'Fee split · burn (bps)', '3300', '', ''],
+    ['treasuryBps', 'Fee split · treasury (bps)', '3400', '', 'The three must total 10000.'],
+    ['auctioneer', 'Bond auctioneer', ZERO, '', ''],
+    ['priceFeed', 'HOODZ price feed', ZERO, '', ''],
+    ['maxPriceAge', 'Max price age (seconds)', '86400', '', ''],
+    ['reclaimRate', 'CD reclaim rate', '9900', '', ''],
+    ['proposers', 'Timelock proposers', '', '', 'Comma-separated. Defaults to your account.'],
+    ['executors', 'Timelock executors', '', '', 'Comma-separated. Defaults to your account.']
+  ];
+
+  var bundle = null, account = null, chainId = null;
+  var state = D.loadState();
+  state.deployed = state.deployed || {};
+
+  function log(msg) {
+    var el = $('log');
+    el.textContent += '[' + new Date().toISOString().slice(11, 19) + '] ' + msg + '\n';
+    el.scrollTop = el.scrollHeight;
+  }
+
+  /* ------------------------------------------------------------- config -- */
+  function buildForm() {
+    var html = '';
+    FIELDS.forEach(function (f) {
+      var saved = (state.cfg || {})[f[0]];
+      html += '<div><label for="f_' + f[0] + '">' + f[1] +
+              (f[3] ? ' <span class="req">*</span>' : '') + '</label>' +
+              '<input id="f_' + f[0] + '" value="' + (saved !== undefined ? saved : f[2]) + '">' +
+              (f[4] ? '<p class="hint">' + f[4] + '</p>' : '') + '</div>';
+    });
+    $('cfg').innerHTML = html;
+    FIELDS.forEach(function (f) {
+      $('f_' + f[0]).addEventListener('change', saveCfg);
+    });
+  }
+
+  function readCfg() {
+    var c = {};
+    FIELDS.forEach(function (f) { c[f[0]] = $('f_' + f[0]).value.trim(); });
+    // sensible fallbacks so the common case needs almost no typing
+    ['guardian', 'policy', 'lockBeneficiary'].forEach(function (k) { if (!c[k]) c[k] = account || ZERO; });
+    ['proposers', 'executors'].forEach(function (k) { if (!c[k]) c[k] = account || ZERO; });
+    Object.keys(c).forEach(function (k) { if (c[k] === '') c[k] = ZERO; });
+    return c;
+  }
+
+  function saveCfg() {
+    state.cfg = {};
+    FIELDS.forEach(function (f) { state.cfg[f[0]] = $('f_' + f[0]).value; });
+    D.saveState(state);
+  }
+
+  /* -------------------------------------------------------------- table -- */
+  function renderRows() {
+    if (!bundle) return;
+    var done = 0;
+    $('rows').innerHTML = bundle.order.map(function (name) {
+      var d = state.deployed[name];
+      if (d) done++;
+      return '<tr id="r_' + name + '" data-status="' + (d ? 'done' : 'idle') + '">' +
+             '<td>' + name + '</td>' +
+             '<td class="addr">' + (d ? d.address : '—') + '</td>' +
+             '<td>' + (d && d.gasUsed ? BigInt(d.gasUsed).toLocaleString('en-US') : '—') + '</td></tr>';
+    }).join('');
+    $('progress').textContent = done + ' / ' + bundle.order.length;
+    renderManifest();
+  }
+
+  function setRow(name, status, addr, gas) {
+    var tr = $('r_' + name);
+    if (!tr) return;
+    tr.setAttribute('data-status', status);
+    if (addr) tr.children[1].textContent = addr;
+    if (gas) tr.children[2].textContent = BigInt(gas).toLocaleString('en-US');
+  }
+
+  function renderManifest() {
+    var m = {
+      chainId: chainId,
+      deployer: account,
+      generatedAt: new Date().toISOString(),
+      compiler: bundle ? bundle.compiler : null,
+      contracts: {}
+    };
+    Object.keys(state.deployed).forEach(function (k) { m.contracts[k] = state.deployed[k].address; });
+    $('manifest').textContent = JSON.stringify(m, null, 2);
+    return m;
+  }
+
+  /* ------------------------------------------------------------- wallet -- */
+  function refreshWallet() {
+    $('acct').textContent = account ? account.slice(0, 6) + '…' + account.slice(-4) : 'not connected';
+    var isDev = account && account.toLowerCase() === D.DEV_WALLET;
+    $('acct').className = 'pill ' + (account ? (isDev ? 'ok' : 'bad') : '');
+    $('walletHint').textContent = !account
+      ? 'The connected account must be the dev wallet recorded in the launch manifest.'
+      : (isDev ? 'Dev wallet confirmed.'
+               : 'WARNING: this is not the dev wallet (' + D.DEV_WALLET.slice(0, 10) + '…). Deploying from it means the launch manifest will not match.');
+    var net = chainId ? (D.NETWORKS[chainId] ? D.NETWORKS[chainId].chainName : 'chain ' + chainId) : 'no network';
+    $('net').textContent = net;
+    $('net').className = 'pill ' + (D.NETWORKS[chainId] ? 'ok' : (chainId ? 'bad' : ''));
+    $('run').disabled = !(account && bundle && D.NETWORKS[chainId]);
+  }
+
+  function connect() {
+    D.rpc('eth_requestAccounts').then(function (a) {
+      account = a[0];
+      return D.rpc('eth_chainId');
+    }).then(function (c) {
+      chainId = parseInt(c, 16);
+      return D.rpc('eth_getBalance', [account, 'latest']);
+    }).then(function (b) {
+      var eth = Number(BigInt(b) / 10n ** 12n) / 1e6;
+      $('bal').textContent = eth.toFixed(4) + ' ETH';
+      refreshWallet();
+      log('connected ' + account + ' on chain ' + chainId);
+    }).catch(function (e) { log('ERROR ' + e.message); });
+  }
+
+  function switchNetwork() {
+    var want = parseInt($('chain').value, 10);
+    var net = D.NETWORKS[want];
+    D.rpc('wallet_switchEthereumChain', [{ chainId: net.chainId }])
+      .catch(function (e) {
+        if (e && (e.code === 4902 || String(e.message).indexOf('Unrecognized') >= 0)) {
+          return D.rpc('wallet_addEthereumChain', [net]);
+        }
+        throw e;
+      })
+      .then(function () { return D.rpc('eth_chainId'); })
+      .then(function (c) { chainId = parseInt(c, 16); refreshWallet(); log('switched to chain ' + chainId); })
+      .catch(function (e) { log('ERROR ' + e.message); });
+  }
+
+  /* -------------------------------------------------------------- deploy -- */
+  function resolve(token, cfg) {
+    if (token === 'self') return account;
+    if (token.indexOf('cfg:') === 0) return cfg[token.slice(4)];
+    if (token.indexOf('dep:') === 0) {
+      var d = state.deployed[token.slice(4)];
+      if (!d) throw new Error('missing dependency ' + token.slice(4));
+      return d.address;
+    }
+    return token;
+  }
+
+  function run() {
+    var cfg = readCfg();
+    saveCfg();
+
+    if (cfg.hoodz === ZERO) {
+      log('ERROR HOODZ token address is required. Launch on PONS first.');
+      return;
+    }
+    var bps = BigInt(cfg.stakersBps) + BigInt(cfg.burnBps) + BigInt(cfg.treasuryBps);
+    if (bps !== 10000n) {
+      log('ERROR fee split must total 10000 bps, got ' + bps);
+      return;
+    }
+
+    $('run').disabled = true;
+    var queue = bundle.order.slice();
+
+    function step() {
+      if (!queue.length) { $('run').disabled = false; log('done.'); return; }
+      var name = queue.shift();
+
+      if (state.deployed[name]) { log('skip ' + name + ' (already deployed)'); return step(); }
+
+      var need = REQUIRES[name] || [];
+      var missing = need.filter(function (k) { return !cfg[k] || cfg[k] === ZERO; });
+      if (missing.length) {
+        setRow(name, 'skipped');
+        log('skip ' + name + ' — missing ' + missing.join(', '));
+        return step();
+      }
+
+      var art = bundle.contracts[name];
+      var args;
+      try {
+        args = PLAN[name].map(function (t) { return resolve(t, cfg); });
+      } catch (e) {
+        setRow(name, 'skipped');
+        log('skip ' + name + ' — ' + e.message);
+        return step();
+      }
+
+      setRow(name, 'running');
+      log('deploying ' + name + ' …');
+
+      D.deployOne(account, art, args).then(function (r) {
+        state.deployed[name] = { address: r.address, hash: r.hash, gasUsed: r.gasUsed };
+        D.saveState(state);
+        setRow(name, 'done', r.address, r.gasUsed);
+        $('progress').textContent = Object.keys(state.deployed).length + ' / ' + bundle.order.length;
+        renderManifest();
+        log('  ' + name + ' → ' + r.address);
+        step();
+      }).catch(function (e) {
+        setRow(name, 'failed');
+        log('FAILED ' + name + ' — ' + e.message);
+        log('Progress is saved. Fix the cause and press Deploy again to resume.');
+        $('run').disabled = false;
+      });
+    }
+    step();
+  }
+
+  /* ---------------------------------------------------------------- boot -- */
+  fetch('assets/deploy/bytecode.json?v=2')
+    .then(function (r) { return r.json(); })
+    .then(function (b) {
+      bundle = b;
+      log('bundle loaded: ' + b.order.length + ' contracts, solc ' + b.compiler);
+      renderRows(); refreshWallet();
+    })
+    .catch(function (e) { log('ERROR could not load bytecode bundle — ' + e.message); });
+
+  buildForm();
+
+  $('connect').addEventListener('click', connect);
+  $('switch').addEventListener('click', switchNetwork);
+  $('run').addEventListener('click', run);
+  $('reset').addEventListener('click', function () {
+    if (!confirm('Clear recorded deployments? The contracts stay on-chain; only this page forgets them.')) return;
+    state.deployed = {}; D.saveState(state); renderRows(); log('progress cleared');
+  });
+  $('copy').addEventListener('click', function () {
+    navigator.clipboard.writeText($('manifest').textContent).then(function () { log('manifest copied'); });
+  });
+  $('download').addEventListener('click', function () {
+    var blob = new Blob([$('manifest').textContent], { type: 'application/json' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'hoodz-deployment-' + (chainId || 'unknown') + '.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+
+  if (window.ethereum) {
+    window.ethereum.on && window.ethereum.on('accountsChanged', function (a) { account = a[0]; refreshWallet(); });
+    window.ethereum.on && window.ethereum.on('chainChanged', function (c) { chainId = parseInt(c, 16); refreshWallet(); });
+  }
+})();
+</script>
+</body>
+</html>

@@ -23,6 +23,22 @@
 
 ---
 
+## 0. Where things are right now
+
+The site is **gated behind a coming-soon page**. `web/index.html` is that page; the full landing
+lives at `web/home.html` and is reachable but not linked.
+
+The mock dApp moved to `app-preview/` — **outside** the deployed directory. It renders invented
+balances and yields, which is fine as a design preview and actively misleading on a live finance
+site, so it is not served. Nothing about it is lost; point Vercel's output at it if you want it back.
+
+`web/deploy.html` is a browser deployer for the contract stack. It reads creation bytecode from
+`web/assets/deploy/bytecode.json` (regenerate it from `contracts/out/artifacts.json` after any
+contract change) and sends one transaction per contract from the connected wallet, saving progress
+so a failure resumes. **Use it for testnet.** For mainnet run `forge script script/Deploy.s.sol` —
+it simulates the whole sequence first, wires roles atomically, and verifies in the same command.
+Neither path wires roles for you; see `docs/DEPLOYMENT.md`.
+
 ## 1. What Hoodz is
 
 Hoodz is a reserve-backed currency protocol. It has three jobs:

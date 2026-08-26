@@ -1,0 +1,228 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#829AA6"/>
+      <stop offset="1" stop-color="#6D8591"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2B3C48"/>
+      <stop offset="1" stop-color="#1E2D37"/>
+    </linearGradient>
+    <linearGradient id="marble" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="0.45" stop-color="#E8E5DE"/>
+      <stop offset="0.72" stop-color="#F8F6F0"/>
+      <stop offset="1" stop-color="#D5D1C7"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F4D38A"/>
+      <stop offset="0.5" stop-color="#D9B467"/>
+      <stop offset="1" stop-color="#B88D43"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#1E2D37" flood-opacity="0.16"/>
+    </filter>
+    <style>
+      .sans { font-family: "DejaVu Sans", Arial, sans-serif; }
+      .white { fill: #F8FAFA; }
+      .muted { fill: #D4DEE2; }
+      .subtle { fill: #B9C7CC; }
+      .gold { fill: #E7BE6C; }
+      .section { font: 700 15px "DejaVu Sans", Arial, sans-serif; letter-spacing: 3px; fill: #F0C879; }
+      .card-title { font: 700 20px "DejaVu Sans", Arial, sans-serif; fill: #FFFFFF; }
+      .body { font: 400 14px "DejaVu Sans", Arial, sans-serif; fill: #D8E1E4; }
+      .small { font: 400 12px "DejaVu Sans", Arial, sans-serif; fill: #B8C7CC; }
+      .label { font: 700 12px "DejaVu Sans", Arial, sans-serif; letter-spacing: 2px; fill: #AFC0C7; }
+      .card { fill: #FFFFFF; fill-opacity: 0.065; stroke: #FFFFFF; stroke-opacity: 0.22; stroke-width: 1.5; }
+    </style>
+  </defs>
+
+  <rect width="1500" height="1000" fill="url(#bg)"/>
+
+  <!-- restrained brand watermarks -->
+  <g opacity="0.045" fill="#FFFFFF">
+    <rect x="1282" y="64" width="14" height="84"/>
+    <rect x="1330" y="64" width="14" height="84"/>
+    <rect x="1272" y="64" width="34" height="12"/>
+    <rect x="1320" y="64" width="34" height="12"/>
+    <rect x="1272" y="136" width="34" height="12"/>
+    <rect x="1320" y="136" width="34" height="12"/>
+    <rect x="1292" y="98" width="42" height="12"/>
+  </g>
+
+  <!-- Header -->
+  <g>
+    <rect x="60" y="42" width="64" height="64" rx="10" fill="#FFFFFF" fill-opacity="0.11" stroke="#FFFFFF" stroke-opacity="0.18"/>
+    <g transform="translate(73,53)" fill="url(#marble)" stroke="#D9B467" stroke-width="0.7">
+      <rect x="6" y="0" width="10" height="42"/>
+      <rect x="30" y="0" width="10" height="42"/>
+      <rect x="3" y="0" width="16" height="7"/>
+      <rect x="27" y="0" width="16" height="7"/>
+      <rect x="3" y="35" width="16" height="7"/>
+      <rect x="27" y="35" width="16" height="7"/>
+      <rect x="14" y="17" width="18" height="8"/>
+    </g>
+    <text x="142" y="77" class="sans white" font-size="34" font-weight="700" letter-spacing="-1">HOODZ</text>
+    <text x="143" y="101" class="sans muted" font-size="13" letter-spacing="4">HOW IT WORKS</text>
+    <text x="1440" y="60" text-anchor="end" class="sans gold" font-size="14" font-weight="700" letter-spacing="2">ROBINHOOD CHAIN · 4663</text>
+    <text x="1440" y="88" text-anchor="end" class="sans muted" font-size="12" letter-spacing="2.5">LAUNCHED ON PONS</text>
+    <line x1="60" y1="130" x2="1440" y2="130" stroke="#FFFFFF" stroke-opacity="0.16"/>
+  </g>
+
+  <!-- 01 Launch -->
+  <text x="60" y="172" class="section">01 — THE LAUNCH</text>
+  <g filter="url(#softShadow)">
+    <rect x="60" y="196" width="420" height="126" rx="18" class="card"/>
+    <rect x="540" y="196" width="420" height="126" rx="18" class="card"/>
+    <rect x="1020" y="196" width="420" height="126" rx="18" class="card"/>
+  </g>
+  <!-- connectors -->
+  <g stroke="#F4F7F8" stroke-opacity="0.72" stroke-width="3" fill="#F4F7F8" fill-opacity="0.72">
+    <line x1="493" y1="259" x2="523" y2="259"/>
+    <path d="M523 251 L537 259 L523 267 Z" stroke="none"/>
+    <line x1="973" y1="259" x2="1003" y2="259"/>
+    <path d="M1003 251 L1017 259 L1003 267 Z" stroke="none"/>
+  </g>
+  <!-- Launch card 1 icon -->
+  <g fill="none" stroke="#EDC36F" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M85 282 L104 273 L124 275 L143 252 L160 238"/>
+    <circle cx="160" cy="238" r="6" fill="#F2CD82" stroke="none"/>
+  </g>
+  <text x="184" y="241" class="card-title">Bonding curve</text>
+  <text x="184" y="270" class="body">All 1,000,000,000 HOODZ open</text>
+  <text x="184" y="292" class="body">on the curve. No team bag.</text>
+
+  <!-- Launch card 2 icon -->
+  <circle cx="587" cy="259" r="25" fill="none" stroke="#EDC36F" stroke-width="5"/>
+  <path d="M574 259 L584 269 L602 248" fill="none" stroke="#F8FAFA" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="632" y="241" class="card-title">Graduation</text>
+  <text x="632" y="270" class="body">Curve sells out. Reserves move</text>
+  <text x="632" y="292" class="body">into a Uniswap v4 pool.</text>
+
+  <!-- Launch card 3 icon -->
+  <g>
+    <path d="M1059 253 V241 C1059 226 1083 226 1083 241 V253" fill="none" stroke="#EDC36F" stroke-width="6" stroke-linecap="round"/>
+    <rect x="1052" y="251" width="38" height="34" rx="8" fill="url(#gold)"/>
+    <circle cx="1071" cy="267" r="5" fill="#243541"/>
+  </g>
+  <text x="1110" y="241" class="card-title">Locked forever</text>
+  <text x="1110" y="270" class="body">The LP position can never be</text>
+  <text x="1110" y="292" class="body">withdrawn. Not by anyone.</text>
+
+  <!-- 02 Engine -->
+  <text x="60" y="373" class="section">02 — THE ENGINE</text>
+  <rect x="60" y="396" width="1380" height="332" rx="24" fill="url(#panel)" stroke="#FFFFFF" stroke-opacity="0.14" filter="url(#softShadow)"/>
+
+  <text x="95" y="432" class="label">INPUT</text>
+  <rect x="95" y="450" width="320" height="136" rx="16" fill="#FFFFFF" fill-opacity="0.07" stroke="#FFFFFF" stroke-opacity="0.18"/>
+  <!-- ETH diamond -->
+  <g transform="translate(120,478)">
+    <path d="M24 0 L46 31 L24 43 L2 31 Z" fill="url(#gold)"/>
+    <path d="M24 47 L46 35 L24 64 L2 35 Z" fill="#A99A70"/>
+  </g>
+  <text x="186" y="490" class="sans white" font-size="17" font-weight="700">Someone trades HOODZ</text>
+  <text x="186" y="520" class="body">PONS takes a creator fee</text>
+  <text x="186" y="542" class="body">in ETH.</text>
+  <text x="98" y="620" class="sans gold" font-size="12" font-weight="700">↓ TRIGGERED ON EVERY TRADE</text>
+
+  <!-- Input arrow -->
+  <line x1="430" y1="520" x2="472" y2="520" stroke="#EDC36F" stroke-width="3"/>
+  <path d="M472 510 L490 520 L472 530 Z" fill="#EDC36F"/>
+
+  <!-- Fee splitter donut -->
+  <g transform="rotate(-90 560 535)">
+    <circle cx="560" cy="535" r="70" fill="none" stroke="#435560" stroke-width="28"/>
+    <circle cx="560" cy="535" r="70" fill="none" stroke="#F0C879" stroke-width="28" stroke-dasharray="145.14 294.68" stroke-dashoffset="0"/>
+    <circle cx="560" cy="535" r="70" fill="none" stroke="#D2B06C" stroke-width="28" stroke-dasharray="145.14 294.68" stroke-dashoffset="-145.14"/>
+    <circle cx="560" cy="535" r="70" fill="none" stroke="#E7E3D9" stroke-width="28" stroke-dasharray="149.54 290.28" stroke-dashoffset="-290.28"/>
+  </g>
+  <text x="560" y="530" text-anchor="middle" class="sans white" font-size="15" font-weight="700">FEE</text>
+  <text x="560" y="552" text-anchor="middle" class="sans white" font-size="15" font-weight="700">SPLITTER</text>
+  <text x="560" y="652" text-anchor="middle" class="small">automatic · nobody decides</text>
+
+  <!-- Split arrow -->
+  <line x1="650" y1="535" x2="672" y2="535" stroke="#EDC36F" stroke-width="3"/>
+  <path d="M672 525 L690 535 L672 545 Z" fill="#EDC36F"/>
+  <text x="700" y="421" class="label">SPLIT THREE WAYS</text>
+
+  <!-- Split rows -->
+  <g>
+    <rect x="700" y="438" width="700" height="78" rx="14" fill="#E7BE6C" fill-opacity="0.10" stroke="#E7BE6C" stroke-opacity="0.55"/>
+    <text x="723" y="477" class="sans gold" font-size="27" font-weight="700">33%</text>
+    <g transform="translate(800,455)" fill="#E7BE6C">
+      <rect x="0" y="8" width="28" height="8" rx="4"/>
+      <rect x="0" y="20" width="28" height="8" rx="4"/>
+      <path d="M7 5 L14 0 L21 5 Z"/>
+    </g>
+    <text x="846" y="466" class="sans white" font-size="17" font-weight="700">→ STAKERS</text>
+    <text x="846" y="491" class="body" font-size="12.5">Sent into the staking contract. This pays the rebase — real revenue, not dilution.</text>
+
+    <rect x="700" y="526" width="700" height="78" rx="14" fill="#E7BE6C" fill-opacity="0.055" stroke="#D5B06B" stroke-opacity="0.42"/>
+    <text x="723" y="565" class="sans gold" font-size="27" font-weight="700">33%</text>
+    <path d="M814 548 C801 563 806 576 814 581 C823 576 829 564 814 548 Z" fill="#D9B467"/>
+    <text x="846" y="554" class="sans white" font-size="17" font-weight="700">→ BURNED</text>
+    <text x="846" y="579" class="body" font-size="12.5">Sent where no key exists. Circulating supply only ever falls. Never up.</text>
+
+    <rect x="700" y="614" width="700" height="78" rx="14" fill="#FFFFFF" fill-opacity="0.045" stroke="#FFFFFF" stroke-opacity="0.28"/>
+    <text x="723" y="653" class="sans white" font-size="27" font-weight="700">34%</text>
+    <rect x="798" y="633" width="32" height="25" rx="6" fill="none" stroke="#E9ECEB" stroke-width="4"/>
+    <circle cx="814" cy="645.5" r="5" fill="#E9ECEB"/>
+    <text x="846" y="642" class="sans white" font-size="17" font-weight="700">→ TREASURY</text>
+    <text x="846" y="667" class="body" font-size="12.5">Builds the backing behind every token, and the reserves that fund loans.</text>
+  </g>
+
+  <!-- 03 Actions -->
+  <text x="60" y="765" class="section">03 — WHAT YOU CAN DO WITH HOODZ</text>
+  <g filter="url(#softShadow)">
+    <rect x="60" y="790" width="320" height="126" rx="17" class="card"/>
+    <rect x="400" y="790" width="320" height="126" rx="17" class="card"/>
+    <rect x="740" y="790" width="320" height="126" rx="17" class="card"/>
+    <rect x="1080" y="790" width="360" height="126" rx="17" class="card"/>
+  </g>
+
+  <!-- Stake -->
+  <g transform="translate(85,801)" fill="#E7BE6C">
+    <rect x="0" y="0" width="34" height="9" rx="5"/>
+    <rect x="0" y="14" width="34" height="9" rx="5"/>
+    <rect x="0" y="28" width="34" height="9" rx="5"/>
+  </g>
+  <text x="85" y="865" class="card-title">Stake</text>
+  <text x="85" y="889" class="body">Balance grows every 8 hours,</text>
+  <text x="85" y="910" class="body">paid out of trading fees.</text>
+
+  <!-- Vote -->
+  <rect x="425" y="801" width="32" height="38" rx="5" fill="none" stroke="#EFF3F2" stroke-width="4"/>
+  <path d="M433 821 L441 829 L454 811" fill="none" stroke="#E7BE6C" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="425" y="865" class="card-title">Vote</text>
+  <text x="425" y="889" class="body">Wrap to gHOODZ and decide</text>
+  <text x="425" y="910" class="body">every parameter on-chain.</text>
+
+  <!-- Borrow -->
+  <circle cx="771" cy="817" r="15" fill="none" stroke="#E7BE6C" stroke-width="5"/>
+  <line x1="791" y1="817" x2="826" y2="817" stroke="#EFF3F2" stroke-width="5" stroke-linecap="round"/>
+  <path d="M816 807 L826 817 L816 827" fill="none" stroke="#EFF3F2" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="765" y="865" class="card-title">Borrow</text>
+  <text x="765" y="889" class="body">0.5% fixed against the backing.</text>
+  <text x="765" y="910" class="body">No price liquidations, ever.</text>
+
+  <!-- Hold -->
+  <g transform="translate(1105,799) scale(0.76)" fill="url(#marble)" stroke="#D9B467" stroke-width="0.8">
+    <rect x="6" y="0" width="10" height="42"/>
+    <rect x="30" y="0" width="10" height="42"/>
+    <rect x="3" y="0" width="16" height="7"/>
+    <rect x="27" y="0" width="16" height="7"/>
+    <rect x="3" y="35" width="16" height="7"/>
+    <rect x="27" y="35" width="16" height="7"/>
+    <rect x="14" y="17" width="18" height="8"/>
+  </g>
+  <text x="1105" y="865" class="card-title">Hold</text>
+  <text x="1105" y="889" class="body">A third of every fee is burned.</text>
+  <text x="1105" y="910" class="body">Supply only goes one way.</text>
+
+  <!-- Footer -->
+  <line x1="60" y1="936" x2="1440" y2="936" stroke="#FFFFFF" stroke-opacity="0.17"/>
+  <text x="60" y="965" class="sans white" font-size="16" font-weight="700">Your yield = <tspan fill="#F0C879">fees collected ÷ HOODZ staked</tspan></text>
+  <text x="60" y="988" class="sans subtle" font-size="11.5">No minting. No inflation. Nothing that isn't paid for by real trading volume.</text>
+  <text x="1440" y="964" text-anchor="end" class="sans muted" font-size="12" font-weight="700" letter-spacing="1.5">hoodz.finance</text>
+  <text x="1440" y="988" text-anchor="end" class="sans subtle" font-size="10.5">Unaudited software. Not investment advice.</text>
+</svg>
