@@ -18,8 +18,14 @@ import {HoodzAccessControlled} from "../types/HoodzAccessControlled.sol";
 ///
 ///         A gHOODZ balance is constant while the sHOODZ it represents grows with the index:
 ///
-///             balanceFrom(g) = g * index / 1e9      gHOODZ (18dp) -> sHOODZ (9dp)
-///             balanceTo(s)   = s * 1e9 / index      sHOODZ  (9dp) -> gHOODZ (18dp)
+///             balanceFrom(g) = g * index / 1e18     gHOODZ (18dp) -> sHOODZ (9dp)
+///             balanceTo(s)   = s * 1e18 / index     sHOODZ  (9dp) -> gHOODZ (18dp)
+///
+///         The divisor is 10**decimals() of THIS token (1e18), not of sHOODZ. That is what makes
+///         one whole gHOODZ equal `index` whole sHOODZ, so at genesis (index = 1e9 = 1.0) one
+///         gHOODZ is one sHOODZ. Using 1e9 here would still round-trip, but every absolute
+///         constant written in gHOODZ terms - the governor proposal threshold, the Clearinghouse
+///         oLTC - would be off by a factor of 1e9.
 ///
 ///         Because balances never rebase, gHOODZ can carry ERC20Votes checkpoints and be bridged
 ///         or used as collateral. Only the staking contract may mint or burn it.
@@ -42,8 +48,8 @@ contract gHOODZ is IgHOODZ, ERC20, ERC20Permit, ERC20Votes, HoodzAccessControlle
 
     /* ======================================== CONSTANTS ======================================= */
 
-    /// @dev Scaling factor between sHOODZ (9 decimals) and the index (9 decimals).
-    uint256 private constant INDEX_SCALE = 1e9;
+    /// @dev 10**decimals() of gHOODZ. Mirrors gOHM, which divides by `10 ** decimals()`.
+    uint256 private constant INDEX_SCALE = 1e18;
 
     /* ========================================== STATE ========================================= */
 

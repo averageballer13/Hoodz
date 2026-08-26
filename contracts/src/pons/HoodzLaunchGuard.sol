@@ -11,14 +11,20 @@ import {IUniswapV4PoolManager, PonsPoolId} from "./IUniswapV4PoolManager.sol";
 import {PonsLaunchConfig} from "./PonsLaunchConfig.sol";
 
 /// @notice The one mutating call {HoodzLaunchGuard} makes on `HoodzAuthority`.
-/// @dev Mirrors `OlympusAuthority.pushVault`. Declared locally, and deliberately narrow: the guard can
-///      move the vault role and nothing else. The `IHoodzAuthority` shared interface is read-only, so
+/// @dev The write side of the authority the guard needs. Declared locally, and deliberately narrow: the guard can
+///      move the vault role out of escrow and nothing else. The `IHoodzAuthority` shared interface is read-only, so
 ///      the write side lives here rather than widening a type other contracts depend on.
 interface IHoodzAuthorityVaultHandoff {
-    /// @notice Move the vault role to `newVault`.
-    /// @param newVault The address receiving the vault role.
-    /// @param effectiveImmediately True to transfer in one step, false to require the recipient to pull.
-    function pushVault(address newVault, bool effectiveImmediately) external;
+    /// @notice Move the vault role to `newVault`. Callable only by the registered launch guard.
+    /// @dev `HoodzAuthority.releaseVaultFromGuard` checks `msg.sender == launchGuard`, so the
+    ///      caller here is THIS contract, not a human. That is what makes the handoff reachable:
+    ///      `pushVault` is `onlyGovernor` on the authority, and the guard is never the governor,
+    ///      so calling it from here could never succeed.
+    /// @param newVault The address receiving mint authority.
+    function releaseVaultFromGuard(address newVault) external;
+
+    /// @notice The guard currently escrowing the vault role, or zero once released.
+    function launchGuard() external view returns (address);
 }
 
 /// @title HoodzLaunchGuard
@@ -43,9 +49,11 @@ interface IHoodzAuthorityVaultHandoff {
 ///      The Treasury address is immutable. Governance chooses *when* the handoff happens, never *where*
 ///      it goes.
 ///
-///      Deployment requirement: `HoodzAuthority` must accept `pushVault` from this contract for the
-///      duration of the launch window. Since {releaseToTreasury} can fire exactly once and can only
-///      ever name `TREASURY`, granting that right is bounded in both time and effect.
+///      Deployment requirement: the governor must call `HoodzAuthority.lockVaultToGuard(guard)`
+///      once, which installs this contract as the vault and disables `pushVault` outright. From
+///      that point the ONLY way the vault role can move is {releaseToTreasury} here, which can fire
+///      exactly once and can only ever name `TREASURY`. Skip that call and the guard is decorative:
+///      the governor could hand mint authority to the treasury directly and bypass every check.
 contract HoodzLaunchGuard is HoodzAccessControlled {
     /* ----------------------------------------------------------------- errors */
 
@@ -213,7 +221,7 @@ contract HoodzLaunchGuard is HoodzAccessControlled {
         released = true;
         verifiedPool = pool;
 
-        IHoodzAuthorityVaultHandoff(HOODZ_AUTHORITY).pushVault(TREASURY, true);
+        IHoodzAuthorityVaultHandoff(HOODZ_AUTHORITY).releaseVaultFromGuard(TREASURY);
         if (IHoodzAuthority(HOODZ_AUTHORITY).vault() != TREASURY) revert HandoffFailed();
 
         emit MintAuthorityReleased(TREASURY, uint64(block.timestamp));

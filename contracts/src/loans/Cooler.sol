@@ -239,10 +239,14 @@ contract Cooler is ICooler {
     {
         Request memory req = _requests[reqID_];
         if (!req.active) revert Deactivated();
-        if (isCallback_ && !ICoolerCallback(msg.sender).isCoolerCallback()) revert NotCoolerCallback();
 
+        // Deactivate BEFORE the callback probe. `isCoolerCallback()` is a call into lender-supplied
+        // code, and a malicious lender that re-enters clearRequest during it would otherwise clear
+        // the same request twice - two loans, one lot of collateral.
         _requests[reqID_].active = false;
         req.active = false;
+
+        if (isCallback_ && !ICoolerCallback(msg.sender).isCoolerCallback()) revert NotCoolerCallback();
 
         loanID = _loans.length;
         _loans.push(

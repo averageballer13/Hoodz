@@ -171,7 +171,11 @@ The Treasury is inert until step 12: it holds no vault role and can mint nothing
 
 ### Step 7 — Freeze supply: push the vault role to the guard
 
-Signer: governor. `authority.pushVault(address(guard), true)`.
+Signer: governor. `authority.lockVaultToGuard(address(guard))`.
+
+This installs the guard as the vault **and disables `pushVault`**, so from this call onward the only
+way mint authority can reach the treasury is `guard.releaseToTreasury()`, which re-checks graduation
+and the LP lock live. Using `pushVault` here instead would leave the guard decorative.
 
 Verify: `guard.holdsVaultRole() == true` and `authority.vault() == address(guard)`. Record
 `hoodz.totalSupply()` — this number cannot change again until step 12.
@@ -180,7 +184,8 @@ Verify: `guard.holdsVaultRole() == true` and `authority.vault() == address(guard
 trading. Trading that opens while the operator still holds the vault role is a launch where the team
 can mint into its own market.
 
-The escape hatch, deliberately preserved: the governor keeps `pushVault` on `HoodzAuthority`. If the
+There is deliberately **no** governor escape hatch while the vault is escrowed: `pushVault` reverts
+with `HoodzAuthority_VaultLockedToGuard`. If the
 guard turns out to be mis-specified against the live PONS locker (step 9), governance can deploy a
 corrected guard and push the vault role to it. Supply stays frozen throughout — the guard is a
 credible commitment about *timing*, not a lock that can strand the protocol permanently.
@@ -263,7 +268,8 @@ Verify: `authority.vault() == treasury`, `guard.released() == true`, `guard.hold
 **Risk:** irreversible. From this block on, the protocol can mint HOODZ. The guard is spent — `arm()`,
 `verifyGraduation()` and `abort()` all revert with `AlreadyReleased()` forever.
 
-Prerequisite for this call to succeed at all: `HoodzAuthority` must accept `pushVault` from the guard.
+Prerequisite for this call to succeed at all: `lockVaultToGuard(guard)` must already have run, so the
+authority recognises this contract as its `launchGuard`.
 Confirm this on testnet in step 0 — it is the one integration assumption in the guard that only the
 live authority can settle.
 
@@ -339,7 +345,7 @@ failed or skipped buyback costs nothing but delay.
 | `verifyGraduation()` reverts `LpNotLocked` | Position missing, empty, unlockable, or the interface does not match the live locker | Stop. Read `locker.lockOf(HOODZ)` directly. If the lock is genuine, deploy a corrected guard and re-push the vault role |
 | `releaseToTreasury()` reverts `NotArmed` | Never armed, or the guardian aborted | Governor re-runs `arm()` and waits the full 48h again |
 | `releaseToTreasury()` reverts `DelayNotElapsed` | Less than 48h since `arm()` | Wait. `secondsUntilRelease()` reports how long |
-| `releaseToTreasury()` reverts `HandoffFailed` | `HoodzAuthority` did not accept `pushVault` from the guard | Authority misconfiguration. Nothing is released; fix the authority's permissions and retry |
+| `releaseToTreasury()` reverts `HoodzAuthority_NotLaunchGuard` | `lockVaultToGuard` was never called, or named a different address | Authority misconfiguration. Nothing is released; fix the authority's permissions and retry |
 | `buybackAndBurn` reverts `NothingToBuy` | No reserve on hand and nothing claimable | Check `pendingFees()` before firing |
 | `buybackAndBurn` reverts `InsufficientOutput` | Price moved past `minOut` | Re-quote and resend with a fresh `minOut` and `deadline` |
 

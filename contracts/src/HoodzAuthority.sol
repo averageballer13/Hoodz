@@ -21,6 +21,19 @@ contract HoodzAuthority is IHoodzAuthority, HoodzAccessControlled {
     error HoodzAuthority_ZeroAddress();
     /// @notice Caller is not the nominated successor for this role.
     error HoodzAuthority_NotNominated(address caller);
+    /// @notice The vault role is escrowed with the launch guard; only the guard can move it.
+    error HoodzAuthority_VaultLockedToGuard(address launchGuard);
+    /// @notice The vault role is already escrowed with a launch guard. One-shot.
+    error HoodzAuthority_VaultAlreadyLocked();
+    /// @notice Caller is not the registered launch guard.
+    error HoodzAuthority_NotLaunchGuard(address caller);
+
+    /* ========================================= EVENTS ========================================= */
+
+    /// @notice The vault role was escrowed with `launchGuard`; HOODZ supply is now frozen.
+    event VaultLockedToGuard(address indexed launchGuard);
+    /// @notice `launchGuard` completed its checks and released the vault role to `newVault`.
+    event VaultReleasedFromGuard(address indexed launchGuard, address indexed newVault);
 
     /* ========================================== STATE ========================================= */
 
@@ -41,6 +54,14 @@ contract HoodzAuthority is IHoodzAuthority, HoodzAccessControlled {
     address public newPolicy;
     /// @notice Vault nominee awaiting pullVault().
     address public newVault;
+
+    /// @notice The launch guard currently escrowing the vault role, or zero.
+    /// @dev While non-zero, {pushVault} is disabled: the ONLY way to move the vault role is
+    ///      {releaseVaultFromGuard}, which only the guard itself can call and which the guard only
+    ///      calls after PONS graduation, a live LP-lock check and its 48h delay. Without this the
+    ///      guard would be decorative - a governor could hand mint authority straight to the
+    ///      treasury with one `pushVault` and skip every check.
+    address public launchGuard;
 
     /* ======================================= CONSTRUCTOR ====================================== */
 
@@ -103,11 +124,56 @@ contract HoodzAuthority is IHoodzAuthority, HoodzAccessControlled {
     /// @notice Nominate a new vault (the address allowed to mint HOODZ).
     /// @param _newVault           Successor address.
     /// @param _effectiveImmediately True to install the successor now instead of waiting for a pull.
+    /// @dev Reverts while the vault role is escrowed with a launch guard.
     function pushVault(address _newVault, bool _effectiveImmediately) external onlyGovernor {
+        if (launchGuard != address(0)) revert HoodzAuthority_VaultLockedToGuard(launchGuard);
         if (_newVault == address(0)) revert HoodzAuthority_ZeroAddress();
         if (_effectiveImmediately) vault = _newVault;
         newVault = _newVault;
         emit VaultPushed(vault, _newVault, _effectiveImmediately);
+    }
+
+    /* ====================================== LAUNCH GUARD ====================================== */
+
+    /// @notice Escrow the vault role with the PONS launch guard. One-way, one-shot.
+    /// @dev Governor only, and only once. Installs `_launchGuard` as the vault immediately, which
+    ///      freezes HOODZ supply: the guard has no mint function, so no HOODZ can be created until
+    ///      {releaseVaultFromGuard}. From this call onwards {pushVault} reverts, so the governor
+    ///      cannot route around the guard's graduation and LP-lock checks.
+    ///      Deploy order: HoodzAuthority -> HoodzLaunchGuard(authority) -> lockVaultToGuard(guard).
+    /// @param _launchGuard The HoodzLaunchGuard instance.
+    function lockVaultToGuard(address _launchGuard) external onlyGovernor {
+        if (launchGuard != address(0)) revert HoodzAuthority_VaultAlreadyLocked();
+        if (_launchGuard == address(0)) revert HoodzAuthority_ZeroAddress();
+
+        launchGuard = _launchGuard;
+
+        emit VaultPushed(vault, _launchGuard, true);
+        vault = _launchGuard;
+        newVault = _launchGuard;
+
+        emit VaultLockedToGuard(_launchGuard);
+    }
+
+    /// @notice Move the vault role out of escrow. Callable only by the registered launch guard.
+    /// @dev The guard calls this from {HoodzLaunchGuard.releaseToTreasury} once graduation and the
+    ///      permanent LP lock are verified live and its delay has elapsed. `msg.sender` is the guard
+    ///      contract, not a human, which is why this is deliberately NOT `onlyGovernor`: the guard
+    ///      is never the governor, so an `onlyGovernor` check here would make the handoff
+    ///      unreachable in every deployment. Clearing `launchGuard` re-enables {pushVault}.
+    /// @param _newVault The address receiving mint authority (the Hoodz Treasury).
+    function releaseVaultFromGuard(address _newVault) external {
+        if (msg.sender != launchGuard) revert HoodzAuthority_NotLaunchGuard(msg.sender);
+        if (_newVault == address(0)) revert HoodzAuthority_ZeroAddress();
+
+        address guard = launchGuard;
+        launchGuard = address(0);
+
+        emit VaultPushed(vault, _newVault, true);
+        vault = _newVault;
+        newVault = _newVault;
+
+        emit VaultReleasedFromGuard(guard, _newVault);
     }
 
     /* ========================================== PULL ========================================== */

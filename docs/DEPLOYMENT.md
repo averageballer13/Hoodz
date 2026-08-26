@@ -256,7 +256,7 @@ cast call $HOODZ "decimals()(uint8)"      --rpc-url robinhood_testnet   # -> 9
 
 ```bash
 # governor
-cast send $AUTHORITY "pushVault(address,bool)" $LAUNCH_GUARD true --rpc-url $RPC --account hoodz-governor
+cast send $AUTHORITY "lockVaultToGuard(address)" $LAUNCH_GUARD --rpc-url $RPC --account hoodz-governor
 
 cast call $AUTHORITY "vault()(address)"        --rpc-url $RPC   # -> $LAUNCH_GUARD
 cast call $LAUNCH_GUARD "holdsVaultRole()(bool)" --rpc-url $RPC # -> true
@@ -266,7 +266,8 @@ From here until §7.4, **HOODZ's total supply cannot change** — the guard has 
 Publish the frozen supply and this transaction hash before trading opens. Trading that opens while
 the operator still holds `vault` is a launch where the team can mint mid-price-discovery.
 
-The escape hatch, deliberately preserved: the governor keeps `pushVault` on `HoodzAuthority`. If the
+Note that `lockVaultToGuard` **disables `pushVault`**. That is the point: while the vault role is
+escrowed with the guard there is no governor path to mint authority at all. The only escape hatch is
 guard turns out to be wrong, deploy a corrected one and push the role to it. Supply stays frozen
 throughout — the guard is a checkpoint, not a trap.
 
@@ -431,7 +432,7 @@ cast call $LAUNCH_GUARD "holdsVaultRole()(bool)" --rpc-url $RPC   # -> false
 cast send $HOODZ "mint(address,uint256)" $SOME_EOA 1 --rpc-url $RPC --private-key $PK   # must revert
 ```
 
-Note that `pushVault` is inherently a one-step handover — a contract cannot call `pullVault()` to
+Note that the handover is inherently one-step — a contract cannot call `pullVault()` to
 confirm itself — which is exactly why the guard checks the destination against an immutable address
 and asserts the result rather than trusting the call to have landed.
 

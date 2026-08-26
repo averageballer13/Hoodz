@@ -33,6 +33,14 @@ import {HoodzAccessControlled} from "../types/HoodzAccessControlled.sol";
 ///         TOTAL_GONS is the largest multiple of INITIAL_FRAGMENTS_SUPPLY that fits in a uint256,
 ///         so _gonsPerFragment starts as an exact integer and stays maximally granular. The
 ///         MAX_SUPPLY cap keeps amount * _gonsPerFragment inside a uint256 forever.
+/// @notice The single view {sHOODZ} needs from the staking contract.
+/// @dev Declared locally rather than widening `IStaking`, which every other contract depends on.
+///      `supplyInWarmup()` is a pure view over `gonsInWarmup` and never re-enters.
+interface IWarmupSupply {
+    /// @return sHOODZ held by the staking contract on behalf of depositors still in warmup.
+    function supplyInWarmup() external view returns (uint256);
+}
+
 contract sHOODZ is IsHOODZ, IERC20Metadata, EIP712, Nonces, HoodzAccessControlled {
     /* ========================================= ERRORS ========================================= */
 
@@ -285,13 +293,18 @@ contract sHOODZ is IsHOODZ, IERC20Metadata, EIP712, Nonces, HoodzAccessControlle
     }
 
     /// @notice Supply owned by users rather than parked in the staking contract.
-    /// @dev    sHOODZ wrapped into gHOODZ is transferred TO the staking contract, so it sits inside
-    ///         balanceOf(stakingContract) and has to be added back: it is economically
-    ///         circulating, it is simply represented by gHOODZ. This mirrors sOHM exactly.
+    /// @dev    Two slices live inside `balanceOf(stakingContract)` but are economically owned by
+    ///         users, so both are added back:
+    ///           - sHOODZ wrapped into gHOODZ, which is transferred TO the staking contract;
+    ///           - sHOODZ sitting in warmup, still credited to the depositor.
+    ///         Omitting the warmup slice would make {HoodzStaking.rebase} read every warmup deposit
+    ///         as distributable surplus and hand it to existing stakers, leaving the depositor's
+    ///         principal unbacked. This mirrors sOHM exactly.
     /// @return The circulating sHOODZ supply, 9 decimals.
     function circulatingSupply() public view override returns (uint256) {
         uint256 wrapped = address(gHOODZ) == address(0) ? 0 : gHOODZ.balanceFrom(gHOODZ.totalSupply());
-        return _totalSupply - balanceOf(stakingContract) + wrapped;
+        uint256 warmup = stakingContract == address(0) ? 0 : IWarmupSupply(stakingContract).supplyInWarmup();
+        return _totalSupply - balanceOf(stakingContract) + wrapped + warmup;
     }
 
     /// @notice Growth-adjusted index: what one sHOODZ staked at genesis is worth today.

@@ -614,11 +614,14 @@ contract Deploy is Script {
             authority.pushVault(address(treasury), true);
             console2.log("vault role -> HoodzTreasury (minting live)");
         } else {
-            authority.pushVault(d.launchGuard, true);
-            console2.log("vault role -> HoodzLaunchGuard (HOODZ supply frozen until graduation)");
+            // lockVaultToGuard, not pushVault: it installs the guard as the vault AND disables
+            // pushVault, so from here the ONLY way mint authority can reach the treasury is
+            // HoodzLaunchGuard.releaseToTreasury(), which checks graduation and the LP lock live.
+            // Using pushVault here would leave the governor free to skip the guard entirely.
+            authority.lockVaultToGuard(d.launchGuard);
+            console2.log("vault role -> HoodzLaunchGuard, escrowed (HOODZ supply frozen)");
+            console2.log("  authority.pushVault is now disabled until the guard releases");
             console2.log("  post-graduation: verifyGraduation() -> arm() -> wait 48h -> releaseToTreasury()");
-            console2.log("  NOTE: releaseToTreasury() calls authority.pushVault, so the guard must hold");
-            console2.log("        the governor role at that moment. Sequence the handover accordingly.");
         }
 
         if (cfg.transferGovernance) {

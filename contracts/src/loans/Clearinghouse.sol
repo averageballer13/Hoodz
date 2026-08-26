@@ -261,6 +261,11 @@ contract Clearinghouse is IClearinghouse, ICoolerCallback, HoodzAccessControlled
 
         for (uint256 i; i < length; ++i) {
             if (!factory.created(coolers_[i])) revert OnlyFromFactory();
+            // The escrow being factory-made is not enough: it says nothing about WHO funded this
+            // particular loan. Without the lender check a keeper could point us at defaults on
+            // loans funded by some other lender and collect a gHOODZ reward out of our balance for
+            // seizures we never receive.
+            if (ICooler(coolers_[i]).getLoan(loans_[i]).lender != address(this)) revert NotLender();
 
             (uint256 seized, uint256 principal, uint256 interest, uint256 elapsed) =
                 ICooler(coolers_[i]).claimDefaulted(loans_[i]);

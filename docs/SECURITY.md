@@ -191,7 +191,9 @@ cannot fix with better Solidity.
 - The 48-hour `TRANSFER_DELAY` being shortenable, restartable in a way that skips the wait, or
   bypassable by re-arming.
 - `abort()` reachable by anyone other than `guardian`, or unable to stop a release once armed.
-- **A compromised or unavailable governor.** The governor keeps `pushVault` on `HoodzAuthority`,
+- **A compromised or unavailable governor.** While the vault role is escrowed with the launch guard
+  `pushVault` reverts outright, so a compromised governor cannot reach mint authority. Once released,
+  the governor holds `pushVault` on `HoodzAuthority`,
   which is what allows a corrected guard to replace a broken one — and also means the guard cannot
   protect against a hostile governor. A governor address nobody controls bricks the launch with
   supply already frozen. This is an accepted design trade-off; see §3.4.
@@ -546,3 +548,47 @@ Until all four exist, treat this repository as what it is: a study of a protocol
 
 If you have found a vulnerability in this code as it stands, open a normal issue — nothing here is
 deployed, so there is nothing to disclose privately.
+
+---
+
+## 9. Adversarial review, 26 August 2026
+
+A four-lens automated review (accounting, access control, reentrancy, PONS) produced 20 findings.
+Six were high severity. All six are fixed; the rest are recorded here as known and open.
+
+### Fixed
+
+| Severity | Where | What was wrong |
+| -------- | ----- | -------------- |
+| High | `tokens/gHOODZ.sol` | `INDEX_SCALE` was `1e9` instead of `10**decimals()` (`1e18`), so `balanceFrom`/`balanceTo` were off by 1e9 against the 18-decimal denomination. Every absolute constant written in gHOODZ terms broke: the governor's 1,000 gHOODZ proposal threshold became unreachable for **every** account forever, and the Clearinghouse oLTC was mis-scaled by the same factor. Round-trips stayed self-consistent, which is why relative-only tests missed it. |
+| High | `tokens/sHOODZ.sol` | `circulatingSupply()` omitted the sHOODZ parked in staking warmup, so `HoodzStaking.rebase()` read every warmup deposit as distributable surplus and paid it to existing stakers. The depositor's principal was then unbacked and permanently unrecoverable once others unstaked. Only reachable with a non-zero warmup, which the deploy script supports. |
+| High | `HoodzAuthority.sol` | `pushVault` was plain `onlyGovernor` and never consulted the launch guard, so the governor could hand mint authority to the treasury in one transaction and skip graduation entirely. The guard was decorative. |
+| High | `pons/HoodzLaunchGuard.sol` | `releaseToTreasury()` was unreachable in every possible deployment: it is `onlyGovernor` on the guard **and** called `HoodzAuthority.pushVault`, which is `onlyGovernor` on the authority. The guard would have had to be the governor and not be the governor at the same time. |
+| High | `loans/Clearinghouse.sol` | `claimDefaulted` checked only that the escrow came from the trusted factory, never that this policy was the loan's lender. A keeper could point it at defaults on someone else's loans and collect a gHOODZ reward out of our balance for collateral we never receive. |
+| High | `loans/Cooler.sol` | `clearRequest` called the lender-supplied `ICoolerCallback.isCoolerCallback()` hook **before** deactivating the request, so a malicious lender could re-enter and clear the same request twice — two loans against one lot of collateral. |
+
+The first four are fixed by a single design change plus one constant:
+
+* `HoodzAuthority.lockVaultToGuard(guard)` — governor-only, one-shot. Installs the guard as the
+  vault (freezing supply, since the guard has no mint function) **and disables `pushVault`**.
+* `HoodzAuthority.releaseVaultFromGuard(newVault)` — callable only by the registered guard, so
+  `msg.sender` is the guard contract while the human governor calls `releaseToTreasury()`. No
+  deadlock, and no bypass.
+
+### Known and open
+
+Four medium findings are recorded but not fixed, because each is a governance-trust question rather
+than a bug an attacker can reach unaided:
+
+* `Distributor.setAdjustment` — a downward ramp whose target sits *above* the current rate snaps the
+  rate to the target on the first `_adjust`, defeating the guardian's 2.5% step limiter.
+* `NoteKeeper.addNote` — books the note's gHOODZ payout at the pre-rebase index while the staking
+  call that follows mints at the post-rebase index, so epoch-straddling bonds are over-credited by
+  roughly one epoch's rebase.
+* `HoodzTreasury.tokenValue` — prices an ERC-4626 savings-vault share at face value.
+* `pons/FeeRouterBuyback.buybackAndBurn` — spends the whole reserve balance measured at execution
+  time against a `minOut` chosen at signing time.
+
+Plus three low findings: permissionless `redeem` of another account's matured note, a 1-wei stake
+that resets a locked account's warmup clock, and `push*` events reporting the new holder in the
+`from` field. **An audit must revisit all of these.**
