@@ -4,7 +4,6 @@
   "status": "UNLAUNCHED",
   "generatedAt": null,
   "generatedBy": "contracts/script/DeployPonsLaunch.s.sol",
-
   "network": {
     "selected": "robinhood_testnet",
     "name": "Robinhood Chain Testnet",
@@ -14,7 +13,6 @@
     "gasToken": "ETH",
     "evm": "cancun"
   },
-
   "knownNetworks": {
     "robinhood": {
       "name": "Robinhood Chain",
@@ -33,7 +31,6 @@
       "evm": "cancun"
     }
   },
-
   "roles": {
     "governor": "0x0000000000000000000000000000000000000000",
     "guardian": "0x0000000000000000000000000000000000000000",
@@ -42,7 +39,6 @@
     "vaultNote": "Set to the launch operator for the single pre-launch mint, then pushed to HoodzLaunchGuard, then to HoodzTreasury at release. Nothing else may ever hold it.",
     "launchOperator": "0x0000000000000000000000000000000000000000"
   },
-
   "token": {
     "name": "Hoodz",
     "symbol": "HOODZ",
@@ -61,7 +57,6 @@
       "mintGatedBy": "HoodzAuthority.vault()"
     }
   },
-
   "launch": {
     "launchpad": "0x0000000000000000000000000000000000000000",
     "curve": "0x0000000000000000000000000000000000000000",
@@ -83,7 +78,6 @@
     "launchTimestamp": null,
     "launchTxHash": null
   },
-
   "graduation": {
     "graduated": false,
     "pool": "0x0000000000000000000000000000000000000000",
@@ -107,7 +101,6 @@
     "graduatedAt": null,
     "graduationTxHash": null
   },
-
   "contracts": {
     "HoodzAuthority": "0x0000000000000000000000000000000000000000",
     "HOODZ": "0x0000000000000000000000000000000000000000",
@@ -120,9 +113,14 @@
     "HoodzStaking": "0x0000000000000000000000000000000000000000",
     "Distributor": "0x0000000000000000000000000000000000000000",
     "BondDepository": "0x0000000000000000000000000000000000000000",
-    "deployedAfterRelease": ["sHOODZ", "gHOODZ", "HoodzStaking", "Distributor", "BondDepository"]
+    "deployedAfterRelease": [
+      "sHOODZ",
+      "gHOODZ",
+      "HoodzStaking",
+      "Distributor",
+      "BondDepository"
+    ]
   },
-
   "guard": {
     "transferDelaySeconds": 172800,
     "transferDelayNote": "48h. Compiled in as a constant - it cannot be shortened by governance.",
@@ -136,7 +134,6 @@
     "releasedAt": null,
     "releaseTxHash": null
   },
-
   "fees": {
     "feeRouter": "0x0000000000000000000000000000000000000000",
     "swapRouter": "0x0000000000000000000000000000000000000000",
@@ -153,7 +150,6 @@
       "totalBurned": "0"
     }
   },
-
   "treasurySeed": {
     "initialReserves": [
       {
@@ -171,7 +167,6 @@
     "firstEpochTime": null,
     "initialRewardRateBps": null
   },
-
   "verification": {
     "sourcesVerifiedOnBlockscout": false,
     "hoodzIsCleanErc20": false,
@@ -181,5 +176,14 @@
     "guardVerifyGraduationSimulated": false,
     "armDelayObserved": false,
     "mintAuthorityAtTreasury": false
+  },
+  "creator": {
+    "devWallet": "0x9aA5e1Bd45375700B7C26E0277Bac6b48cE95719",
+    "feeSplitBps": {
+      "stakers": 3300,
+      "burn": 3300,
+      "treasury": 3400
+    },
+    "note": "PONS pays creator fees to this wallet. Repoint it at CreatorFeeSplitter once deployed so the split is automatic."
   }
 }
