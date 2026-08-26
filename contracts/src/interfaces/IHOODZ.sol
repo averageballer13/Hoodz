@@ -1,25 +1,19 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// UNAUDITED. Do not use in production without a full audit.
 pragma solidity ^0.8.24;
+
+/// @dev UNAUDITED. Do not use in production without a full audit.
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /// @title  IHOODZ
-/// @notice The HOODZ reserve currency: a clean, permissionless ERC20 (9 decimals) whose supply is
-///         minted exclusively by the Hoodz Treasury, i.e. authority.vault().
-/// @dev    UNAUDITED. Do not use in production without a full audit.
-interface IHOODZ is IERC20 {
-    /// @notice Mint new HOODZ. Restricted to authority.vault().
-    /// @param account_ Recipient of the newly minted HOODZ.
-    /// @param amount_  Amount to mint, in HOODZ wei (9 decimals).
-    function mint(address account_, uint256 amount_) external;
-
-    /// @notice Burn HOODZ held by the caller.
-    /// @param amount_ Amount to burn, in HOODZ wei (9 decimals).
-    function burn(uint256 amount_) external;
-
-    /// @notice Burn HOODZ held by account_, debiting the caller allowance.
-    /// @param account_ Account whose HOODZ is burned.
-    /// @param amount_  Amount to burn, in HOODZ wei (9 decimals).
-    function burnFrom(address account_, uint256 amount_) external;
-}
+/// @notice The HOODZ token as the protocol sees it: a plain ERC20 and nothing more.
+/// @dev    HOODZ is NOT deployed by this repository. The PONS launchpad deploys it from its own
+///         factory when the launch form is submitted: fixed supply of 1,000,000,000, the entire
+///         amount minted straight to the bonding curve, no creator allocation, no owner, no mint
+///         function and no burn function.
+///
+///         That is why this interface is bare. Anywhere the Olympus design would have minted, this
+///         protocol pays out of treasury inventory instead ({ITreasury.payout}); anywhere it would
+///         have burned, it transfers to the dead address ({HoodzBurn}). Do not add `mint` here -
+///         there is nothing on the other side to call.
+interface IHOODZ is IERC20 {}

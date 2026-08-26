@@ -18,7 +18,7 @@ import {console2} from "forge-std/console2.sol";
 ///         Robinhood Chain runs Blockscout, which is Etherscan-API compatible. The canonical
 ///         invocation for a single contract is:
 ///
-///   forge verify-contract <ADDRESS> src/tokens/HOODZ.sol:HOODZ \
+///   forge verify-contract <ADDRESS> src/tokens/sHOODZ.sol:sHOODZ \
 ///     --chain-id 4663 \
 ///     --verifier blockscout \
 ///     --verifier-url https://robinhoodchain.blockscout.com/api \
@@ -68,7 +68,7 @@ contract Verify is Script {
         console2.log("");
 
         _print("HoodzAuthority", "src/HoodzAuthority.sol:HoodzAuthority");
-        _print("HOODZ", "src/tokens/HOODZ.sol:HOODZ");
+        // HOODZ is deployed and verified by PONS, not by this repo - nothing to submit here.
         _print("sHOODZ", "src/tokens/sHOODZ.sol:sHOODZ");
         _print("gHOODZ", "src/tokens/gHOODZ.sol:gHOODZ");
         _print("HoodzTreasury", "src/HoodzTreasury.sol:HoodzTreasury");

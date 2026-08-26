@@ -42,6 +42,9 @@ error HoodzTreasury_NotApproved();
 error HoodzTreasury_InvalidToken();
 /// @notice Thrown when an action would consume more than the treasury's excess reserves.
 error HoodzTreasury_InsufficientReserves();
+/// @notice The treasury does not hold enough HOODZ to make this payout. Fixed supply: it can only
+///         ever distribute what it already owns.
+error HoodzTreasury_InsufficientInventory(uint256 requested, uint256 held);
 /// @notice Thrown when a debtor's position would exceed their configured debt limit.
 error HoodzTreasury_ExceedsDebtLimit();
 /// @notice Thrown when sHOODZ has not been registered yet but debt accounting was requested.
@@ -98,7 +101,7 @@ contract HoodzTreasury is HoodzAccessControlled, ITreasury {
     /// @notice Emitted when reserves are recomputed from live balances.
     event ReservesAudited(uint256 indexed totalReserves);
     /// @notice Emitted when a reward manager mints HOODZ out of excess reserves.
-    event Minted(address indexed caller, address indexed recipient, uint256 amount);
+    event PaidOut(address indexed caller, address indexed recipient, uint256 amount);
     /// @notice Emitted when a permission change enters the timelock queue.
     event PermissionQueued(STATUS indexed status, address queued);
     /// @notice Emitted when a permission is granted or revoked.
@@ -244,9 +247,11 @@ contract HoodzTreasury is HoodzAccessControlled, ITreasury {
 
         uint256 value = tokenValue(_token, _amount);
 
-        // Mint the HOODZ owed to the depositor; the withheld profit stays as excess reserves.
+        // Pay the depositor out of treasury inventory; the withheld profit stays as excess
+        // reserves. Under the fixed-supply model this is a transfer, not a mint: if the treasury
+        // does not hold enough HOODZ the deposit reverts rather than silently under-paying.
         send_ = value - _profit;
-        HOODZ.mint(msg.sender, send_);
+        _payFromInventory(msg.sender, send_);
 
         totalReserves += value;
 
@@ -262,7 +267,9 @@ contract HoodzTreasury is HoodzAccessControlled, ITreasury {
         if (!permissions[STATUS.RESERVESPENDER][msg.sender]) revert HoodzTreasury_NotApproved();
 
         uint256 value = tokenValue(_token, _amount);
-        HOODZ.burnFrom(msg.sender, value);
+        // Fixed supply: the HOODZ returns to inventory instead of being destroyed, which is
+        // strictly better - it can be paid out again without anyone having to buy it back.
+        IERC20(address(HOODZ)).safeTransferFrom(msg.sender, address(this), value);
 
         totalReserves -= value;
 
@@ -295,17 +302,35 @@ contract HoodzTreasury is HoodzAccessControlled, ITreasury {
         emit Managed(_token, _amount);
     }
 
-    /// @notice Mint HOODZ out of excess reserves.
-    /// @dev The distributor holds this permission; it is how staking rewards are emitted.
-    /// @param _recipient Address to receive the newly minted HOODZ.
-    /// @param _amount Amount of HOODZ to mint.
-    function mint(address _recipient, uint256 _amount) external override {
+    /// @notice Pay HOODZ out of treasury inventory, backed by excess reserves.
+    /// @dev Replaces Olympus's `mint`. HOODZ has a fixed supply set by PONS, so the protocol can
+    ///      only ever distribute what it already owns. The `excessReserves` ceiling is kept and
+    ///      still means the same thing: releasing treasury-held HOODZ raises the circulating supply
+    ///      against unchanged reserves, so it dilutes backing per token exactly as a mint would.
+    ///      The distributor and the bond depository hold this permission.
+    /// @param _recipient Address to receive the HOODZ.
+    /// @param _amount Amount of HOODZ to send, 9 decimals.
+    function payout(address _recipient, uint256 _amount) external override {
         if (!permissions[STATUS.REWARDMANAGER][msg.sender]) revert HoodzTreasury_NotApproved();
         if (_amount > excessReserves()) revert HoodzTreasury_InsufficientReserves();
 
-        HOODZ.mint(_recipient, _amount);
+        _payFromInventory(_recipient, _amount);
 
-        emit Minted(msg.sender, _recipient, _amount);
+        emit PaidOut(msg.sender, _recipient, _amount);
+    }
+
+    /// @notice HOODZ held by the treasury and available to pay out.
+    /// @return The treasury's HOODZ balance, 9 decimals.
+    function inventory() public view override returns (uint256) {
+        return HOODZ.balanceOf(address(this));
+    }
+
+    /// @dev Single choke point for every HOODZ payout, so the inventory check can never be skipped.
+    function _payFromInventory(address _recipient, uint256 _amount) internal {
+        if (_amount == 0) return;
+        uint256 held = HOODZ.balanceOf(address(this));
+        if (_amount > held) revert HoodzTreasury_InsufficientInventory(_amount, held);
+        IERC20(address(HOODZ)).safeTransfer(_recipient, _amount);
     }
 
     // ========= DEBT ========= //
@@ -337,7 +362,7 @@ contract HoodzTreasury is HoodzAccessControlled, ITreasury {
         totalDebt += value;
 
         if (_token == address(HOODZ)) {
-            HOODZ.mint(msg.sender, value);
+            _payFromInventory(msg.sender, value);
             hoodzDebt += value;
         } else {
             totalReserves -= value;
@@ -373,7 +398,8 @@ contract HoodzTreasury is HoodzAccessControlled, ITreasury {
             revert HoodzTreasury_NotApproved();
         }
 
-        HOODZ.burnFrom(msg.sender, _amount);
+        // Returns to inventory rather than being burned - see {withdraw}.
+        IERC20(address(HOODZ)).safeTransferFrom(msg.sender, address(this), _amount);
 
         IsHOODZDebt(address(sHOODZ)).changeDebt(_amount, msg.sender, false);
         totalDebt -= _amount;

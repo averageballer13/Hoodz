@@ -12,6 +12,7 @@ import {ITreasury} from "../interfaces/ITreasury.sol";
 import {IPriceFeed} from "../interfaces/IPriceFeed.sol";
 import {IHoodzBondAuctioneer} from "../interfaces/IHoodzBondAuctioneer.sol";
 import {IEmissionsManager} from "../interfaces/IEmissionsManager.sol";
+import {HoodzBurn} from "../types/HoodzBurn.sol";
 
 /// @title  EmissionsManager
 /// @notice Hoodz's automated supply-side monetary policy, a port of the Olympus Emissions
@@ -154,7 +155,7 @@ contract EmissionsManager is IEmissionsManager, HoodzAccessControlled {
 
         // The treasury mints the emission here; the auctioneer's teller pulls HOODZ out of this
         // contract as bids settle and `_settleMarket` burns whatever never sold.
-        treasury.mint(address(this), emission);
+        treasury.payout(address(this), emission);
         (uint256 marketId, uint256 minimumPrice) = _createMarket(emission);
         activeMarketId = marketId;
 
@@ -356,7 +357,7 @@ contract EmissionsManager is IEmissionsManager, HoodzAccessControlled {
         if (activeMarketId == NO_MARKET) {
             uint256 unsold = IERC20(address(hoodz)).balanceOf(address(this));
             if (unsold != 0) {
-                hoodz.burn(unsold);
+                HoodzBurn.burn(IERC20(address(hoodz)), unsold);
                 emit SurplusBurned(unsold);
             }
         }

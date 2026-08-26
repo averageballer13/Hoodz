@@ -13,6 +13,7 @@ import {ITreasury} from "../interfaces/ITreasury.sol";
 import {IPriceFeed} from "../interfaces/IPriceFeed.sol";
 import {IHoodzBondAuctioneer} from "../interfaces/IHoodzBondAuctioneer.sol";
 import {IYieldRepurchaseFacility} from "../interfaces/IYieldRepurchaseFacility.sol";
+import {HoodzBurn} from "../types/HoodzBurn.sol";
 
 /// @title  YieldRepurchaseFacility
 /// @notice The Hoodz Yield Repurchase Facility (YRF), a port of the Olympus YRF. The
@@ -352,7 +353,7 @@ contract YieldRepurchaseFacility is IYieldRepurchaseFacility, HoodzAccessControl
 
         uint256 hoodzBalance = IERC20(address(hoodz)).balanceOf(address(this));
         if (hoodzBalance != 0) {
-            hoodz.burn(hoodzBalance);
+            HoodzBurn.burn(IERC20(address(hoodz)), hoodzBalance);
             emit HoodzBurned(hoodzBalance);
         }
 

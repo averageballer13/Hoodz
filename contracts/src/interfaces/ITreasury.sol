@@ -21,7 +21,11 @@ interface ITreasury {
     /// @notice Mint HOODZ from treasury excess reserves. Restricted to approved minters.
     /// @param recipient_ Recipient of the newly minted HOODZ.
     /// @param amount_    Amount of HOODZ to mint, 9 decimals.
-    function mint(address recipient_, uint256 amount_) external;
+    function payout(address recipient_, uint256 amount_) external;
+
+    /// @notice HOODZ held by the treasury and available to pay out.
+    /// @return The treasury's HOODZ balance, 9 decimals.
+    function inventory() external view returns (uint256);
 
     /// @notice Borrow a reserve token out of the treasury against the caller debt allowance.
     /// @param token_  Address of the managed token.

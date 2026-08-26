@@ -10,6 +10,7 @@ import {IHoodzAuthority} from "../interfaces/IHoodzAuthority.sol";
 import {HoodzAccessControlled} from "../types/HoodzAccessControlled.sol";
 import {IPonsFeeRouter} from "./IPonsFeeRouter.sol";
 import {PonsLaunchConfig} from "./PonsLaunchConfig.sol";
+import {HoodzBurn} from "../types/HoodzBurn.sol";
 
 /// @notice Minimal swap surface used to buy HOODZ out of the graduated pool.
 /// @dev Shaped like the familiar `exactInputSingle`. On Robinhood Chain the graduated PONS pool lives in
@@ -193,7 +194,7 @@ contract FeeRouterBuyback is HoodzAccessControlled {
         hoodzBurned = hoodzBefore + received;
         totalBurned += hoodzBurned;
 
-        HOODZ.burn(hoodzBurned);
+        HoodzBurn.burn(IERC20(address(HOODZ)), hoodzBurned);
 
         emit BuybackAndBurn(reserveIn, hoodzBurned);
     }

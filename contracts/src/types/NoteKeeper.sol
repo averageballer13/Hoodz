@@ -149,7 +149,7 @@ abstract contract NoteKeeper is INoteKeeper, FrontEndRewarder {
         uint256 rewards_ = _giveRewards(_payout, _referral);
 
         // mint payout + rewards, then stake only the payout (rewards stay liquid HOODZ)
-        treasury.mint(address(this), _payout + rewards_);
+        treasury.payout(address(this), _payout + rewards_);
         staking.stake(address(this), _payout, false, true);
 
         emit NoteCreated(_user, _marketID, index_, payoutInG, _expiry);

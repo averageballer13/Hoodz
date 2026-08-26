@@ -11,7 +11,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {HoodzAuthority} from "../src/HoodzAuthority.sol";
 import {HoodzTreasury} from "../src/HoodzTreasury.sol";
 import {IHoodzAuthority} from "../src/interfaces/IHoodzAuthority.sol";
-import {HOODZ} from "../src/tokens/HOODZ.sol";
+import {MockPonsToken} from "./mocks/MockPonsToken.sol";
 
 import {PonsLaunchConfig} from "../src/pons/PonsLaunchConfig.sol";
 import {HoodzLaunchGuard} from "../src/pons/HoodzLaunchGuard.sol";
@@ -45,7 +45,7 @@ import {MockSwapRouter} from "./mocks/MockSwapRouter.sol";
 ///         needs a caller other than the governor) before the handoff can execute on-chain.
 contract PonsLaunchGuardTest is Test {
     HoodzAuthority internal authority;
-    HOODZ internal hoodz;
+    MockPonsToken internal hoodz;
     HoodzTreasury internal treasury;
     MockERC20 internal reserve;
 
@@ -84,7 +84,7 @@ contract PonsLaunchGuardTest is Test {
         authority = new HoodzAuthority(address(this), guardian, address(this), address(this));
         IHoodzAuthority auth = IHoodzAuthority(address(authority));
 
-        hoodz = new HOODZ(auth);
+        hoodz = new MockPonsToken("Hoodz", "HOODZ", 9, address(this));
         treasury = new HoodzTreasury(address(hoodz), 0, address(authority));
         reserve = new MockERC20("Mock Reserve", "mRSV", 18);
 

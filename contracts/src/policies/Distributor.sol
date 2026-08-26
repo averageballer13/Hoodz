@@ -132,7 +132,7 @@ contract Distributor is IDistributor, HoodzAccessControlled {
             if (recipientInfo.rate == 0) continue;
 
             uint256 amount = nextRewardAt(recipientInfo.rate);
-            if (amount != 0) treasury.mint(recipientInfo.recipient, amount);
+            if (amount != 0) treasury.payout(recipientInfo.recipient, amount);
             emit Distributed(i, recipientInfo.recipient, amount);
 
             _adjust(i);

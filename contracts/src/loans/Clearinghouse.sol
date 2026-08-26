@@ -17,6 +17,7 @@ import {IClearinghouse} from "../interfaces/IClearinghouse.sol";
 import {ICooler} from "../interfaces/ICooler.sol";
 import {ICoolerCallback} from "../interfaces/ICoolerCallback.sol";
 import {ICoolerFactory} from "../interfaces/ICoolerFactory.sol";
+import {HoodzBurn} from "../types/HoodzBurn.sol";
 
 /// @title  Clearinghouse
 /// @notice The Hoodz side of Hoodz Loans: the policy that lends treasury reserves against
@@ -401,7 +402,7 @@ contract Clearinghouse is IClearinghouse, ICoolerCallback, HoodzAccessControlled
 
         SafeERC20.forceApprove(gHOODZ, address(staking), balance);
         hoodzBurned = staking.unstake(address(this), balance, false, false);
-        hoodz.burn(hoodzBurned);
+        HoodzBurn.burn(IERC20(address(hoodz)), hoodzBurned);
 
         emit Burned(balance, hoodzBurned);
     }

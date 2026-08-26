@@ -23,7 +23,6 @@ import {HoodzTreasury} from "../src/HoodzTreasury.sol";
 import {HoodzStaking} from "../src/HoodzStaking.sol";
 import {HoodzBondingCalculator} from "../src/HoodzBondingCalculator.sol";
 
-import {HOODZ} from "../src/tokens/HOODZ.sol";
 import {sHOODZ} from "../src/tokens/sHOODZ.sol";
 import {gHOODZ} from "../src/tokens/gHOODZ.sol";
 
@@ -64,6 +63,9 @@ import {IUniswapV4PoolManager} from "../src/pons/IUniswapV4PoolManager.sol";
 ///           * the PONS trio needs the launchpad, curve, position locker, fee router and a swap
 ///             router for the graduated pool.
 contract Deploy is Script {
+    /// @notice HOODZ_TOKEN was not set. Launch on PONS first, then deploy against that address.
+    error HoodzTokenNotSet();
+
     /*//////////////////////////////////////////////////////////////
                                   TYPES
     //////////////////////////////////////////////////////////////*/
@@ -75,6 +77,7 @@ contract Deploy is Script {
         address guardian;
         address policy;
         // --- protocol ---
+        address hoodzToken; // the PONS-deployed HOODZ. Required: this repo never deploys it.
         address reserveToken; // treasury / bonding reserve asset
         address savingsVault; // ERC-4626 wrapper of `reserveToken`; its asset() must match
         uint256 epochLength; // seconds per rebase epoch (Olympus used 28800 = 8h)
@@ -142,7 +145,7 @@ contract Deploy is Script {
 
     // Typed handles; `d` mirrors them as plain addresses for the manifest.
     HoodzAuthority internal authority;
-    HOODZ internal hoodz;
+    IHOODZ internal hoodz;
     sHOODZ internal sHoodz;
     gHOODZ internal gHoodz;
     HoodzTreasury internal treasury;
@@ -218,6 +221,7 @@ contract Deploy is Script {
         cfg.guardian = vm.envOr("HOODZ_GUARDIAN", self);
         cfg.policy = vm.envOr("HOODZ_POLICY", self);
 
+        cfg.hoodzToken = vm.envOr("HOODZ_TOKEN", address(0));
         cfg.reserveToken = vm.envOr("RESERVE_TOKEN", vm.envOr("PONS_RESERVE_TOKEN", address(0)));
         cfg.savingsVault = vm.envOr("RESERVE_SAVINGS_VAULT", address(0));
 
@@ -306,9 +310,12 @@ contract Deploy is Script {
 
         IHoodzAuthority auth = IHoodzAuthority(address(authority));
 
-        hoodz = new HOODZ(auth);
-        _record("HOODZ", abi.encode(address(authority)));
-        d.hoodz = address(hoodz);
+        // HOODZ is NOT deployed here. The PONS launchpad deploys it from its own factory when
+        // the launch form is submitted - fixed 1B supply, the whole amount sold on the bonding
+        // curve, no mint function, no owner. This repo only ever holds a reference to it.
+        if (cfg.hoodzToken == address(0)) revert HoodzTokenNotSet();
+        hoodz = IHOODZ(cfg.hoodzToken);
+        d.hoodz = cfg.hoodzToken;
 
         sHoodz = new sHOODZ(auth);
         _record("sHOODZ", abi.encode(address(authority)));

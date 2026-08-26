@@ -10,7 +10,8 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {HoodzAuthority} from "../../src/HoodzAuthority.sol";
 import {HoodzTreasury} from "../../src/HoodzTreasury.sol";
 import {HoodzStaking} from "../../src/HoodzStaking.sol";
-import {HOODZ} from "../../src/tokens/HOODZ.sol";
+import {IHOODZ} from "../../src/interfaces/IHOODZ.sol";
+import {MockPonsToken} from "../mocks/MockPonsToken.sol";
 import {sHOODZ} from "../../src/tokens/sHOODZ.sol";
 import {gHOODZ} from "../../src/tokens/gHOODZ.sol";
 import {Distributor} from "../../src/policies/Distributor.sol";
@@ -60,7 +61,7 @@ abstract contract HoodzStackSetup is Test {
     //////////////////////////////////////////////////////////////*/
 
     HoodzAuthority internal authority;
-    HOODZ internal hoodz;
+    MockPonsToken internal hoodz;
     sHOODZ internal sHoodz;
     gHOODZ internal gHoodz;
     HoodzTreasury internal treasury;
@@ -91,7 +92,9 @@ abstract contract HoodzStackSetup is Test {
         authority = new HoodzAuthority(governor, guardian, policy, address(this));
         IHoodzAuthority auth = IHoodzAuthority(address(authority));
 
-        hoodz = new HOODZ(auth);
+        // Stands in for the PONS-deployed token: fixed supply, no mint. The whole supply lands
+        // on this fixture, which then plays the part of the curve and of buyers.
+        hoodz = new MockPonsToken("Hoodz", "HOODZ", 9, address(this));
         sHoodz = new sHOODZ(auth);
         gHoodz = new gHOODZ(auth, address(sHoodz));
 

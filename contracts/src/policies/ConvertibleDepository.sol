@@ -168,7 +168,7 @@ contract ConvertibleDepository is IConvertibleDepository, HoodzAccessControlled,
 
         _unwrap(amount);
         _bookToTreasury(amount);
-        treasury.mint(msg.sender, hoodzOut);
+        treasury.payout(msg.sender, hoodzOut);
 
         emit Converted(positionId, msg.sender, amount, hoodzOut);
     }
