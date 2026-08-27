@@ -236,11 +236,23 @@
       .then(function (r) { return r.json(); })
       .then(function (m) {
         loadToken(m);
+
         var known = {};
         Object.keys(m.contracts || {}).forEach(function (k) {
           if (m.contracts[k]) known[k] = m.contracts[k];
         });
-        return autodiscover(m, known).then(function (merged) {
+
+        // Render what the committed manifest already knows, immediately. The
+        // explorer call that follows is a slow third party that can and does
+        // fail - it must never sit between a visitor and a list we already have.
+        m.contracts = known;
+        loadContracts(m);
+
+        // Then top up with anything the explorer knows that the file does not,
+        // and re-render only if that actually added something.
+        var before = Object.keys(known).length;
+        autodiscover(m, known).then(function (merged) {
+          if (Object.keys(merged).length === before) return;
           m.contracts = merged;
           loadContracts(m);
         });
