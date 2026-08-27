@@ -1,6 +1,6 @@
 # Hoodz
 
-**[hoodz.finance](https://hoodz.finance)** · **[@hoodzdao](https://x.com/hoodzdao)**
+**[hoodz.finance](https://hoodz.finance)** · **[@Hoodzfinancial](https://x.com/Hoodzfinancial)**
 
 **A faithful, rebranded re-implementation of the Olympus DAO protocol, deployed on Robinhood Chain
 (EVM, chainId `4663`), with the `HOODZ` token launched through the PONS launchpad.**

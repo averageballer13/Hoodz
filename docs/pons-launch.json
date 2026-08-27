@@ -178,7 +178,7 @@
     "mintAuthorityAtTreasury": false
   },
   "creator": {
-    "devWallet": "0x9aA5e1Bd45375700B7C26E0277Bac6b48cE95719",
+    "devWallet": "0xf66f85ddE0f123e0EE8100eaDFa637b4eA1FD0e9",
     "feeSplitBps": {
       "stakers": 3300,
       "burn": 3300,

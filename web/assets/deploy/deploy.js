@@ -8,7 +8,7 @@
 (function () {
   'use strict';
 
-  var DEV_WALLET = '0x9aA5e1Bd45375700B7C26E0277Bac6b48cE95719'.toLowerCase();
+  var DEV_WALLET = '0xf66f85ddE0f123e0EE8100eaDFa637b4eA1FD0e9'.toLowerCase();
 
   var NETWORKS = {
     4663: {
@@ -103,7 +103,10 @@
 
   /* --------------------------------------------------------------- state -- */
 
-  var STORE = 'hoodz.deploy.v1';
+  // Bumped with the wallet rotation: the previous run recorded six contracts
+  // deployed by the old wallet, and carrying that progress forward would make
+  // the page skip them instead of deploying a fresh set.
+  var STORE = 'hoodz.deploy.v2';
 
   function loadState() {
     try { return JSON.parse(localStorage.getItem(STORE)) || {}; }
