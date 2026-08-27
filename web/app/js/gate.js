@@ -50,7 +50,7 @@
     g.id = 'wallet-gate';
     g.innerHTML =
       '<div class="gate__panel">' +
-        '<img class="gate__mark" src="../assets/img/coin-3d.webp?v=2" alt="" width="700" height="700">' +
+        '<img class="gate__mark" src="/assets/img/coin-3d.webp?v=2" alt="" width="700" height="700">' +
         '<h2 class="gate__title">Connect your wallet</h2>' +
         '<p class="gate__body">The app is read-only until a wallet is connected. ' +
         'Nothing here can be clicked, signed or sent before that.</p>' +
