@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard — Hoodz</title>
+<meta name="description" content="Hoodz protocol dashboard: HOODZ price, market cap, treasury value, liquid backing, index, staking APY and runway on Robinhood Chain.">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="../assets/img/favicon.svg?v=2" type="image/svg+xml">
+<link rel="icon" href="../assets/img/favicon-32.png?v=2" sizes="32x32">
+<link rel="apple-touch-icon" href="../assets/img/favicon-180.png?v=2">
+<link rel="stylesheet" href="../css/hoodz.css">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body class="app-body" data-page="dashboard">
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="app-shell">
+
+  <!-- ============================================================ rail -->
+  <aside class="rail" id="rail" data-open="false" aria-label="Hoodz app">
+    <a class="rail__brand" href="home.html" aria-label="Hoodz — dashboard">
+      <img src="../assets/img/logo-light.svg?v=2" alt="Hoodz" width="220" height="80">
+    </a>
+
+    <nav class="rail__nav" aria-label="Primary">
+      <a class="rail__link" href="home.html" aria-current="page">
+        <svg class="rail__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Dashboard
+      </a>
+      <a class="rail__link" href="stake.html">
+        <svg class="rail__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v5c0 1.66 3.58 3 8 3s8-1.34 8-3V6"/><path d="M4 12v5c0 1.66 3.58 3 8 3s8-1.34 8-3v-5"/></svg>
+        Stake
+      </a>
+      <a class="rail__link" href="bond.html">
+        <svg class="rail__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.8v18.4"/><path d="M16.8 7.4c0-1.9-2.1-2.9-4.8-2.9s-4.8.9-4.8 2.8 2.3 2.5 4.8 3 5 1.2 5 3.1-2.3 3.2-5 3.2-4.8-1.1-4.8-3"/></svg>
+        Bond
+      </a>
+      <a class="rail__link" href="borrow.html">
+        <svg class="rail__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.2"/><circle cx="12" cy="12" r="3.2"/><path d="M12 8.8V6.4M12 17.6v-2.4"/></svg>
+        Borrow
+      </a>
+      <a class="rail__link" href="governance.html">
+        <svg class="rail__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18"/><path d="M5 8h14"/><path d="M5 8 2.6 15h4.8L5 8Z"/><path d="M19 8l-2.4 7h4.8L19 8Z"/><path d="M8 21h8"/></svg>
+        Governance
+      </a>
+    </nav>
+
+    <div class="rail__foot">
+      <div class="rail__net">
+        <span class="chip__dot" aria-hidden="true"></span>
+        <span>
+          <b>Robinhood Chain</b>
+          <span>Chain ID 4663 · gas in ETH</span>
+        </span>
+      </div>
+      <p class="rail__ext">
+        <a class="link-underline" href="../home.html">Website</a>
+        <a class="link-underline" href="https://robinhoodchain.blockscout.com" rel="noopener noreferrer" target="_blank">Explorer</a>
+        <a class="link-underline" href="governance.html">Forum</a>
+      </p>
+    </div>
+  </aside>
+
+  <div class="rail-scrim" data-open="false"></div>
+
+  <!-- ========================================================= content -->
+  <div class="app-col">
+
+    <header class="topbar">
+      <button class="rail-toggle" type="button" data-rail-toggle aria-expanded="false" aria-controls="rail">
+        <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
+        <span class="visually-hidden">Open navigation</span>
+      </button>
+
+      <div class="topbar__titles">
+        <span class="topbar__eyebrow">Hoodz</span>
+        <h1 class="topbar__title">Dashboard</h1>
+      </div>
+
+      <div class="topbar__spacer"></div>
+
+      <div class="topbar__actions">
+        <span class="chip chip--net" data-wallet-status>
+          <span class="chip__dot is-off" aria-hidden="true"></span>
+          <span data-wallet-status-text>Wallet disconnected</span>
+        </span>
+        <a class="btn-pr dark btn-sm" href="#" data-connect role="button">
+          <span class="btn-text-cont">
+            <span class="btn-text-ghost" data-wallet-label aria-hidden="true">Connect Wallet</span>
+            <span class="btn-text" data-wallet-label>Connect Wallet</span>
+          </span>
+        </a>
+      </div>
+    </header>
+
+    <p class="mock-banner">
+      <strong>Mock data</strong>
+      <span>Every figure below is simulated. Only the wallet connection touches Robinhood Chain.</span>
+    </p>
+
+    <main class="app-main" id="main">
+
+      <!-- headline metrics -->
+      <section class="grid cols-4" aria-label="Protocol metrics">
+        <article class="app-card is-hover">
+          <div class="metric">
+            <span class="metric__label">HOODZ price</span>
+            <span class="metric__value" data-bind="price">&mdash;</span>
+            <span class="metric__sub">
+              <span class="delta up" data-delta="0.0184" data-bind="priceChange">&mdash;</span> · 24h
+            </span>
+          </div>
+        </article>
+        <article class="app-card is-hover">
+          <div class="metric">
+            <span class="metric__label">Market cap</span>
+            <span class="metric__value" data-bind="marketCap">&mdash;</span>
+            <span class="metric__sub"><span data-bind="circulatingSupply">&mdash;</span> HOODZ circulating</span>
+          </div>
+        </article>
+        <article class="app-card is-hover">
+          <div class="metric">
+            <span class="metric__label">Treasury value</span>
+            <span class="metric__value" data-bind="treasuryValue">&mdash;</span>
+            <span class="metric__sub"><span data-bind="liquidBacking">&mdash;</span> liquid backing</span>
+          </div>
+        </article>
+        <article class="app-card is-hover">
+          <div class="metric">
+            <span class="metric__label">Liquid backing / HOODZ</span>
+            <span class="metric__value" data-bind="backingPerHoodz">&mdash;</span>
+            <span class="metric__sub">Market trades at a <span data-bind="premium">&mdash;</span> premium</span>
+          </div>
+        </article>
+      </section>
+
+      <section class="grid cols-4" aria-label="Staking metrics">
+        <article class="app-card is-hover">
+          <div class="metric">
+            <span class="metric__label">Current index</span>
+            <span class="metric__value" data-bind="index">&mdash;</span>
+            <span class="metric__sub">HOODZ per gHOODZ since genesis</span>
+          </div>
+        </article>
+        <article class="app-card is-hover">
+          <div class="metric">
+            <span class="metric__label">Staking APY</span>
+            <span class="metric__value" data-bind="apy">&mdash;</span>
+            <span class="metric__sub"><span data-bind="rebasesPerDay">&mdash;</span> rebases/day at <span data-bind="rebaseRate">&mdash;</span></span>
+          </div>
+        </article>
+        <article class="app-card is-hover">
+          <div class="metric">
+            <span class="metric__label">Next rebase</span>
+            <span class="metric__value countdown" data-countdown="rebase">—</span>
+            <span class="metric__sub">Epoch <span data-bind="epochNumber">&mdash;</span> · <span data-bind="epochLength">&mdash;</span> length</span>
+          </div>
+        </article>
+        <article class="app-card is-hover">
+          <div class="metric">
+            <span class="metric__label">Runway</span>
+            <span class="metric__value" data-bind="runway">&mdash;</span>
+            <span class="metric__sub">≈ <span data-bind="runwayYears">&mdash;</span> of rewards at the current rate</span>
+          </div>
+        </article>
+      </section>
+
+      <!-- backing chart -->
+      <section class="app-card pad-lg" aria-labelledby="chart-title">
+        <div class="card-head">
+          <h2 class="card-title" id="chart-title">Liquid backing per HOODZ</h2>
+          <span class="metric__sub">12 months · <span class="delta up">+—</span></span>
+        </div>
+
+        <figure class="stack gap-16" style="margin:0">
+          <div class="chart-wrap">
+            <svg class="chart" viewBox="0 0 960 340" role="img" aria-labelledby="bk-t bk-d" preserveAspectRatio="xMidYMid meet">
+              <title id="bk-t">Liquid backing per HOODZ, September 2025 to August 2026</title>
+              <desc id="bk-d">A rising area chart. Backing per HOODZ climbs steadily from —in September 2025 to —in August 2026, with no month-over-month declines.</desc>
+
+              <defs>
+                <linearGradient id="bkFill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="#f8cc82" stop-opacity=".34"/>
+                  <stop offset="1" stop-color="#f8cc82" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+
+              <!-- horizontal grid + value axis -->
+              <g class="chart-grid" aria-hidden="true">
+                <line x1="56" y1="24"    x2="936" y2="24"/>
+                <line x1="56" y1="93.7"  x2="936" y2="93.7"/>
+                <line x1="56" y1="163.4" x2="936" y2="163.4"/>
+                <line x1="56" y1="233.1" x2="936" y2="233.1"/>
+              </g>
+              <line class="chart-base" x1="56" y1="268" x2="936" y2="268" aria-hidden="true"/>
+
+              <g class="chart-axis" text-anchor="end" aria-hidden="true">
+                <text x="44" y="28.5">—</text>
+                <text x="44" y="98.2">—</text>
+                <text x="44" y="167.9">—</text>
+                <text x="44" y="237.6">—</text>
+              </g>
+
+              <!-- area + line -->
+              <path fill="url(#bkFill)" stroke="none" aria-hidden="true"
+                    d="M56 237.3 L136 218.5 L216 199.7 L296 189.9 L376 166.9 L456 141.8 L536 132.8 L616 108.3 L696 92.3 L776 77 L856 65.1 L936 46.3 L936 268 L56 268 Z"/>
+              <path class="chart-line" aria-hidden="true"
+                    d="M56 237.3 L136 218.5 L216 199.7 L296 189.9 L376 166.9 L456 141.8 L536 132.8 L616 108.3 L696 92.3 L776 77 L856 65.1 L936 46.3"/>
+
+              <g class="chart-dot" aria-hidden="true">
+                <circle cx="56"  cy="237.3" r="3.5"/>
+                <circle cx="136" cy="218.5" r="3.5"/>
+                <circle cx="216" cy="199.7" r="3.5"/>
+                <circle cx="296" cy="189.9" r="3.5"/>
+                <circle cx="376" cy="166.9" r="3.5"/>
+                <circle cx="456" cy="141.8" r="3.5"/>
+                <circle cx="536" cy="132.8" r="3.5"/>
+                <circle cx="616" cy="108.3" r="3.5"/>
+                <circle cx="696" cy="92.3"  r="3.5"/>
+                <circle cx="776" cy="77"    r="3.5"/>
+                <circle cx="856" cy="65.1"  r="3.5"/>
+              </g>
+              <circle class="chart-dot is-last" cx="936" cy="46.3" r="5" aria-hidden="true"/>
+              <text class="chart-callout" x="930" y="32" text-anchor="end" aria-hidden="true">—</text>
+
+              <!-- time axis -->
+              <g class="chart-axis" aria-hidden="true">
+                <text x="56"  y="294" text-anchor="start">Sep ’25</text>
+                <text x="296" y="294" text-anchor="middle">Dec ’25</text>
+                <text x="536" y="294" text-anchor="middle">Mar ’26</text>
+                <text x="776" y="294" text-anchor="middle">Jun ’26</text>
+                <text x="936" y="294" text-anchor="end">Aug ’26</text>
+              </g>
+            </svg>
+          </div>
+
+          <figcaption class="row between">
+            <span class="legend">
+              <span class="legend__key"><span class="legend__swatch" aria-hidden="true"></span> Liquid backing per HOODZ, month end</span>
+            </span>
+            <span class="metric__sub">Backing excludes illiquid treasury positions.</span>
+          </figcaption>
+        </figure>
+
+        <table class="visually-hidden">
+          <caption>Liquid backing per HOODZ by month</caption>
+          <thead><tr><th scope="col">Month</th><th scope="col">Backing per HOODZ (USD)</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Sep 2025</th><td>8.94</td></tr>
+            <tr><th scope="row">Oct 2025</th><td>9.21</td></tr>
+            <tr><th scope="row">Nov 2025</th><td>9.48</td></tr>
+            <tr><th scope="row">Dec 2025</th><td>9.62</td></tr>
+            <tr><th scope="row">Jan 2026</th><td>9.95</td></tr>
+            <tr><th scope="row">Feb 2026</th><td>10.31</td></tr>
+            <tr><th scope="row">Mar 2026</th><td>10.44</td></tr>
+            <tr><th scope="row">Apr 2026</th><td>10.79</td></tr>
+            <tr><th scope="row">May 2026</th><td>11.02</td></tr>
+            <tr><th scope="row">Jun 2026</th><td>11.24</td></tr>
+            <tr><th scope="row">Jul 2026</th><td>11.41</td></tr>
+            <tr><th scope="row">Aug 2026</th><td>11.68</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- supply + treasury -->
+      <section class="grid split-even" aria-label="Supply and treasury detail">
+        <article class="app-card">
+          <div class="card-head"><h2 class="card-title">Supply</h2></div>
+          <dl class="kv">
+            <div class="kv__row"><dt>Total supply</dt><dd><span data-bind="totalSupply">&mdash;</span> HOODZ</dd></div>
+            <div class="kv__row"><dt>Circulating supply</dt><dd><span data-bind="circulatingSupply">&mdash;</span> HOODZ</dd></div>
+            <div class="kv__row"><dt>Staked supply</dt><dd><span data-bind="stakedSupply">&mdash;</span> HOODZ</dd></div>
+            <div class="kv__row"><dt>Staking ratio</dt><dd data-bind="stakingRatio">&mdash;</dd></div>
+            <div class="kv__row"><dt>Fully diluted value</dt><dd data-bind="fdv">&mdash;</dd></div>
+            <div class="kv__row is-total"><dt>Liquid backing</dt><dd class="kv__v" data-bind="liquidBacking">&mdash;</dd></div>
+          </dl>
+        </article>
+
+        <article class="app-card">
+          <div class="card-head">
+            <h2 class="card-title">Treasury holdings</h2>
+            <span class="metric__sub">as of <span data-bind="asOf">&mdash;</span></span>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <caption class="visually-hidden">Hoodz Treasury holdings by asset</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Asset</th>
+                  <th scope="col">Value</th>
+                  <th scope="col">Share</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td data-label="Asset"><span class="asset"><span class="asset__mark" aria-hidden="true">$</span> USDC <small>Stable reserve</small></span></td>
+                  <td data-label="Value" class="num-strong">—</td>
+                  <td data-label="Share">—</td>
+                </tr>
+                <tr>
+                  <td data-label="Asset"><span class="asset"><span class="asset__mark is-slate" aria-hidden="true">◈</span> wstETH <small>Volatile</small></span></td>
+                  <td data-label="Value" class="num-strong">—</td>
+                  <td data-label="Share">—</td>
+                </tr>
+                <tr>
+                  <td data-label="Asset"><span class="asset"><span class="asset__mark is-slate" aria-hidden="true">Ξ</span> WETH <small>Volatile</small></span></td>
+                  <td data-label="Value" class="num-strong">—</td>
+                  <td data-label="Share">—</td>
+                </tr>
+                <tr>
+                  <td data-label="Asset"><span class="asset"><span class="asset__mark" aria-hidden="true">∞</span> HOODZ-USDC <small>Locked v4 LP</small></span></td>
+                  <td data-label="Value" class="num-strong">—</td>
+                  <td data-label="Share">—</td>
+                </tr>
+                <tr>
+                  <td data-label="Asset"><span class="asset"><span class="asset__mark is-slate" aria-hidden="true">◐</span> Illiquid <small>Vested + strategic</small></span></td>
+                  <td data-label="Value" class="num-strong">—</td>
+                  <td data-label="Share">—</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <!-- your position -->
+      <section class="app-card" aria-labelledby="pos-title">
+        <div class="card-head">
+          <h2 class="card-title" id="pos-title">Your position</h2>
+          <span class="metric__sub" data-bind="walletLabel">&mdash;</span>
+        </div>
+        <div class="grid cols-4">
+          <div class="metric">
+            <span class="metric__label">HOODZ</span>
+            <span class="metric__value sm"><span data-bind="walletHoodz">&mdash;</span></span>
+            <span class="metric__sub">Unstaked, wallet balance</span>
+          </div>
+          <div class="metric">
+            <span class="metric__label">sHOODZ</span>
+            <span class="metric__value sm"><span data-bind="walletSHoodz">&mdash;</span></span>
+            <span class="metric__sub"><span data-bind="stakedUsd">&mdash;</span> · rebasing</span>
+          </div>
+          <div class="metric">
+            <span class="metric__label">gHOODZ</span>
+            <span class="metric__value sm"><span data-bind="walletGHoodz">&mdash;</span></span>
+            <span class="metric__sub"><span data-bind="gHoodzInHoodz">&mdash;</span> HOODZ equivalent</span>
+          </div>
+          <div class="metric">
+            <span class="metric__label">Next reward</span>
+            <span class="metric__value sm"><span data-bind="nextRewardAmount">&mdash;</span></span>
+            <span class="metric__sub">sHOODZ in <span class="countdown" data-countdown="rebase">—</span></span>
+          </div>
+        </div>
+        <hr class="hairline" style="margin:1.4vw 0">
+        <div class="btn-row">
+          <a class="btn-pr dark btn-sm" href="stake.html">
+            <span class="btn-text-cont"><span class="btn-text-ghost" aria-hidden="true">Stake HOODZ</span><span class="btn-text">Stake HOODZ</span></span>
+          </a>
+          <a class="btn-pr alt dark btn-sm" href="bond.html">
+            <span class="btn-text-cont"><span class="btn-text-ghost" aria-hidden="true">Buy a bond</span><span class="btn-text">Buy a bond</span></span>
+          </a>
+          <a class="btn-pr alt dark btn-sm" href="borrow.html">
+            <span class="btn-text-cont"><span class="btn-text-ghost" aria-hidden="true">Borrow</span><span class="btn-text">Borrow</span></span>
+          </a>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<div class="toast-stack" role="status" aria-live="polite"></div>
+
+<script src="js/abi.js"></script>
+<script src="js/app.js"></script>
+<script src="js/gate.js?v=2" defer></script>
+</body>
+</html>
