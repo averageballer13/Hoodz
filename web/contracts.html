@@ -153,6 +153,17 @@
     ConvertibleDepository:   ['Convertible deposits', 'Reserves deposited against a HOOD strike']
   };
 
+  /* Cannot deploy before the token exists - either they take its address in
+     their constructor, or they take the address of one that does. Derived from
+     deploy.html's PLAN and REQUIRES by following dep: edges to a fixed point;
+     re-derive it if either changes. The other six deploy any time. */
+  var NEEDS_TOKEN = [
+    'HoodzTreasury', 'HoodzBondingCalculator', 'HoodzStaking', 'Distributor',
+    'BondDepository', 'Clearinghouse', 'PonsLaunchConfig', 'HoodzLaunchGuard',
+    'CreatorFeeSplitter', 'FeeRouterBuyback', 'EmissionsManager',
+    'YieldRepurchaseFacility', 'ConvertibleDepository'
+  ];
+
   function el(tag, cls, text) {
     var n = document.createElement(tag);
     if (cls) n.className = cls;
@@ -212,11 +223,27 @@
         return;
       }
 
+      /* Not everything still missing is waiting on the token. Saying so when
+         three of them could deploy today reads as "nothing more is possible",
+         which is how a half-finished stack gets mistaken for a blocked one. */
+      var waiting = [];
+      Object.keys(m.contracts || {}).forEach(function (k) {
+        if (!m.contracts[k] && NEEDS_TOKEN.indexOf(k) >= 0) waiting.push(k);
+      });
       var pending = Object.keys(m.contracts || {}).length - n;
+      var ready = pending - waiting.length;
+
       if (pending > 0) {
+        var parts = [];
+        if (waiting.length) {
+          parts.push(waiting.length + ' more contracts deploy once the HOOD token exists on PONS — ' +
+                     'they take its address in their constructors, so they cannot be deployed before it.');
+        }
+        if (ready > 0) {
+          parts.push(ready + ' others do not depend on the token and are simply not deployed yet.');
+        }
         var note = document.getElementById('note');
-        note.textContent = pending + ' more contracts deploy once the HOOD token exists on PONS. ' +
-                           'They depend on its address, so they cannot be deployed before it.';
+        note.textContent = parts.join(' ');
         note.hidden = false;
       }
     })
