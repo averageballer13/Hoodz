@@ -190,22 +190,6 @@
 .rail-toggle span { display: block; width: 16px; height: 2px; background: var(--primary); }
 
 /* --------------------------------------------------- 5. MOCK data banner */
-.mock-banner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: .7vw;
-  padding: .55vw var(--gutter);
-  background-color: var(--primary-300);
-  color: var(--brand-black);
-  font-size: .75vw;
-  font-weight: 500;
-  line-height: 1.3;
-  letter-spacing: .04em;
-  text-align: center;
-}
-.mock-banner strong { text-transform: uppercase; letter-spacing: .12em; }
-
 /* -------------------------------------------------------- 6. page canvas */
 .app-main { flex: 1 1 auto; padding: 2.3vw var(--gutter) 5.8vw; }
 .app-main > * + * { margin-top: 1.4vw; }
@@ -780,7 +764,7 @@
 .app-main .horizontal-container { margin-top: 0; padding-left: 0; padding-right: 0; }
 
 /* hoodz.css caps every <p> at 80ch — these are layout bands, not prose */
-.mock-banner, .rail__ext, .notice, .field__hint, .quorum, .metric__sub { max-width: none; }
+.rail__ext, .notice, .field__hint, .quorum, .metric__sub { max-width: none; }
 
 /* the shared skip link is tuned for cream; make it legible on black */
 .app-body .skip-link { background-color: var(--primary-300); color: var(--brand-black); }
@@ -818,7 +802,7 @@ code {
   .rail__net, .rail__ext, .rail__net span { font-size: 14.4px; }
 
   .topbar { padding: 21.12px 88.32px; gap: 26.88px; }
-  .topbar__eyebrow, .chip, .mock-banner { font-size: 14.4px; }
+  .topbar__eyebrow, .chip { font-size: 14.4px; }
   .topbar__title, .drawer__title, .proposal__title { font-size: 23px; }
 
   .app-main { padding: 44.16px 88.32px 111.36px; }
@@ -883,7 +867,6 @@ code {
   .chip { font-size: 11px; padding: 8px 12px; gap: 6px; }
   .chip--net { display: none; }
 
-  .mock-banner { font-size: 11px; padding: 8px var(--gutter); gap: 8px; }
 
   .app-main { padding: 24px var(--gutter) 64px; }
   .app-main > * + * { margin-top: 16px; }
@@ -1092,16 +1075,6 @@ code {
 /* while locked, the app underneath reads as inert */
 body[data-locked="true"] main,
 body[data-locked="true"] .app-shell { user-select: none; }
-
-#readonly-banner {
-  padding: 11px 20px;
-  background: rgba(248, 204, 130, .12);
-  box-shadow: inset 0 -1px 0 rgba(248, 204, 130, .35);
-  color: #f8cc82;
-  font-size: 13px;
-  text-align: center;
-}
-#readonly-banner a { color: inherit; text-decoration: underline; }
 
 @media (prefers-reduced-motion: reduce) {
   #wallet-gate { transition: none; }

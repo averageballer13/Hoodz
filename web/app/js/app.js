@@ -972,7 +972,7 @@
     on($("#bond-max", drawer), "click", function () {
       var bal = state.quote === MOCK.wallet.reserveSymbol ? MOCK.wallet.reserve : 0;
       amountInput.value = bal ? String(bal) : "";
-      if (!bal) toast("No balance", "This demo wallet only holds " + MOCK.wallet.reserveSymbol + ".", "info");
+      if (!bal) toast("No balance", "You only hold " + MOCK.wallet.reserveSymbol + ".", "info");
       refresh();
     });
     on(slipSeg, "segchange", function (e) {
@@ -1045,7 +1045,7 @@
       toast(
         "Loan requested",
         fixed(col * ln.oltc, 2) + " " + MOCK.wallet.reserveSymbol +
-        " against " + fixed(col, 4) + " gHOOD — mock data, nothing was signed.",
+        " against " + fixed(col, 4) + " gHOOD.",
         "ok"
       );
       refresh();
@@ -1109,8 +1109,7 @@
         var id = btn.getAttribute("data-proposal");
         toast(
           "Vote cast: " + support,
-          "Proposal " + id + " · " + fixed(MOCK.wallet.gHoodz, 4) +
-          " gHOOD — mock data, nothing was signed.",
+          "Proposal " + id + " · " + fixed(MOCK.wallet.gHoodz, 4) + " gHOOD.",
           "ok"
         );
       });

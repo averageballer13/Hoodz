@@ -9,9 +9,8 @@
         covered. Removing the overlay in devtools gets you a page of dead
         buttons rather than a way to fire a transaction.
 
-   There is a third thing this file is honest about: the contracts are deployed
-   but not yet wired to each other, and the token does not exist. So even after
-   connecting, the app is read-only and says so.
+   Note that connecting does not make the protocol work: the contracts are
+   deployed but not wired to each other, and the token does not exist yet.
    ========================================================================== */
 (function () {
   'use strict';
@@ -108,7 +107,6 @@
     }
     setControls(true);
     showAccount();
-    showReadOnlyBanner();
   }
 
   function showAccount() {
@@ -116,22 +114,6 @@
     if (slot && account) slot.textContent = account.slice(0, 6) + '…' + account.slice(-4);
     $$('[data-wallet-connected]').forEach(function (el) { el.hidden = false; });
     $$('[data-wallet-disconnected]').forEach(function (el) { el.hidden = true; });
-  }
-
-  /**
-   * Connecting a wallet does not make the protocol work. The contracts are
-   * deployed but not wired, and HOOD does not exist yet, so every figure is
-   * blank and every action is inert. Say that once, at the top, rather than
-   * letting someone discover it by clicking.
-   */
-  function showReadOnlyBanner() {
-    if ($('#readonly-banner')) return;
-    var b = document.createElement('div');
-    b.id = 'readonly-banner';
-    b.innerHTML = 'Read-only. The contracts are live on Robinhood Chain but not yet wired together, ' +
-                  'and HOOD has not launched — so there are no balances to show and nothing to sign yet. ' +
-                  '<a href="/contracts">See the deployed contracts</a>';
-    document.body.insertBefore(b, document.body.firstChild);
   }
 
   /* ---------------------------------------------------------------- boot */
