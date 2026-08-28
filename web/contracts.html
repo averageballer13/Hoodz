@@ -194,7 +194,11 @@
     return li;
   }
 
-  fetch('assets/deployments.json?v=3', { headers: { accept: 'application/json' } })
+  /* no-store: this file changes every time something is deployed, and
+     /assets/* is served stale-while-revalidate=86400. A hand-bumped ?v= only
+     helps if someone remembers to bump it - nobody did, and the page showed
+     three contracts for an hour after six were published. */
+  fetch('assets/deployments.json', { cache: 'no-store', headers: { accept: 'application/json' } })
     .then(function (r) { return r.json(); })
     .then(function (m) {
       var base = (m.explorer || '').replace(/\/$/, '');

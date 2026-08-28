@@ -17,7 +17,10 @@
 (function () {
   'use strict';
 
-  var MANIFEST = 'assets/deployments.json?v=2';
+  /* Fetched no-store below: the manifest changes on every deployment, and
+     /assets/* carries stale-while-revalidate=86400, so a cached copy would show
+     yesterday's contract list on the landing page. */
+  var MANIFEST = 'assets/deployments.json';
 
   function $(sel, ctx) { return (ctx || document).querySelector(sel); }
   function $$(sel, ctx) { return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); }
@@ -232,7 +235,7 @@
   /* ---------------------------------------------------------------- boot */
 
   function boot() {
-    fetch(MANIFEST, { headers: { accept: 'application/json' } })
+    fetch(MANIFEST, { cache: 'no-store', headers: { accept: 'application/json' } })
       .then(function (r) { return r.json(); })
       .then(function (m) {
         loadToken(m);
