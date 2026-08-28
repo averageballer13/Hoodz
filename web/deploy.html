@@ -627,11 +627,34 @@
   }
 
   /* ---------------------------------------------------------------- boot -- */
-  fetch('assets/deploy/bytecode.json?v=2')
+  /* no-store, deliberately. This page is served must-revalidate but /assets/*
+     carries stale-while-revalidate=86400, so a hand-bumped ?v= let the browser
+     pair a fresh page with a bundle up to a day old. That shipped once: the
+     page's PLAN had the renamed contracts while the cached bundle still listed
+     the old names, PLAN[name] came back undefined, and those rows were skipped
+     without a word. The bundle is small and only read at boot - refetching it
+     costs nothing next to deploying the wrong bytes. */
+  fetch('assets/deploy/bytecode.json', { cache: 'no-store' })
     .then(function (r) { return r.json(); })
     .then(function (b) {
       bundle = b;
+
+      /* Every name in the bundle must have a PLAN entry, or the loop silently
+         drops it. Fail loudly instead: a half-deployed stack is worse than one
+         that refused to start. */
+      var unplanned = b.order.filter(function (n) { return !PLAN[n]; });
+      if (unplanned.length) {
+        var msg = 'Bundle and page disagree: no deploy plan for ' + unplanned.join(', ') +
+                  '. Hard-reload the page (Ctrl+Shift+R). Deploying is blocked.';
+        log('ERROR ' + msg);
+        $('status').className = 'status bad';
+        $('status').innerHTML = '<b>Bundle mismatch</b>· ' + msg;
+        bundle = null;
+        return;
+      }
+
       log('bundle loaded: ' + b.order.length + ' contracts, solc ' + b.compiler);
+      log('bundle built: ' + b.generatedAt);
       renderRows(); refreshWallet();
     })
     .catch(function (e) { log('ERROR could not load bytecode bundle — ' + e.message); });
