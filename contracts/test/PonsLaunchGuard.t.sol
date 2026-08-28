@@ -33,7 +33,7 @@ import {MockSwapRouter} from "./mocks/MockSwapRouter.sol";
 
 /// @title  PonsLaunchGuardTest
 /// @notice The one thing §4 of the brief makes non-negotiable: the protocol must not be able to
-///         mint HOODZ while HOODZ is still price-discovering on the PONS curve. The guard holds
+///         mint HOOD while HOOD is still price-discovering on the PONS curve. The guard holds
 ///         the vault role - and has no mint function - so supply is frozen until all three
 ///         release conditions hold at once: the curve graduated, the LP position is locked with
 ///         no unlock path, and a governor-signed arm is at least `TRANSFER_DELAY` old.
@@ -73,7 +73,7 @@ contract PonsLaunchGuardTest is Test {
     uint24 internal constant LP_FEE_TIER = 3000;
     uint128 internal constant LOCKED_LIQUIDITY = 42_000e18;
 
-    /// @dev HOODZ escrowed on the curve before the guard takes the vault role. After that, this
+    /// @dev HOOD escrowed on the curve before the guard takes the vault role. After that, this
     ///      is the entire supply until graduation - the guard cannot mint another unit.
     uint256 internal constant CURVE_SUPPLY = 1_000_000e9;
 
@@ -84,7 +84,7 @@ contract PonsLaunchGuardTest is Test {
         authority = new HoodzAuthority(address(this), guardian, address(this), address(this));
         IHoodzAuthority auth = IHoodzAuthority(address(authority));
 
-        hoodz = new MockPonsToken("Hoodz", "HOODZ", 9, address(this));
+        hoodz = new MockPonsToken("Hoodz", "HOOD", 9, address(this));
         treasury = new HoodzTreasury(address(hoodz), 0, address(authority));
         reserve = new MockERC20("Mock Reserve", "mRSV", 18);
 
@@ -128,10 +128,10 @@ contract PonsLaunchGuardTest is Test {
         poolId = PonsPoolId.toId(key);
 
         // Mint the supply that goes onto the curve, while the test still holds the vault role,
-        // and seed the swap router so a buyback has HOODZ to deliver.
+        // and seed the swap router so a buyback has HOOD to deliver.
         hoodz.mint(address(swapRouter), CURVE_SUPPLY);
 
-        // Hand the vault role to the guard: from here HOODZ supply is frozen.
+        // Hand the vault role to the guard: from here HOOD supply is frozen.
         authority.pushVault(address(guard), true);
 
         // The guard must also be the governor, because `releaseToTreasury` pushes the vault role.
@@ -176,7 +176,7 @@ contract PonsLaunchGuardTest is Test {
     //////////////////////////////////////////////////////////////*/
 
     /// @dev The guard holds the vault role and exposes no mint function, so between deployment
-    ///      and graduation the HOODZ supply cannot move at all.
+    ///      and graduation the HOOD supply cannot move at all.
     function test_GuardHoldsTheVaultAndFreezesSupply() public {
         assertTrue(guard.holdsVaultRole(), "the guard must hold the vault role");
         assertEq(authority.vault(), address(guard));
@@ -496,12 +496,12 @@ contract PonsLaunchGuardTest is Test {
     //////////////////////////////////////////////////////////////*/
 
     /// @dev The locked LP position's trading fees are the one cash flow the launch produces
-    ///      forever. The buyback turns Hoodz's share of them into destroyed HOODZ.
+    ///      forever. The buyback turns Hoodz's share of them into destroyed HOOD.
     function test_BuybackAndBurnDestroysHoodz() public {
         uint256 fees = 10_000e18;
         _accrueFees(fees);
 
-        // 1 reserve buys 1 HOODZ; the router already holds the curve supply as inventory.
+        // 1 reserve buys 1 HOOD; the router already holds the curve supply as inventory.
         swapRouter.setRate(address(reserve), address(hoodz), 1e18);
 
         uint256 supplyBefore = hoodz.totalSupply();
@@ -509,8 +509,8 @@ contract PonsLaunchGuardTest is Test {
         (uint256 spent, uint256 burned) = buyback.buybackAndBurn(1, block.timestamp + 1 hours);
 
         assertEq(spent, fees, "every reserve token on hand is spent");
-        assertEq(burned, 10_000e9, "1:1 into HOODZ at the configured rate");
-        assertEq(supplyBefore - hoodz.totalSupply(), burned, "and the HOODZ is gone for good");
+        assertEq(burned, 10_000e9, "1:1 into HOOD at the configured rate");
+        assertEq(supplyBefore - hoodz.totalSupply(), burned, "and the HOOD is gone for good");
         assertEq(buyback.totalBurned(), burned);
         assertEq(hoodz.balanceOf(address(buyback)), 0, "nothing is left behind");
     }
@@ -569,7 +569,7 @@ contract PonsLaunchGuardTest is Test {
         launchpad.graduate(address(hoodz));
     }
 
-    /// @dev Graduates, then records a well-formed, permanently locked LP position for HOODZ.
+    /// @dev Graduates, then records a well-formed, permanently locked LP position for HOOD.
     function _graduateAndLock() internal {
         _graduate();
         locker.lockForever(address(hoodz), pool, key, LOCKED_LIQUIDITY, lockBeneficiary);
@@ -587,7 +587,7 @@ contract PonsLaunchGuardTest is Test {
         vm.warp(block.timestamp + guard.TRANSFER_DELAY());
     }
 
-    /// @dev Funds the PONS fee router and books `amount_` as claimable for HOODZ.
+    /// @dev Funds the PONS fee router and books `amount_` as claimable for HOOD.
     function _accrueFees(uint256 amount_) internal {
         reserve.mint(address(feeRouter), amount_);
         feeRouter.accrue(address(hoodz), amount_);

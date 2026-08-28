@@ -133,24 +133,24 @@
      nineteen opaque names. */
   var INFO = {
     HoodzAuthority:          ['Authority', 'Holds the four roles every other contract checks against'],
-    sHOODZ:                  ['sHOODZ', 'Staked HOODZ — the rebasing receipt token'],
-    gHOODZ:                  ['gHOODZ', 'Governance HOODZ — voting power and loan collateral'],
-    HoodzTreasury:           ['Treasury', 'Holds the reserves and pays out HOODZ inventory'],
+    sHOOD:                  ['sHOOD', 'Staked HOOD — the rebasing receipt token'],
+    gHOOD:                  ['gHOOD', 'Governance HOOD — voting power and loan collateral'],
+    HoodzTreasury:           ['Treasury', 'Holds the reserves and pays out HOOD inventory'],
     HoodzBondingCalculator:  ['Bonding calculator', 'Values liquidity positions for the treasury'],
     HoodzStaking:            ['Staking', 'Stake, unstake, and the epoch rebase'],
     Distributor:             ['Distributor', 'Pays the epoch emission to stakers'],
-    BondDepository:          ['Bond depository', 'Sells HOODZ at a discount for reserves'],
+    BondDepository:          ['Bond depository', 'Sells HOOD at a discount for reserves'],
     CoolerFactory:           ['Loan factory', 'Creates the per-borrower loan escrows'],
-    Clearinghouse:           ['Clearinghouse', 'Lends reserves at 0.5% against gHOODZ'],
+    Clearinghouse:           ['Clearinghouse', 'Lends reserves at 0.5% against gHOOD'],
     HoodzTimelock:           ['Timelock', 'Two-day delay between a passed vote and execution'],
     HoodzGovernor:           ['Governor', 'On-chain proposals and voting'],
     PonsLaunchConfig:        ['Launch config', 'Immutable record of the PONS launch parameters'],
     HoodzLaunchGuard:        ['Launch guard', 'Withholds mint authority until PONS graduation'],
     CreatorFeeSplitter:      ['Fee splitter', 'Splits PONS creator fees 33/33/34'],
-    FeeRouterBuyback:        ['Buyback router', 'Buys HOODZ with fees and burns it'],
+    FeeRouterBuyback:        ['Buyback router', 'Buys HOOD with fees and burns it'],
     EmissionsManager:        ['Emissions manager', 'Sizes emissions from the premium over backing'],
-    YieldRepurchaseFacility: ['Yield repurchase', 'Spends reserve yield buying HOODZ back'],
-    ConvertibleDepository:   ['Convertible deposits', 'Reserves deposited against a HOODZ strike']
+    YieldRepurchaseFacility: ['Yield repurchase', 'Spends reserve yield buying HOOD back'],
+    ConvertibleDepository:   ['Convertible deposits', 'Reserves deposited against a HOOD strike']
   };
 
   function el(tag, cls, text) {
@@ -168,7 +168,7 @@
     a.rel = 'noopener';
 
     var left = el('div', 'item__left');
-    left.appendChild(el('div', 'item__name', isToken ? 'HOODZ' : meta[0]));
+    left.appendChild(el('div', 'item__name', isToken ? 'HOOD' : meta[0]));
     left.appendChild(el('div', 'item__role', isToken ? 'The token itself, launched on PONS' : meta[1]));
 
     var right = el('div', 'item__right');
@@ -215,7 +215,7 @@
       var pending = Object.keys(m.contracts || {}).length - n;
       if (pending > 0) {
         var note = document.getElementById('note');
-        note.textContent = pending + ' more contracts deploy once the HOODZ token exists on PONS. ' +
+        note.textContent = pending + ' more contracts deploy once the HOOD token exists on PONS. ' +
                            'They depend on its address, so they cannot be deployed before it.';
         note.hidden = false;
       }

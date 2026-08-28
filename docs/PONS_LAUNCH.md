@@ -1,17 +1,17 @@
-# HOODZ Launch Runbook — PONS on Robinhood Chain
+# HOOD Launch Runbook — PONS on Robinhood Chain
 
 > **UNAUDITED.** Every contract referenced here carries the `/// @dev UNAUDITED` banner. Do not run
 > this sequence on mainnet without a full audit.
 
-This is the operational order of the HOODZ launch, the parameter set it runs on, and the specific way
+This is the operational order of the HOOD launch, the parameter set it runs on, and the specific way
 each step can go wrong. Values live in [`pons-launch.json`](./pons-launch.json); this file explains
 what they mean and in what order they become real.
 
 The single design constraint everything below serves:
 
-> **The protocol cannot mint HOODZ while HOODZ is still price-discovering.**
+> **The protocol cannot mint HOOD while HOOD is still price-discovering.**
 
-Between the first curve trade and the moment the Treasury receives mint authority, HOODZ's total supply
+Between the first curve trade and the moment the Treasury receives mint authority, HOOD's total supply
 is frozen at exactly the amount minted before trading opened. That is enforced by `HoodzLaunchGuard`
 sitting in the `vault` role with no mint function, not by a promise.
 
@@ -36,7 +36,7 @@ The deploy script takes `--chain 4663` or `--chain 46630` and rewrites `docs/pon
 
 | Parameter | Where it is burned in | Meaning |
 | --- | --- | --- |
-| `hoodzToken` | `PonsLaunchConfig` immutable | The HOODZ ERC20. Clean, permissionless, no tax, no blacklist, no pausable transfers. |
+| `hoodzToken` | `PonsLaunchConfig` immutable | The HOOD ERC20. Clean, permissionless, no tax, no blacklist, no pausable transfers. |
 | `reserveToken` | `PonsLaunchConfig` immutable | Quote asset the bonding curve collects. |
 | `curve` | `PonsLaunchConfig` immutable | The PONS bonding curve escrow returned by `createToken`. |
 | `targetRaise` | `PonsLaunchConfig` immutable | Total reserve the curve is sized to collect across its whole range. |
@@ -57,7 +57,7 @@ is no setter, no owner and no upgrade path on `PonsLaunchConfig`. **A typo here 
 | `governor` | DAO multisig / timelock | `arm()`, `releaseToTreasury()`, `pointFeesHere()`, `setAuthority` |
 | `guardian` | Guardian multisig | `abort()` — cancels a pending release and resets the 48h clock |
 | `policy` | Policy multisig / keeper | `buybackAndBurn(minOut, deadline)` |
-| `vault` | Launch operator → `HoodzLaunchGuard` → `HoodzTreasury` | Mint HOODZ |
+| `vault` | Launch operator → `HoodzLaunchGuard` → `HoodzTreasury` | Mint HOOD |
 
 The `vault` role is the whole story. It starts with the launch operator for exactly one mint, then
 moves to the guard where it is inert, then to the Treasury. Nothing else ever holds it.
@@ -73,7 +73,7 @@ moves to the guard where it is inert, then to the Treasury. Nothing else ever ho
 | `contracts/src/pons/IPositionLocker.sol` | The permanently locked graduated LP position |
 | `contracts/src/pons/PonsLaunchConfig.sol` | Immutable on-chain record of the launch |
 | `contracts/src/pons/HoodzLaunchGuard.sol` | The safety rail on mint authority |
-| `contracts/src/pons/FeeRouterBuyback.sol` | Protocol fee share → buy HOODZ → burn |
+| `contracts/src/pons/FeeRouterBuyback.sol` | Protocol fee share → buy HOOD → burn |
 
 ---
 
@@ -104,14 +104,14 @@ Verify: all four getters return the intended addresses, and the governor multisi
 already frozen. A governor set to a single EOA makes every guarantee below worth exactly that EOA's
 key hygiene.
 
-### Step 2 — Deploy `HOODZ`
+### Step 2 — Deploy `HOOD`
 
 Signer: deployer. Mint gated on `HoodzAuthority.vault()`.
 
 Verify on the deployed bytecode, not the source you think you deployed: no transfer tax, no
 blacklist, no pausable transfers, no rebasing balances, and `mint` reachable only by the vault.
 
-**Risk:** any transfer hook at all makes HOODZ incompatible with the PONS curve and with the Uniswap v4
+**Risk:** any transfer hook at all makes HOOD incompatible with the PONS curve and with the Uniswap v4
 pool it graduates into. This is discovered at step 4 or, worse, at step 8 as failing user trades.
 
 ### Step 3 — Mint the launch supply
@@ -129,9 +129,9 @@ same operational session.
 ### Step 4 — `createToken` on PONS
 
 Signer: launch operator. Approve the launchpad for exactly the sellable supply, then call
-`IPonsLaunchpad.createToken(params)` with `params.token = HOODZ`. Returns `(token, curve)`.
+`IPonsLaunchpad.createToken(params)` with `params.token = HOOD`. Returns `(token, curve)`.
 
-Verify: `launchpad.curveOf(HOODZ) == curve`, `curve.reserveToken()` and `curve.graduationThreshold()`
+Verify: `launchpad.curveOf(HOOD) == curve`, `curve.reserveToken()` and `curve.graduationThreshold()`
 match the intended parameters, `curve.reserves() == 0`, `curve.graduated() == false`.
 
 **Risk:** the approval is the exposure. Approve the sellable supply and nothing more, and confirm the
@@ -161,7 +161,7 @@ HoodzLaunchGuard(authority, config, launchpad, locker, poolManager, treasury)
 `poolManager` may be `address(0)` to skip the independent v4 liquidity cross-check; the locker checks
 still apply.
 
-Verify: `guard.TREASURY()`, `guard.HOODZ()`, `guard.CONFIG()` and `guard.HOODZ_AUTHORITY()` all read
+Verify: `guard.TREASURY()`, `guard.HOOD()`, `guard.CONFIG()` and `guard.HOOD_AUTHORITY()` all read
 back correct. `guard.released() == false`.
 
 **Risk:** a wrong `TREASURY` sends mint authority to the wrong contract in step 12, irreversibly, with
@@ -195,10 +195,10 @@ credible commitment about *timing*, not a lock that can strand the protocol perm
 Signer: the market. Nobody at Hoodz trades the curve from a contract; every buy is a user wallet
 signing its own transaction, as PONS requires.
 
-Anyone may call `launchpad.graduate(HOODZ)` once `curve.reserves() >= curve.graduationThreshold()`.
+Anyone may call `launchpad.graduate(HOOD)` once `curve.reserves() >= curve.graduationThreshold()`.
 Graduation migrates reserves and remaining supply into the Uniswap v4 pool and locks the position.
 
-Verify: `launchpad.isGraduated(HOODZ) == true`, `launchpad.poolOf(HOODZ) != address(0)`,
+Verify: `launchpad.isGraduated(HOOD) == true`, `launchpad.poolOf(HOOD) != address(0)`,
 `curve.graduated() == true`.
 
 **Risk:** this is an open market and the protocol does not control it.
@@ -218,12 +218,12 @@ guard.verifyGraduation()
 ```
 
 This checks, and fails closed on every branch: the launchpad reports graduated; a locked position
-exists for HOODZ in the pool the launchpad names; it holds non-zero liquidity; its `PoolKey` actually
+exists for HOOD in the pool the launchpad names; it holds non-zero liquidity; its `PoolKey` actually
 hashes to its recorded `poolId`; `unlockable == false`; `unlockTime == type(uint256).max`;
-`isPermanentlyLocked(HOODZ) == true`; and — if a `poolManager` was configured — the v4 singleton itself
+`isPermanentlyLocked(HOOD) == true`; and — if a `poolManager` was configured — the v4 singleton itself
 reports non-zero liquidity for that pool id.
 
-Verify independently, without trusting the guard: read `locker.lockOf(HOODZ)` yourself and confirm
+Verify independently, without trusting the guard: read `locker.lockOf(HOOD)` yourself and confirm
 `unlockable` is false and `unlockTime` is `type(uint256).max`.
 
 **Risk:** if this call reverts, **stop**. Do not proceed to step 10. Either the launch did not
@@ -237,7 +237,7 @@ Signer: governor. `guard.arm()`.
 This starts the 48-hour countdown and emits `Armed(governor, armedAt, eligibleAt)`. Announce it
 publicly with the `eligibleAt` timestamp.
 
-**Risk:** the countdown is the whole point — it is the window in which HOODZ holders who do not want to
+**Risk:** the countdown is the whole point — it is the window in which HOOD holders who do not want to
 hold through a mint-capable protocol can leave. Arming quietly, or arming and releasing without
 announcing, converts a governance guarantee into a surprise. `arm()` is callable before graduation by
 design; doing so signals intent early, but the release still proves graduation and the lock
@@ -265,7 +265,7 @@ elapsed. Then pushes the vault role to the immutable `TREASURY` and asserts that
 
 Verify: `authority.vault() == treasury`, `guard.released() == true`, `guard.holdsVaultRole() == false`.
 
-**Risk:** irreversible. From this block on, the protocol can mint HOODZ. The guard is spent — `arm()`,
+**Risk:** irreversible. From this block on, the protocol can mint HOOD. The guard is spent — `arm()`,
 `verifyGraduation()` and `abort()` all revert with `AlreadyReleased()` forever.
 
 Prerequisite for this call to succeed at all: `lockVaultToGuard(guard)` must already have run, so the
@@ -275,12 +275,12 @@ live authority can settle.
 
 ### Step 13 — Deploy the staking stack
 
-Signer: deployer, then governor for wiring. `sHOODZ`, `gHOODZ`, `HoodzStaking`, `Distributor`, bond
+Signer: deployer, then governor for wiring. `sHOOD`, `gHOOD`, `HoodzStaking`, `Distributor`, bond
 depository. Set Treasury permissions (reserve tokens, reserve depositors, reward manager for the
 Distributor).
 
 Verify: `staking.index()` equals the initial index, epoch length and first epoch time are correct, and
-`sHOODZ` is initialised against staking before the first rebase.
+`sHOOD` is initialised against staking before the first rebase.
 
 **Risk:** the Distributor is a reward manager on the Treasury — it mints. A reward rate set from a
 copied constant rather than from this launch's actual supply and backing is how a clone protocol
@@ -292,10 +292,10 @@ to explain a supply spike.
 Signer: governor / policy. Deposit reserve assets via `treasury.deposit(amount, token, profit)`.
 
 Verify: `treasury.excessReserves()`, `treasury.baseSupply()` and `treasury.tokenValue()` all read as
-expected, and backing per HOODZ matches what you intend to publish.
+expected, and backing per HOOD matches what you intend to publish.
 
 **Risk:** `profit` is the portion of a deposit *not* minted back to the depositor. Getting it wrong
-mints HOODZ against reserves that were never there. Do this before enabling emissions, not after, so
+mints HOOD against reserves that were never there. Do this before enabling emissions, not after, so
 that the first rebase happens against a treasury whose backing is already correct and public.
 
 ### Step 15 — Point PONS fees at the buyback
@@ -312,7 +312,7 @@ buyback is worth the gas before sending one.
 
 **Risk:** every buyback is a swap, and a swap sitting in the mempool with a loose `minOut` is a free
 option for whoever is watching it. `minOut == 0` is rejected outright (`ZeroMinOut()`); quote against
-the pool at send time and set `deadline` in minutes, not hours. The HOODZ bought is burned
+the pool at send time and set `deadline` in minutes, not hours. The HOOD bought is burned
 unconditionally in the same transaction — nothing accumulates in the contract between calls, so a
 failed or skipped buyback costs nothing but delay.
 
@@ -321,7 +321,7 @@ failed or skipped buyback costs nothing but delay.
 ## 3. What the guard does and does not guarantee
 
 **Does:**
-- HOODZ supply cannot change between step 7 and step 12.
+- HOOD supply cannot change between step 7 and step 12.
 - Mint authority can only ever go to the `TREASURY` address fixed at step 6.
 - It cannot go there until graduation and the permanent LP lock are both proven on-chain, in the same
   block as the transfer.
@@ -341,8 +341,8 @@ failed or skipped buyback costs nothing but delay.
 
 | Symptom | Cause | Action |
 | --- | --- | --- |
-| `verifyGraduation()` reverts `NotGraduated` | Curve has not crossed the threshold, or `graduate()` was never called | Anyone may call `launchpad.graduate(HOODZ)` once reserves suffice |
-| `verifyGraduation()` reverts `LpNotLocked` | Position missing, empty, unlockable, or the interface does not match the live locker | Stop. Read `locker.lockOf(HOODZ)` directly. If the lock is genuine, deploy a corrected guard and re-push the vault role |
+| `verifyGraduation()` reverts `NotGraduated` | Curve has not crossed the threshold, or `graduate()` was never called | Anyone may call `launchpad.graduate(HOOD)` once reserves suffice |
+| `verifyGraduation()` reverts `LpNotLocked` | Position missing, empty, unlockable, or the interface does not match the live locker | Stop. Read `locker.lockOf(HOOD)` directly. If the lock is genuine, deploy a corrected guard and re-push the vault role |
 | `releaseToTreasury()` reverts `NotArmed` | Never armed, or the guardian aborted | Governor re-runs `arm()` and waits the full 48h again |
 | `releaseToTreasury()` reverts `DelayNotElapsed` | Less than 48h since `arm()` | Wait. `secondsUntilRelease()` reports how long |
 | `releaseToTreasury()` reverts `HoodzAuthority_NotLaunchGuard` | `lockVaultToGuard` was never called, or named a different address | Authority misconfiguration. Nothing is released; fix the authority's permissions and retry |
@@ -354,7 +354,7 @@ failed or skipped buyback costs nothing but delay.
 Mirrors the `verification` block in `pons-launch.json`. None of these are true at the start.
 
 - [ ] Sources verified on Blockscout
-- [ ] HOODZ confirmed as a clean ERC20 on deployed bytecode
+- [ ] HOOD confirmed as a clean ERC20 on deployed bytecode
 - [ ] Supply frozen: `authority.vault() == guard`, total supply published
 - [ ] Curve graduated
 - [ ] LP position independently confirmed permanently locked

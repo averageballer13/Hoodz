@@ -8,7 +8,7 @@ Two contracts live here:
 
 | File | What it is |
 | ---- | ---------- |
-| `HoodzGovernor.sol` | OpenZeppelin v5 `Governor` over **gHOODZ**. Proposal creation, voting, counting, queueing. |
+| `HoodzGovernor.sol` | OpenZeppelin v5 `Governor` over **gHOOD**. Proposal creation, voting, counting, queueing. |
 | `HoodzTimelock.sol` | `TimelockController` with a hard-coded **2-day** minimum delay. Executes everything that passes. |
 
 `HoodzGovernor` is the *decision* layer. `HoodzTimelock` is the *execution* layer and the account
@@ -17,7 +17,7 @@ that actually owns the protocol: it is the address wired in as the `governor` ro
 the distributor and Hoodz Loans.
 
 ```
-gHOODZ holders ──delegate──▶ voting power
+gHOOD holders ──delegate──▶ voting power
                               │
                               ▼
                        HoodzGovernor  ──queue──▶  HoodzTimelock  ──execute──▶  HoodzAuthority
@@ -32,7 +32,7 @@ gHOODZ holders ──delegate──▶ voting power
 
 ## 1. Parameters
 
-gHOODZ does **not** override `clock()` / `CLOCK_MODE()`, so it uses the ERC-6372 **default
+gHOOD does **not** override `clock()` / `CLOCK_MODE()`, so it uses the ERC-6372 **default
 block-number clock** (`mode=blocknumber&from=default`). `GovernorVotes.clock()` mirrors the token,
 which means the governor's two windows are denominated in **blocks**, not seconds. Robinhood Chain
 produces a block roughly every **2 seconds**:
@@ -41,8 +41,8 @@ produces a block roughly every **2 seconds**:
 | --------- | ----- | ---------- | ------ |
 | `votingDelay()` | `43,200` blocks | ~1 day | `GovernorSettings` |
 | `votingPeriod()` | `216,000` blocks | ~5 days | `GovernorSettings` |
-| `proposalThreshold()` | `1_000e18` gHOODZ | — | `GovernorSettings` |
-| `quorumNumerator()` / `quorumDenominator()` | `4` / `100` → **4%** of gHOODZ supply at the snapshot | — | `GovernorVotesQuorumFraction` |
+| `proposalThreshold()` | `1_000e18` gHOOD | — | `GovernorSettings` |
+| `quorumNumerator()` / `quorumDenominator()` | `4` / `100` → **4%** of gHOOD supply at the snapshot | — | `GovernorVotesQuorumFraction` |
 | `MIN_DELAY` | `2 days` | ~2 days | `HoodzTimelock` (timestamp-based) |
 
 Worst-case time from `propose()` to state change: **~1 day + ~5 days + 2 days ≈ 8 days.**
@@ -58,65 +58,65 @@ read-only conveniences for the dApp; the block-denominated getters remain author
 
 ---
 
-## 2. Where voting power comes from: HOODZ → sHOODZ → gHOODZ
+## 2. Where voting power comes from: HOOD → sHOOD → gHOOD
 
-Voting power is **gHOODZ**, never HOODZ and never sHOODZ.
+Voting power is **gHOOD**, never HOOD and never sHOOD.
 
-1. **HOODZ** is the bare, permissionless ERC-20 launched on PONS. It has no `ERC20Votes` extension
-   and therefore carries **zero** governance weight. Holding HOODZ in a wallet, an LP position or
+1. **HOOD** is the bare, permissionless ERC-20 launched on PONS. It has no `ERC20Votes` extension
+   and therefore carries **zero** governance weight. Holding HOOD in a wallet, an LP position or
    the PONS curve gives you no vote.
-2. **Staking.** `IStaking.stake(to, amount, rebasing, claim)` deposits HOODZ into the staking
-   contract. Passing `rebasing = true` mints **sHOODZ**; passing `rebasing = false` mints **gHOODZ**
+2. **Staking.** `IStaking.stake(to, amount, rebasing, claim)` deposits HOOD into the staking
+   contract. Passing `rebasing = true` mints **sHOOD**; passing `rebasing = false` mints **gHOOD**
    directly.
-3. **sHOODZ** is the rebasing receipt: balance-elastic, always ~1:1 with the HOODZ you are owed, and
-   it grows every epoch when the distributor calls `rebase()`. sHOODZ is *not* an `ERC20Votes`
+3. **sHOOD** is the rebasing receipt: balance-elastic, always ~1:1 with the HOOD you are owed, and
+   it grows every epoch when the distributor calls `rebase()`. sHOOD is *not* an `ERC20Votes`
    token — a rebasing balance cannot be checkpointed coherently, because everyone's balance
    changes in a single write with no transfer event per holder.
-4. **gHOODZ** is the index-bearing wrapper: balance-static, value-elastic. Conversion uses the
+4. **gHOOD** is the index-bearing wrapper: balance-static, value-elastic. Conversion uses the
    staking index:
 
    ```
-   gHOODZ = sHOODZ / index      // IgHOODZ.balanceTo(sHOODZAmount)
-   sHOODZ = gHOODZ * index      // IgHOODZ.balanceFrom(gHOODZAmount)
+   gHOOD = sHOOD / index      // IgHOOD.balanceTo(sHOODAmount)
+   sHOOD = gHOOD * index      // IgHOOD.balanceFrom(gHOODAmount)
    ```
 
-   `index()` only ever increases (each rebase raises it), so **1 gHOODZ is a permanently constant
+   `index()` only ever increases (each rebase raises it), so **1 gHOOD is a permanently constant
    share of the staking pool**. That is precisely the property `ERC20Votes` needs: balances change
    only on mint, burn and transfer, so every change is checkpointable.
 
 The consequence worth internalising: **rebases do not dilute or inflate anyone's vote.** A holder
-who wraps into gHOODZ and never touches it again keeps exactly the same fraction of total voting
-power forever, while the HOODZ value behind those gHOODZ compounds with the index. Sitting in sHOODZ
+who wraps into gHOOD and never touches it again keeps exactly the same fraction of total voting
+power forever, while the HOOD value behind those gHOOD compounds with the index. Sitting in sHOOD
 instead means you have a growing token balance and *no vote at all* until you wrap.
 
 ### Getting a vote, step by step
 
 ```solidity
-// 1. stake HOODZ, receiving gHOODZ directly (rebasing = false, claim = true)
+// 1. stake HOOD, receiving gHOOD directly (rebasing = false, claim = true)
 hoodz.approve(address(staking), amount);
 staking.stake(msg.sender, amount, false, true);
 
-// 2. ACTIVATE the voting power — gHOODZ balance alone counts for nothing
+// 2. ACTIVATE the voting power — gHOOD balance alone counts for nothing
 ghoodz.delegate(msg.sender);            // self-delegate, or delegate(someoneElse)
 ```
 
-> **`delegate()` is not optional.** `ERC20Votes` tracks *delegated* votes. An undelegated gHOODZ
+> **`delegate()` is not optional.** `ERC20Votes` tracks *delegated* votes. An undelegated gHOOD
 > balance reports `getVotes(holder) == 0`. Self-delegation is a one-time transaction per address;
 > after it, transfers in and out of the address move voting power automatically. Delegation is
 > also revocable and re-assignable at any time, and it never moves the tokens themselves.
 
 `delegateBySig(delegatee, nonce, expiry, v, r, s)` is available for gasless delegation, using the
-`Nonces` counter that gHOODZ inherits.
+`Nonces` counter that gHOOD inherits.
 
 ### Snapshots
 
 Voting weight for a proposal is read with `getPastVotes(account, proposalSnapshot(proposalId))`,
 where `proposalSnapshot = <creation block> + votingDelay`. Two implications:
 
-* Delegating (or acquiring gHOODZ) **after** the snapshot block does nothing for that proposal.
+* Delegating (or acquiring gHOOD) **after** the snapshot block does nothing for that proposal.
   The ~1-day `votingDelay` exists exactly so holders have time to wrap and delegate before the
   snapshot locks.
-* Quorum is `4%` of `getPastTotalSupply(snapshot)` — the gHOODZ supply at that same block, not the
+* Quorum is `4%` of `getPastTotalSupply(snapshot)` — the gHOOD supply at that same block, not the
   current one.
 
 ---
@@ -163,7 +163,7 @@ has no grace period, so a ready operation stays executable indefinitely.)
 uint256 id = governor.propose(targets, values, calldatas, "HIP-1: raise the reward rate to 0.30%");
 ```
 
-* Requires `governor.getVotes(msg.sender, clock() - 1) >= proposalThreshold()` — **1,000 gHOODZ** of
+* Requires `governor.getVotes(msg.sender, clock() - 1) >= proposalThreshold()` — **1,000 gHOOD** of
   *delegated* voting power at the previous block.
 * The description may end with `#proposer=0x<address>` to lock proposal submission to a single
   address (OZ v5 `_isValidDescriptionForProposer`), which is useful when the batch is front-runnable.
@@ -237,8 +237,8 @@ address[] memory executors = new address[](1);
 executors[0] = address(0);                       // anyone may execute a ready batch
 HoodzTimelock timelock = new HoodzTimelock(proposers, executors, deployer);
 
-// 2. governor over gHOODZ
-HoodzGovernor governor = new HoodzGovernor(IVotes(address(gHOODZ)), timelock);
+// 2. governor over gHOOD
+HoodzGovernor governor = new HoodzGovernor(IVotes(address(gHOOD)), timelock);
 
 // 3. the governor becomes the only proposer / canceller
 timelock.grantRole(timelock.PROPOSER_ROLE(),  address(governor));
@@ -266,7 +266,7 @@ Verify with `timelock.isSelfAdministered(deployer) == true` and
 | `HoodzAuthority.governor` | `HoodzTimelock` | Proposals execute *from* the timelock, so it is the caller the protocol sees. |
 
 The `guardian` / `policy` / `vault` roles of `HoodzAuthority` stay with their multisigs — governance
-does not replace them, it owns the right to *change* them. `vault` in particular is the HOODZ mint
+does not replace them, it owns the right to *change* them. `vault` in particular is the HOOD mint
 authority, and per the PONS launch rules it may only move to the Treasury **after** the bonding
 curve has graduated (`HoodzLaunchGuard` enforces this on-chain).
 
@@ -278,7 +278,7 @@ Everything the governance page needs is on-chain:
 
 ```solidity
 governor.name();                              // "Hoodz Governor"
-governor.token();                             // gHOODZ
+governor.token();                             // gHOOD
 governor.timelock();                          // HoodzTimelock
 governor.clock();                             // current block number
 governor.CLOCK_MODE();                        // "mode=blocknumber&from=default"
@@ -304,9 +304,9 @@ result as an estimate and label it as one.
 Two UX rules that prevent most support tickets:
 
 1. If `ghoodz.delegates(user) == address(0)`, show a **"Activate voting power"** call-to-action
-   before showing any vote button — the user has gHOODZ but zero votes.
-2. If the user holds sHOODZ, show **"Wrap to gHOODZ to vote"** with the live conversion
-   (`ghoodz.balanceTo(sHOODZAmount)`), and be explicit that wrapping does not unstake and does not
+   before showing any vote button — the user has gHOOD but zero votes.
+2. If the user holds sHOOD, show **"Wrap to gHOOD to vote"** with the live conversion
+   (`ghoodz.balanceTo(sHOODAmount)`), and be explicit that wrapping does not unstake and does not
    forfeit rebase yield.
 
 ---
@@ -315,10 +315,10 @@ Two UX rules that prevent most support tickets:
 
 * **Flash-loan resistance.** Voting weight is read at a past block via checkpoints, and the
   proposal threshold at `clock() - 1`, so a same-block borrow cannot create voting power.
-* **Vote buying is not prevented.** Delegation is free and revocable; gHOODZ lending markets can
+* **Vote buying is not prevented.** Delegation is free and revocable; gHOOD lending markets can
   rent voting power. This is inherent to `ERC20Votes`, not specific to Hoodz.
-* **No quorum decay, no vote weighting by lock time.** Quorum is a flat 4% of gHOODZ supply at the
-  snapshot. If gHOODZ supply is small at launch, 4% is a small absolute number — consider raising
+* **No quorum decay, no vote weighting by lock time.** Quorum is a flat 4% of gHOOD supply at the
+  snapshot. If gHOOD supply is small at launch, 4% is a small absolute number — consider raising
   the numerator by proposal once the staking pool matures.
 * **The 2-day timelock is the only forced delay on execution.** A proposal that changes the
   timelock delay itself still has to serve the *current* delay first.

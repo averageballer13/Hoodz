@@ -14,7 +14,7 @@ pragma solidity ^0.8.24;
         trading fees, never out of new supply - there is no mint.
 
         Web    https://hoodz.finance
-        X      https://x.com/Hoodzfinancial
+        X      https://x.com/Hoodzfinance
         Code   https://github.com/averageballer13/Hoodz
 
         UNAUDITED. This code has never been audited. Read it before you
@@ -66,7 +66,7 @@ interface ICoolerFactory {
     function created(address cooler) external view returns (bool);
 
     /// @notice Deploy (or return the existing) escrow for `msg.sender` and the given token pair.
-    /// @param  collateral Token posted as collateral (gHOODZ for Hoodz Loans).
+    /// @param  collateral Token posted as collateral (gHOOD for Hoodz Loans).
     /// @param  debt       Token borrowed (the reserve asset).
     /// @return cooler     Address of the escrow, deterministic in (owner, collateral, debt).
     function generateCooler(IERC20 collateral, IERC20 debt) external returns (address cooler);

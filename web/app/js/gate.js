@@ -120,7 +120,7 @@
 
   /**
    * Connecting a wallet does not make the protocol work. The contracts are
-   * deployed but not wired, and HOODZ does not exist yet, so every figure is
+   * deployed but not wired, and HOOD does not exist yet, so every figure is
    * blank and every action is inert. Say that once, at the top, rather than
    * letting someone discover it by clicking.
    */
@@ -129,7 +129,7 @@
     var b = document.createElement('div');
     b.id = 'readonly-banner';
     b.innerHTML = 'Read-only. The contracts are live on Robinhood Chain but not yet wired together, ' +
-                  'and HOODZ has not launched — so there are no balances to show and nothing to sign yet. ' +
+                  'and HOOD has not launched — so there are no balances to show and nothing to sign yet. ' +
                   '<a href="/contracts">See the deployed contracts</a>';
     document.body.insertBefore(b, document.body.firstChild);
   }

@@ -5,7 +5,7 @@
 > protocol, rebranded as **Hoodz** and targeted at **Robinhood Chain**. Do not deploy it with
 > real value at risk until it has been professionally audited.
 
-The Solidity half of the repo: the HOODZ / sHOODZ / gHOODZ token trio, the staking + rebase engine,
+The Solidity half of the repo: the HOOD / sHOOD / gHOOD token trio, the staking + rebase engine,
 the Hoodz Treasury, bonding, distribution, Hoodz Loans, and the PONS launch integration.
 
 ---
@@ -48,9 +48,9 @@ cold clone type-checks in seconds without Foundry or Hardhat.
 ```
 contracts/
   src/
-    interfaces/   IHoodzAuthority, IHOODZ, IsHOODZ, IgHOODZ, IStaking, ITreasury, IDistributor, ...
+    interfaces/   IHoodzAuthority, IHOOD, IsHOOD, IgHOOD, IStaking, ITreasury, IDistributor, ...
     types/        HoodzAccessControlled — the shared role-gated base
-    tokens/       HOODZ, sHOODZ, gHOODZ
+    tokens/       HOOD, sHOOD, gHOOD
     modules/      treasury, bonding, distribution, staking internals
     policies/     governance-facing policy contracts
     pons/         PONS launchpad interfaces + launch config, guard, buyback router
@@ -158,7 +158,7 @@ npx hardhat compile
 cp ../.env.example ../.env    # then fill it in — never commit .env
 ```
 
-Required: `PRIVATE_KEY`, the four `HOODZ_*` role addresses, and the `PONS_*` launch parameters.
+Required: `PRIVATE_KEY`, the four `HOOD_*` role addresses, and the `PONS_*` launch parameters.
 
 ### Testnet (46630)
 
@@ -193,7 +193,7 @@ Dry run first — omit `--broadcast` to simulate.
 ### Verify an already-deployed contract
 
 ```bash
-forge verify-contract <ADDRESS> src/tokens/HOODZ.sol:HOODZ \
+forge verify-contract <ADDRESS> src/tokens/HOOD.sol:HOOD \
   --chain 4663 \
   --verifier blockscout \
   --verifier-url https://robinhoodchain.blockscout.com/api \
@@ -205,21 +205,21 @@ forge verify-contract <ADDRESS> src/tokens/HOODZ.sol:HOODZ \
 
 ## 6. PONS launch order
 
-HOODZ is launched through **PONS**, the non-custodial launchpad on Robinhood Chain. The token
+HOOD is launched through **PONS**, the non-custodial launchpad on Robinhood Chain. The token
 starts on a bonding curve; on graduation the curve reserves migrate into a permanently locked
 Uniswap v4 pool, and a share of trading fees funds buyback-and-burn.
 
 That dictates the deployment order:
 
 1. Deploy `HoodzAuthority` with the governor / guardian / policy / vault addresses.
-2. Deploy `HOODZ` as a **clean, permissionless ERC20** — no transfer tax, no blacklist, no
+2. Deploy `HOOD` as a **clean, permissionless ERC20** — no transfer tax, no blacklist, no
    pausable transfers. PONS will reject anything else.
 3. Deploy `PonsLaunchConfig` recording the immutable launch parameters (reserve token, target
    raise, graduation threshold, LP fee tier, lock beneficiary).
 4. Launch on PONS. Trade on the curve until the graduation threshold is met.
 5. **Only after `graduated == true`**, `HoodzLaunchGuard` permits mint authority to move to the
    Treasury/vault. Before graduation the move reverts.
-6. Deploy the protocol stack (Treasury, staking, sHOODZ/gHOODZ, distributor, bonding) and point
+6. Deploy the protocol stack (Treasury, staking, sHOOD/gHOOD, distributor, bonding) and point
    `FeeRouterBuyback` at the graduated v4 pool.
 
 Do not hand mint authority to the protocol before step 5 — the guard exists precisely to make
@@ -232,7 +232,7 @@ that mistake impossible on-chain.
 ```bash
 cast chain-id            --rpc-url https://rpc.mainnet.chain.robinhood.com   # -> 4663
 cast balance   <ADDR>    --rpc-url robinhood
-cast call <HOODZ> "totalSupply()(uint256)" --rpc-url robinhood
+cast call <HOOD> "totalSupply()(uint256)" --rpc-url robinhood
 cast call <STAKING> "index()(uint256)"    --rpc-url robinhood
 cast call <STAKING> "secondsToNextEpoch()(uint256)" --rpc-url robinhood
 ```

@@ -99,13 +99,13 @@ Fill in every field. The ones that will hurt you if they are wrong:
 | Variable                    | Why it matters                                                     |
 | --------------------------- | ------------------------------------------------------------------ |
 | `PRIVATE_KEY`               | The deployer. **Burner on testnet. Hardware wallet on mainnet.**     |
-| `HOODZ_GOVERNOR`             | Ends up holding every privilege. Wrong value = protocol lost.        |
-| `HOODZ_GUARDIAN`             | The only key that can stop an incident.                              |
-| `HOODZ_POLICY`               | Opens and closes markets.                                            |
-| `HOODZ_VAULT`                | The **launch operator**, for one mint. Then the guard, then the treasury. Never anything else. |
+| `HOOD_GOVERNOR`             | Ends up holding every privilege. Wrong value = protocol lost.        |
+| `HOOD_GUARDIAN`             | The only key that can stop an incident.                              |
+| `HOOD_POLICY`               | Opens and closes markets.                                            |
+| `HOOD_VAULT`                | The **launch operator**, for one mint. Then the guard, then the treasury. Never anything else. |
 | `PONS_*`                    | Immutable once written into `PonsLaunchConfig`.                      |
-| `HOODZ_EPOCH_LENGTH`         | `28800` (8h). Changing it changes every yield calculation.           |
-| `HOODZ_FIRST_EPOCH_TIME`     | A unix timestamp in the near future. Not in the past.                |
+| `HOOD_EPOCH_LENGTH`         | `28800` (8h). Changing it changes every yield calculation.           |
+| `HOOD_FIRST_EPOCH_TIME`     | A unix timestamp in the near future. Not in the past.                |
 
 `.env` is gitignored. Keep it that way. Never paste a key into a terminal that logs, never commit a
 `broadcast/` directory containing one.
@@ -124,14 +124,14 @@ forge script ... --account hoodz-deployer --sender $DEPLOYER_ADDRESS
 ```mermaid
 flowchart TD
     A["0. Local fork dry run"] --> B["1. Testnet rehearsal, full"]
-    B --> C["2. HoodzAuthority + clean HOODZ<br/>vault = launch operator"]
+    B --> C["2. HoodzAuthority + clean HOOD<br/>vault = launch operator"]
     C --> D["3. ONE mint: the launch supply"]
     D --> E["4. PonsLaunchConfig + HoodzTreasury + HoodzLaunchGuard"]
     E --> F["5. vault -> guard<br/>SUPPLY FROZEN"]
     F --> G["6. PONS curve trades to graduation"]
     G --> H["7. verifyGraduation: graduated + LP locked"]
     H --> I["8. arm, wait 48h, releaseToTreasury<br/>vault -> HoodzTreasury"]
-    I --> J["9. Protocol stack: sHOODZ, gHOODZ, Staking, Distributor"]
+    I --> J["9. Protocol stack: sHOOD, gHOOD, Staking, Distributor"]
     J --> K["10. Role wiring, in order"]
     K --> L["11. Seed treasury, first rebase"]
     L --> M["12. Policies, one at a time"]
@@ -141,7 +141,7 @@ flowchart TD
 
 Two rules shape everything:
 
-1. **Mint authority moves last, and only through the guard.** Between step 3 and step 8, HOODZ's
+1. **Mint authority moves last, and only through the guard.** Between step 3 and step 8, HOOD's
    total supply cannot change, because the `vault` role sits on a contract with no mint function.
 2. **The treasury must exist before the guard.** `HoodzLaunchGuard`'s destination is an *immutable*
    `TREASURY` address, so the treasury is deployed early — at step 4, long before it is live — and
@@ -179,7 +179,7 @@ What to check in the trace:
   previous run.
 - `HoodzAuthority.vault()` is the launch operator before the freeze, and `HoodzLaunchGuard` after it
   — never anything else.
-- `HOODZ.totalSupply()` changes exactly once, at the launch mint, and never again during the run.
+- `HOOD.totalSupply()` changes exactly once, at the launch mint, and never again during the run.
 - No transaction reverted and was silently retried.
 
 ---
@@ -230,10 +230,10 @@ In this exact order:
 | # | Contract           | Constructor arguments / notes                                                       |
 | - | ------------------ | ----------------------------------------------------------------------------------- |
 | 1 | `HoodzAuthority`    | `governor`, `guardian`, `policy` = their multisigs; `vault` = **launch operator**    |
-| 2 | `HOODZ`             | `authority`. Mint gated on `authority.vault()`.                                      |
+| 2 | `HOOD`             | `authority`. Mint gated on `authority.vault()`.                                      |
 | 3 | —                  | **The single launch mint.** Signed by the launch operator. The only mint before graduation. |
-| 4 | `PonsLaunchConfig` | HOODZ, reserve token, curve, target raise, graduation threshold, LP fee tier, lock beneficiary, launch timestamp — **all immutable** |
-| 5 | `HoodzTreasury`     | `HOODZ`, `permissionDelay` (seconds), `authority`. **Deployed now, inert until §7.4.** |
+| 4 | `PonsLaunchConfig` | HOOD, reserve token, curve, target raise, graduation threshold, LP fee tier, lock beneficiary, launch timestamp — **all immutable** |
+| 5 | `HoodzTreasury`     | `HOOD`, `permissionDelay` (seconds), `authority`. **Deployed now, inert until §7.4.** |
 | 6 | `HoodzLaunchGuard`  | `authority`, `config`, `launchpad`, `locker`, `poolManager`, **`treasury` (immutable)** |
 
 The treasury is deployed before the guard because the guard's destination address is immutable. It
@@ -242,14 +242,14 @@ holds no role and can mint nothing until the handover in §7.4.
 Before anything else, confirm the governor multisig can actually sign — a no-op transaction from
 it. A governor nobody controls bricks the launch after supply is already frozen.
 
-Verify on the **deployed bytecode**, not the source you believe you deployed: HOODZ has no transfer
+Verify on the **deployed bytecode**, not the source you believe you deployed: HOOD has no transfer
 tax, no blacklist, no pausable transfers, no rebasing balances, and `mint` reachable only by the
-vault. Any transfer hook at all makes HOODZ incompatible with both the PONS curve and the v4 pool it
+vault. Any transfer hook at all makes HOOD incompatible with both the PONS curve and the v4 pool it
 graduates into.
 
 ```bash
-cast call $HOODZ "totalSupply()(uint256)" --rpc-url robinhood_testnet   # == published launch supply
-cast call $HOODZ "decimals()(uint8)"      --rpc-url robinhood_testnet   # -> 9
+cast call $HOOD "totalSupply()(uint256)" --rpc-url robinhood_testnet   # == published launch supply
+cast call $HOOD "decimals()(uint8)"      --rpc-url robinhood_testnet   # -> 9
 ```
 
 ### 7.2 Freeze supply
@@ -262,7 +262,7 @@ cast call $AUTHORITY "vault()(address)"        --rpc-url $RPC   # -> $LAUNCH_GUA
 cast call $LAUNCH_GUARD "holdsVaultRole()(bool)" --rpc-url $RPC # -> true
 ```
 
-From here until §7.4, **HOODZ's total supply cannot change** — the guard has no mint function.
+From here until §7.4, **HOOD's total supply cannot change** — the guard has no mint function.
 Publish the frozen supply and this transaction hash before trading opens. Trading that opens while
 the operator still holds `vault` is a launch where the team can mint mid-price-discovery.
 
@@ -274,7 +274,7 @@ throughout — the guard is a checkpoint, not a trap.
 ### 7.3 Trade to graduation
 
 The curve trades until `reserves >= graduationThreshold`, at which point anyone may call
-`launchpad.graduate(HOODZ)`. The curve's reserves migrate into a permanently locked Uniswap v4 pool.
+`launchpad.graduate(HOOD)`. The curve's reserves migrate into a permanently locked Uniswap v4 pool.
 
 ```bash
 cast call $CURVE "graduated()(bool)" --rpc-url $RPC
@@ -284,7 +284,7 @@ cast send $LAUNCH_GUARD "verifyGraduation()" --rpc-url $RPC --account hoodz-gove
 `verifyGraduation()` fails closed on every branch: it requires that the launchpad reports
 graduated, that a locked position exists, and that it is genuinely unlockable by nobody. If it
 reverts `NotGraduated` the threshold has not been crossed; if it reverts `LpNotLocked`, **stop** —
-read `locker.lockOf(HOODZ)` directly and do not proceed on faith.
+read `locker.lockOf(HOOD)` directly and do not proceed on faith.
 
 Also confirm with your own eyes on the explorer that the position has no unlock path, no timelock
 and no owner override. The `lockBeneficiary` is entitled to trading fees only; the principal is
@@ -314,23 +314,23 @@ arming rather than springing the release on holders.
 Immediately confirm nothing else can mint:
 
 ```bash
-cast send $HOODZ "mint(address,uint256)" $SOME_EOA 1 --rpc-url $RPC --private-key $PK   # must revert
+cast send $HOOD "mint(address,uint256)" $SOME_EOA 1 --rpc-url $RPC --private-key $PK   # must revert
 ```
 
 ---
 
 ## 8. Phase 3 — the protocol stack
 
-Deploy in this order. The ordering is forced by constructor dependencies: sHOODZ and gHOODZ reference
-each other, so sHOODZ is deployed with no arguments and wired afterwards. The treasury already
+Deploy in this order. The ordering is forced by constructor dependencies: sHOOD and gHOOD reference
+each other, so sHOOD is deployed with no arguments and wired afterwards. The treasury already
 exists from §7.1.
 
 | # | Contract       | Constructor arguments                                                                 |
 | - | -------------- | ------------------------------------------------------------------------------------- |
-| 7 | `sHOODZ`        | none                                                                                   |
-| 8 | `gHOODZ`        | `migrator = deployer`, `sHOODZ`                                                          |
-| 9 | `HoodzStaking`  | `HOODZ`, `sHOODZ`, `gHOODZ`, `epochLength`, `firstEpochNumber`, `firstEpochTime`, `authority` |
-| 10| `Distributor`  | `treasury`, `HOODZ`, `staking`, `authority`                                              |
+| 7 | `sHOOD`        | none                                                                                   |
+| 8 | `gHOOD`        | `migrator = deployer`, `sHOOD`                                                          |
+| 9 | `HoodzStaking`  | `HOOD`, `sHOOD`, `gHOOD`, `epochLength`, `firstEpochNumber`, `firstEpochTime`, `authority` |
+| 10| `Distributor`  | `treasury`, `HOOD`, `staking`, `authority`                                              |
 
 > **Delta from Olympus:** the treasury's permission queue is measured in **seconds**, not blocks.
 > Robinhood Chain's block cadence is not Ethereum's, and a block-denominated delay would silently
@@ -349,18 +349,18 @@ call will roll through several epochs at once.
 
 ```bash
 # The index starts at 1.0. On a 9-decimal token that is 1e9.
-cast send $SHOODZ "setIndex(uint256)" 1000000000            --rpc-url $RPC --private-key $PK
-cast send $SHOODZ "setgHOODZ(address)" $GHOODZ                --rpc-url $RPC --private-key $PK
-cast send $SHOODZ "initialize(address,address)" $STAKING $TREASURY --rpc-url $RPC --private-key $PK
+cast send $SHOOD "setIndex(uint256)" 1000000000            --rpc-url $RPC --private-key $PK
+cast send $SHOOD "setgHOOD(address)" $GHOOD                --rpc-url $RPC --private-key $PK
+cast send $SHOOD "initialize(address,address)" $STAKING $TREASURY --rpc-url $RPC --private-key $PK
 
-# One-shot: binds gHOODZ to the staking contract. It cannot be called twice.
-cast send $GHOODZ "migrate(address,address)" $STAKING $SHOODZ --rpc-url $RPC --private-key $PK
+# One-shot: binds gHOOD to the staking contract. It cannot be called twice.
+cast send $GHOOD "migrate(address,address)" $STAKING $SHOOD --rpc-url $RPC --private-key $PK
 ```
 
 `setIndex` must be called **before** the first rebase. After that the index is a compounding value
 and setting it again would rewrite every historical conversion.
 
-`gHOODZ.migrate` is single-use. Get the staking address right.
+`gHOOD.migrate` is single-use. Get the staking address right.
 
 ### 9.2 Staking and distribution
 
@@ -383,7 +383,7 @@ granting is not.
 | Permission           | Grant to                          | Purpose                              |
 | -------------------- | --------------------------------- | ------------------------------------ |
 | `RESERVETOKEN`       | reserve token address             | count it as reserves                 |
-| `SHOODZ`              | `sHOODZ`                           | supply accounting                    |
+| `SHOOD`              | `sHOOD`                           | supply accounting                    |
 | `REWARDMANAGER`      | `Distributor`                     | mint rebase rewards                  |
 | `RESERVEDEPOSITOR`   | `BondDepository`                  | bond deposits                        |
 | `RESERVEDEPOSITOR`   | `ConvertibleDeposits`             | CD deposits                          |
@@ -404,13 +404,13 @@ a multisig with discretion.
 
 ### 9.4 Seed the treasury
 
-Move the initial reserves in **without minting HOODZ against them**, by passing the full value as
+Move the initial reserves in **without minting HOOD against them**, by passing the full value as
 `profit`:
 
 ```bash
 cast send $RESERVE "approve(address,uint256)" $TREASURY $AMOUNT --rpc-url $RPC --private-key $PK
 
-# deposit(amount, token, profit) with profit == full value  =>  send_ == 0  =>  no HOODZ minted
+# deposit(amount, token, profit) with profit == full value  =>  send_ == 0  =>  no HOOD minted
 cast send $TREASURY "deposit(uint256,address,uint256)" $AMOUNT $RESERVE $VALUE \
   --rpc-url $RPC --private-key $PK
 
@@ -429,7 +429,7 @@ the treasury is seeded and before any policy is enabled:
 cast call $AUTHORITY "vault()(address)"          --rpc-url $RPC   # -> $TREASURY
 cast call $LAUNCH_GUARD "released()(bool)"       --rpc-url $RPC   # -> true
 cast call $LAUNCH_GUARD "holdsVaultRole()(bool)" --rpc-url $RPC   # -> false
-cast send $HOODZ "mint(address,uint256)" $SOME_EOA 1 --rpc-url $RPC --private-key $PK   # must revert
+cast send $HOOD "mint(address,uint256)" $SOME_EOA 1 --rpc-url $RPC --private-key $PK   # must revert
 ```
 
 Note that the handover is inherently one-step — a contract cannot call `pullVault()` to
@@ -498,7 +498,7 @@ Run every line. Record the output. A "probably fine" here becomes an incident la
 - [ ] `authority.guardian()` is the guardian multisig.
 - [ ] `authority.policy()` is the policy multisig.
 - [ ] `authority.vault()` is the treasury, and nothing else.
-- [ ] `HOODZ.mint()` from an arbitrary EOA **reverts**.
+- [ ] `HOOD.mint()` from an arbitrary EOA **reverts**.
 - [ ] `treasury.withdraw()` from an arbitrary EOA **reverts**.
 - [ ] The deployer EOA holds **no** role. Confirm by calling a governor-only function from it and
       watching it revert.
@@ -507,25 +507,25 @@ Run every line. Record the output. A "probably fine" here becomes an incident la
 **Tokens**
 
 - [ ] `staking.index()` returns `1000000000` (1.0) before the first rebase.
-- [ ] `sHOODZ.gonsForBalance(x)` → `balanceForGons(...)` round-trips within rounding.
-- [ ] `gHOODZ.migrate()` reverts on a second call.
-- [ ] `gHOODZ.mint()` from a non-staking address reverts.
-- [ ] `HOODZ` has no transfer tax, blacklist, or pause path. Re-read the verified source.
+- [ ] `sHOOD.gonsForBalance(x)` → `balanceForGons(...)` round-trips within rounding.
+- [ ] `gHOOD.migrate()` reverts on a second call.
+- [ ] `gHOOD.mint()` from a non-staking address reverts.
+- [ ] `HOOD` has no transfer tax, blacklist, or pause path. Re-read the verified source.
 
 **Staking and rewards**
 
-- [ ] `staking.secondsToNextEpoch()` is under `HOODZ_EPOCH_LENGTH` and counting down.
+- [ ] `staking.secondsToNextEpoch()` is under `HOOD_EPOCH_LENGTH` and counting down.
 - [ ] `distributor.nextRewardFor(staking)` returns the expected amount.
-- [ ] A test stake → wait one epoch → `rebase()` → the sHOODZ balance grew by the expected
+- [ ] A test stake → wait one epoch → `rebase()` → the sHOOD balance grew by the expected
       percentage and `index()` rose.
-- [ ] Unstake returns the expected HOODZ.
+- [ ] Unstake returns the expected HOOD.
 - [ ] The rebase bounty is paid to the caller.
 
 **Treasury**
 
 - [ ] `treasury.excessReserves()` > 0.
-- [ ] `treasury.baseSupply()` equals `HOODZ.totalSupply()`.
-- [ ] `treasury.tokenValue(reserve, 1e18)` returns the expected value in HOODZ decimals.
+- [ ] `treasury.baseSupply()` equals `HOOD.totalSupply()`.
+- [ ] `treasury.tokenValue(reserve, 1e18)` returns the expected value in HOOD decimals.
 - [ ] Every permission holder is intentional. Enumerate them; do not assume.
 - [ ] Granting a permission takes the full delay; revoking is instant. Both tested.
 
@@ -536,7 +536,7 @@ Run every line. Record the output. A "probably fine" here becomes an incident la
 - [ ] `guard.released() == true` and `guard.holdsVaultRole() == false`.
 - [ ] `PonsLaunchConfig` values match `docs/pons-launch.json` exactly.
 - [ ] Total supply between §7.2 and §7.4 never changed. Check the block range.
-- [ ] `FeeRouterBuyback` receives fees, and can only buy HOODZ and burn it — no withdrawal path, no
+- [ ] `FeeRouterBuyback` receives fees, and can only buy HOOD and burn it — no withdrawal path, no
       arbitrary-call path.
 - [ ] `buybackAndBurn(0, ...)` reverts `ZeroMinOut()`.
 - [ ] `pendingFees()` returns without reverting.
@@ -557,7 +557,7 @@ handles most of it. For anything that slipped through:
 
 ```bash
 # no constructor arguments
-forge verify-contract $ADDRESS src/tokens/HOODZ.sol:HOODZ \
+forge verify-contract $ADDRESS src/tokens/HOOD.sol:HOOD \
   --chain 4663 \
   --verifier blockscout \
   --verifier-url https://robinhoodchain.blockscout.com/api \
@@ -646,7 +646,7 @@ Before §7.2, aborting is cheap: the contracts are inert and you deploy a fresh 
 Stop and reassess if any of these is true:
 
 - [ ] `verifyGraduation()` reverts, or the LP lock cannot be independently verified on the explorer.
-- [ ] `HOODZ.totalSupply()` does not equal the published launch supply, at any point before §7.4.
+- [ ] `HOOD.totalSupply()` does not equal the published launch supply, at any point before §7.4.
 - [ ] Any address in the role table does not match the documented multisig, exactly.
 - [ ] The governor multisig has not demonstrated it can sign on this chain.
 - [ ] Any `PonsLaunchConfig` value does not match `docs/pons-launch.json`.
@@ -678,7 +678,7 @@ shape:
 | `manifestVersion`, `description`, `status`, `generatedAt`, `generatedBy` | Provenance. |
 | `network`, `knownNetworks` | The selected chain, plus both Robinhood Chain entries.           |
 | `roles`         | `governor` / `guardian` / `policy` / `vault` / `launchOperator`.             |
-| `token`         | HOODZ name, symbol, **decimals `9`**, address, launch supply, PONS compatibility flags. |
+| `token`         | HOOD name, symbol, **decimals `9`**, address, launch supply, PONS compatibility flags. |
 | `launch`        | Curve, reserve token, target raise, graduation threshold, LP fee tier, lock beneficiary. |
 | `graduation`    | Whether it graduated, the pool, the locked position.                        |
 | `contracts`     | Every deployed address.                                                     |

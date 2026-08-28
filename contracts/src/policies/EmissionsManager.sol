@@ -15,7 +15,7 @@ pragma solidity ^0.8.24;
         trading fees, never out of new supply - there is no mint.
 
         Web    https://hoodz.finance
-        X      https://x.com/Hoodzfinancial
+        X      https://x.com/Hoodzfinance
         Code   https://github.com/averageballer13/Hoodz
 
         UNAUDITED. This code has never been audited. Read it before you
@@ -27,7 +27,7 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 
 import {HoodzAccessControlled} from "../types/HoodzAccessControlled.sol";
 import {IHoodzAuthority} from "../interfaces/IHoodzAuthority.sol";
-import {IHOODZ} from "../interfaces/IHOODZ.sol";
+import {IHOOD} from "../interfaces/IHOOD.sol";
 import {ITreasury} from "../interfaces/ITreasury.sol";
 import {IPriceFeed} from "../interfaces/IPriceFeed.sol";
 import {IHoodzBondAuctioneer} from "../interfaces/IHoodzBondAuctioneer.sol";
@@ -36,17 +36,17 @@ import {HoodzBurn} from "../types/HoodzBurn.sol";
 
 /// @title  EmissionsManager
 /// @notice Hoodz's automated supply-side monetary policy, a port of the Olympus Emissions
-///         Manager. Once a day it asks the oracle what HOODZ costs, compares that to the
-///         treasury backing per HOODZ, and if HOODZ trades at a healthy premium it mints new
-///         HOODZ and sells it through a bond market. Every reserve token the market takes in is
+///         Manager. Once a day it asks the oracle what HOOD costs, compares that to the
+///         treasury backing per HOOD, and if HOOD trades at a healthy premium it mints new
+///         HOOD and sells it through a bond market. Every reserve token the market takes in is
 ///         pushed straight back into the treasury, so an emission can only raise backing per
-///         HOODZ, never dilute it.
+///         HOOD, never dilute it.
 /// @dev    UNAUDITED. Do not use in production without a full audit.
 ///
 ///         SCALING. Two units live in this file and they are never mixed silently:
 ///         - `ONE` (1e18) is the fixed point unit of every ratio: oracle price, backing,
 ///           premium and emission rate. `1e18` reads as "1.0", `5e16` reads as "5%".
-///         - `HOODZ_SCALE` (1e9) is the raw unit of the HOODZ token. Supply and emission amounts
+///         - `HOOD_SCALE` (1e9) is the raw unit of the HOOD token. Supply and emission amounts
 ///           are raw 1e9 units and are never rescaled: the premium terms they are multiplied
 ///           by are dimensionless ratios of two 1e18 numbers.
 ///
@@ -55,7 +55,7 @@ import {HoodzBurn} from "../types/HoodzBurn.sol";
 ///             emission = supply * (premium - minimumPremium) / (1 + premium) * baseEmissionRate
 ///         The `(premium - minimumPremium) / (1 + premium)` term is self damping: it is zero at
 ///         the minimum premium and asymptotes to `supply * baseEmissionRate` as the premium
-///         grows, so a violent price move cannot mint an unbounded amount of HOODZ.
+///         grows, so a violent price move cannot mint an unbounded amount of HOOD.
 contract EmissionsManager is IEmissionsManager, HoodzAccessControlled {
     using SafeERC20 for IERC20;
 
@@ -63,8 +63,8 @@ contract EmissionsManager is IEmissionsManager, HoodzAccessControlled {
 
     /// @notice Fixed point unit for every ratio in this contract (1.0).
     uint256 internal constant ONE = 1e18;
-    /// @notice Raw unit of the HOODZ token, which carries 9 decimals.
-    uint256 internal constant HOODZ_SCALE = 1e9;
+    /// @notice Raw unit of the HOOD token, which carries 9 decimals.
+    uint256 internal constant HOOD_SCALE = 1e9;
     /// @notice Beats per emission. The heart beats once per 8 hour epoch, so 3 beats == 1 day.
     uint8 internal constant BEATS_PER_DAY = 3;
     /// @notice Lifetime of each daily emission market.
@@ -80,15 +80,15 @@ contract EmissionsManager is IEmissionsManager, HoodzAccessControlled {
 
     /* ======================================= IMMUTABLES ======================================= */
 
-    /// @notice The HOODZ token minted by emissions.
-    IHOODZ public immutable hoodz;
+    /// @notice The HOOD token minted by emissions.
+    IHOOD public immutable hoodz;
     /// @notice Reserve asset bidders pay with, assumed to carry 18 decimals.
     IERC20 public immutable reserve;
     /// @notice Hoodz Treasury: mints the emission and receives the proceeds.
     ITreasury public immutable treasury;
     /// @notice Auctioneer running the emission bond markets.
     IHoodzBondAuctioneer public immutable auctioneer;
-    /// @notice Oracle quoting one whole HOODZ in whole reserve tokens.
+    /// @notice Oracle quoting one whole HOOD in whole reserve tokens.
     IPriceFeed public immutable priceFeed;
     /// @notice Normalises the feed answer to 1e18: `10 ** (18 - priceFeed.decimals())`.
     uint256 public immutable priceFeedScalar;
@@ -120,15 +120,15 @@ contract EmissionsManager is IEmissionsManager, HoodzAccessControlled {
 
     /// @notice Wire the emissions manager into the protocol.
     /// @param authority_   Hoodz authority holding the governor / guardian / policy / vault roles.
-    /// @param hoodz_        HOODZ token, 9 decimals.
+    /// @param hoodz_        HOOD token, 9 decimals.
     /// @param reserve_     Reserve asset accepted by emission markets, 18 decimals.
     /// @param treasury_    Hoodz Treasury.
     /// @param auctioneer_  Bond auctioneer that runs the emission markets.
-    /// @param priceFeed_   HOODZ price oracle, at most 18 decimals.
+    /// @param priceFeed_   HOOD price oracle, at most 18 decimals.
     /// @param maxPriceAge_ Maximum accepted age of an oracle answer, in seconds.
     constructor(
         IHoodzAuthority authority_,
-        IHOODZ hoodz_,
+        IHOOD hoodz_,
         IERC20 reserve_,
         ITreasury treasury_,
         IHoodzBondAuctioneer auctioneer_,
@@ -173,7 +173,7 @@ contract EmissionsManager is IEmissionsManager, HoodzAccessControlled {
         (uint256 premium, uint256 emission) = getNextEmission();
         if (emission == 0) return;
 
-        // The treasury mints the emission here; the auctioneer's teller pulls HOODZ out of this
+        // The treasury mints the emission here; the auctioneer's teller pulls HOOD out of this
         // contract as bids settle and `_settleMarket` burns whatever never sold.
         treasury.payout(address(this), emission);
         (uint256 marketId, uint256 minimumPrice) = _createMarket(emission);
@@ -265,7 +265,7 @@ contract EmissionsManager is IEmissionsManager, HoodzAccessControlled {
     }
 
     /// @inheritdoc IEmissionsManager
-    /// @dev Leaves this contract holding nothing: the live market is closed, unsold HOODZ burned
+    /// @dev Leaves this contract holding nothing: the live market is closed, unsold HOOD burned
     ///      and bond proceeds returned to the treasury.
     function shutdown() external onlyGovernor {
         if (!locallyActive) revert EM_NotActive();
@@ -287,7 +287,7 @@ contract EmissionsManager is IEmissionsManager, HoodzAccessControlled {
     function getPremium() public view returns (uint256 premium) {
         uint256 backing_ = backing;
         if (backing_ == 0) return 0;
-        // price and backing are both 1e18 reserve-per-HOODZ, so their ratio is a 1e18 scalar.
+        // price and backing are both 1e18 reserve-per-HOOD, so their ratio is a 1e18 scalar.
         uint256 priceToBacking = (_currentPrice() * ONE) / backing_;
         premium = priceToBacking > ONE ? priceToBacking - ONE : 0;
     }
@@ -298,8 +298,8 @@ contract EmissionsManager is IEmissionsManager, HoodzAccessControlled {
         uint256 floor = minimumPremium;
         if (premium <= floor) return (premium, 0);
 
-        // `supply` is raw 1e9 HOODZ. Both factors below are ratios of 1e18 numbers and therefore
-        // dimensionless, so `emission` stays in raw 1e9 HOODZ units.
+        // `supply` is raw 1e9 HOOD. Both factors below are ratios of 1e18 numbers and therefore
+        // dimensionless, so `emission` stays in raw 1e9 HOOD units.
         uint256 supply = getSupply();
         uint256 damped = (supply * (premium - floor)) / (ONE + premium);
         emission = (damped * baseEmissionRate) / ONE;
@@ -310,15 +310,15 @@ contract EmissionsManager is IEmissionsManager, HoodzAccessControlled {
         supply = treasury.baseSupply();
     }
 
-    /// @notice Price the oracle currently reports for one whole HOODZ.
-    /// @return price Whole reserve tokens per whole HOODZ, 1e18 fixed point.
+    /// @notice Price the oracle currently reports for one whole HOOD.
+    /// @return price Whole reserve tokens per whole HOOD, 1e18 fixed point.
     function currentPrice() external view returns (uint256 price) {
         price = _currentPrice();
     }
 
     /* ========================================= INTERNAL ======================================= */
 
-    /// @dev Oracle read normalised to 1e18 reserve per HOODZ, with zero and staleness checks.
+    /// @dev Oracle read normalised to 1e18 reserve per HOOD, with zero and staleness checks.
     function _currentPrice() internal view returns (uint256 price) {
         int256 answer = priceFeed.latestAnswer();
         if (answer <= 0) revert EM_InvalidPrice(answer);
@@ -330,12 +330,12 @@ contract EmissionsManager is IEmissionsManager, HoodzAccessControlled {
         price = uint256(answer) * priceFeedScalar;
     }
 
-    /// @dev Open the daily emission market: HOODZ is the payout, the reserve is the quote.
+    /// @dev Open the daily emission market: HOOD is the payout, the reserve is the quote.
     ///      Prices follow the auctioneer convention of whole quote per whole payout in 1e18, the
     ///      same scale the oracle and `backing` already use. The floor is
-    ///      `backing * (1 + minimumPremium)`, so the auction can never sell HOODZ for less reserve
+    ///      `backing * (1 + minimumPremium)`, so the auction can never sell HOOD for less reserve
     ///      than the DAO considers it worth; it opens at spot and decays toward that floor.
-    /// @param emission HOODZ to sell, raw 1e9 units.
+    /// @param emission HOOD to sell, raw 1e9 units.
     /// @return marketId     Identifier returned by the auctioneer.
     /// @return minimumPrice Floor price handed to the auctioneer, 1e18.
     function _createMarket(uint256 emission) internal returns (uint256 marketId, uint256 minimumPrice) {
@@ -343,8 +343,8 @@ contract EmissionsManager is IEmissionsManager, HoodzAccessControlled {
         uint256 initialPrice = _currentPrice();
         if (initialPrice < minimumPrice) initialPrice = minimumPrice;
 
-        // Approve the whole HOODZ balance rather than just this emission: if a previous market
-        // is somehow still live its unsold HOODZ is also owed to the same teller, and an
+        // Approve the whole HOOD balance rather than just this emission: if a previous market
+        // is somehow still live its unsold HOOD is also owed to the same teller, and an
         // allowance of exactly `emission` would starve it.
         address teller = auctioneer.getTeller();
         IERC20(address(hoodz)).forceApprove(teller, IERC20(address(hoodz)).balanceOf(address(this)));
@@ -364,9 +364,9 @@ contract EmissionsManager is IEmissionsManager, HoodzAccessControlled {
         );
     }
 
-    /// @dev Settle a concluded market: drop the teller allowance, burn the HOODZ that never sold
+    /// @dev Settle a concluded market: drop the teller allowance, burn the HOOD that never sold
     ///      and push the reserve that was raised into the treasury. Nothing is burned while a
-    ///      market is still live, because that HOODZ is still committed to the teller.
+    ///      market is still live, because that HOOD is still committed to the teller.
     function _settleMarket() internal {
         uint256 marketId = activeMarketId;
         if (marketId != NO_MARKET && !auctioneer.isLive(marketId)) {
@@ -386,8 +386,8 @@ contract EmissionsManager is IEmissionsManager, HoodzAccessControlled {
     }
 
     /// @dev Book bond proceeds as treasury reserves without minting: `ITreasury.deposit` mints
-    ///      `value - profit` HOODZ to the caller, so passing `profit == value` (both 9 decimal
-    ///      HOODZ terms, as returned by `tokenValue`) credits the full amount and mints nothing.
+    ///      `value - profit` HOOD to the caller, so passing `profit == value` (both 9 decimal
+    ///      HOOD terms, as returned by `tokenValue`) credits the full amount and mints nothing.
     function _sweepReserves() internal {
         uint256 balance = reserve.balanceOf(address(this));
         if (balance == 0) return;

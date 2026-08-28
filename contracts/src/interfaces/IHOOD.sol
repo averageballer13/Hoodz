@@ -14,7 +14,7 @@ pragma solidity ^0.8.24;
         trading fees, never out of new supply - there is no mint.
 
         Web    https://hoodz.finance
-        X      https://x.com/Hoodzfinancial
+        X      https://x.com/Hoodzfinance
         Code   https://github.com/averageballer13/Hoodz
 
         UNAUDITED. This code has never been audited. Read it before you
@@ -23,9 +23,9 @@ pragma solidity ^0.8.24;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-/// @title  IHOODZ
-/// @notice The HOODZ token as the protocol sees it: a plain ERC20 and nothing more.
-/// @dev    HOODZ is NOT deployed by this repository. The PONS launchpad deploys it from its own
+/// @title  IHOOD
+/// @notice The HOOD token as the protocol sees it: a plain ERC20 and nothing more.
+/// @dev    HOOD is NOT deployed by this repository. The PONS launchpad deploys it from its own
 ///         factory when the launch form is submitted: fixed supply of 1,000,000,000, the entire
 ///         amount minted straight to the bonding curve, no creator allocation, no owner, no mint
 ///         function and no burn function.
@@ -34,4 +34,4 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 ///         protocol pays out of treasury inventory instead ({ITreasury.payout}); anywhere it would
 ///         have burned, it transfers to the dead address ({HoodzBurn}). Do not add `mint` here -
 ///         there is nothing on the other side to call.
-interface IHOODZ is IERC20 {}
+interface IHOOD is IERC20 {}

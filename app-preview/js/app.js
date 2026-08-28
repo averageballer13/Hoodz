@@ -1,9 +1,9 @@
 /* ============================================================================
-   HOODZ — dApp shell runtime
+   HOOD — dApp shell runtime
    Plain ES5-ish browser JS. No build step, no dependencies, no CDN.
 
    Everything except the wallet connection is MOCK DATA (see MOCK banner).
-   Contract ABIs + the address book live in abi.js (window.HOODZ_ABI / HOODZ_NET).
+   Contract ABIs + the address book live in abi.js (window.HOOD_ABI / HOOD_NET).
    ========================================================================== */
 (function (global, doc) {
   "use strict";
@@ -29,7 +29,7 @@
     asOf: "2026-08-26T00:00:00Z",
 
     token: {
-      symbol: "HOODZ",
+      symbol: "HOOD",
       decimals: 9,
       price: 12.47,
       priceChange24h: 0.0184
@@ -50,7 +50,7 @@
         { asset: "USDC",       value: 21840300, kind: "stable" },
         { asset: "wstETH",     value: 9612400,  kind: "volatile" },
         { asset: "WETH",       value: 4108900,  kind: "volatile" },
-        { asset: "HOODZ-USDC",  value: 2202064,  kind: "lp" },
+        { asset: "HOOD-USDC",  value: 2202064,  kind: "lp" },
         { asset: "Illiquid",   value: 7148936,  kind: "illiquid" }
       ]
     },
@@ -63,7 +63,7 @@
       warmupEpochs: 0
     },
 
-    /* 12 months of liquid backing per HOODZ — mirrors the dashboard chart */
+    /* 12 months of liquid backing per HOOD — mirrors the dashboard chart */
     backingSeries: [
       { label: "Sep '25", value: 8.94 },
       { label: "Oct '25", value: 9.21 },
@@ -92,7 +92,7 @@
 
     /* Hoodz Loans (Cooler-style) parameters */
     loans: {
-      oltc: 2894.12,                   /* reserve borrowable per gHOODZ */
+      oltc: 2894.12,                   /* reserve borrowable per gHOOD */
       interestRate: 0.005,             /* 0.5% fixed, annualised */
       durationDays: 121,
       open: [
@@ -108,7 +108,7 @@
       "USDT": 1.00,
       "WETH": 3120.55,
       "wstETH": 3684.10,
-      "HOODZ-USDC": 46.28
+      "HOOD-USDC": 46.28
     }
   };
 
@@ -187,7 +187,7 @@
     return sign + "$" + fixed(a, 2);
   }
 
-  /** HOODZ is a 9-decimal token: 1,284.372910044 */
+  /** HOOD is a 9-decimal token: 1,284.372910044 */
   function hoodz(n, dp) {
     var v = Number(n);
     if (!isFinite(v)) return "—";
@@ -584,7 +584,7 @@
   /* ======================================================================
      9. WALLET — the only non-mock part of this app
      ==================================================================== */
-  var NET = global.HOODZ_NET;
+  var NET = global.HOOD_NET;
   var TARGET_CHAIN_ID = NET ? NET.DEFAULT_CHAIN_ID : 4663;
 
   var wallet = {
@@ -820,13 +820,13 @@
     function available() {
       return mode === "stake" ? MOCK.wallet.hoodz : MOCK.wallet.sHoodz;
     }
-    function unitIn() { return mode === "stake" ? "HOODZ" : "sHOODZ"; }
+    function unitIn() { return mode === "stake" ? "HOOD" : "sHOOD"; }
 
     function refresh() {
       var amt = num(input);
       var d = derive();
       var wrap = wrapToggle && wrapToggle.checked;
-      var outUnit = mode === "stake" ? (wrap ? "gHOODZ" : "sHOODZ") : "HOODZ";
+      var outUnit = mode === "stake" ? (wrap ? "gHOOD" : "sHOOD") : "HOOD";
       var out = mode === "stake"
         ? (wrap ? amt / MOCK.staking.index : amt)
         : amt;
@@ -839,13 +839,13 @@
 
       /* rewards table reacts to what you are about to stake */
       var futureS = mode === "stake" ? MOCK.wallet.sHoodz + amt : Math.max(0, MOCK.wallet.sHoodz - amt);
-      setText("[data-next-reward]", hoodz(futureS * MOCK.staking.rebaseRate, 4) + " sHOODZ");
+      setText("[data-next-reward]", hoodz(futureS * MOCK.staking.rebaseRate, 4) + " sHOOD");
       setText("[data-next-reward-usd]", usd(futureS * MOCK.staking.rebaseRate * MOCK.token.price));
-      setText("[data-projected-balance]", hoodz(futureS, 4) + " sHOODZ");
-      setText("[data-five-day]", hoodz(futureS * d.fiveDayRoi, 4) + " sHOODZ");
+      setText("[data-projected-balance]", hoodz(futureS, 4) + " sHOOD");
+      setText("[data-five-day]", hoodz(futureS * d.fiveDayRoi, 4) + " sHOOD");
 
       if (submit) {
-        var label = mode === "stake" ? (wrap ? "Stake & wrap" : "Stake HOODZ") : "Unstake";
+        var label = mode === "stake" ? (wrap ? "Stake & wrap" : "Stake HOOD") : "Unstake";
         $$(".btn-text, .btn-text-ghost", submit).forEach(function (n) { n.textContent = label; });
         submit.setAttribute("aria-disabled", amt <= 0 ? "true" : "false");
       }
@@ -913,9 +913,9 @@
 
       put("[data-bond-quote-unit]", state.quote);
       put("[data-bond-value]", usd(quoteUsd));
-      put("[data-bond-payout]", hoodz(payout, 4) + " HOODZ");
+      put("[data-bond-payout]", hoodz(payout, 4) + " HOOD");
       put("[data-bond-payout-usd]", usd(payout * MOCK.token.price));
-      put("[data-bond-vs-market]", hoodz(payout - atMarket, 4) + " HOODZ");
+      put("[data-bond-vs-market]", hoodz(payout - atMarket, 4) + " HOOD");
       put("[data-bond-max-price]", usd(maxPrice, 4));
       put("[data-bond-vest-end]", amt > 0 ? dateShort(vestEnd) : "—");
       put("[data-bond-available]", fixed(
@@ -1025,12 +1025,12 @@
     on(form, "submit", function (e) {
       e.preventDefault();
       var col = num(input);
-      if (col <= 0) { toast("Enter collateral", "Deposit gHOODZ to open a loan.", "err"); return; }
-      if (col > MOCK.wallet.gHoodz) { toast("Insufficient gHOODZ", "You hold " + fixed(MOCK.wallet.gHoodz, 4) + " gHOODZ.", "err"); return; }
+      if (col <= 0) { toast("Enter collateral", "Deposit gHOOD to open a loan.", "err"); return; }
+      if (col > MOCK.wallet.gHoodz) { toast("Insufficient gHOOD", "You hold " + fixed(MOCK.wallet.gHoodz, 4) + " gHOOD.", "err"); return; }
       toast(
         "Loan requested",
         fixed(col * ln.oltc, 2) + " " + MOCK.wallet.reserveSymbol +
-        " against " + fixed(col, 4) + " gHOODZ — mock data, nothing was signed.",
+        " against " + fixed(col, 4) + " gHOOD — mock data, nothing was signed.",
         "ok"
       );
       refresh();
@@ -1095,7 +1095,7 @@
         toast(
           "Vote cast: " + support,
           "Proposal " + id + " · " + fixed(MOCK.wallet.gHoodz, 4) +
-          " gHOODZ — mock data, nothing was signed.",
+          " gHOOD — mock data, nothing was signed.",
           "ok"
         );
       });

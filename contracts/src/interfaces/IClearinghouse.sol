@@ -14,7 +14,7 @@ pragma solidity ^0.8.24;
         trading fees, never out of new supply - there is no mint.
 
         Web    https://hoodz.finance
-        X      https://x.com/Hoodzfinancial
+        X      https://x.com/Hoodzfinance
         Code   https://github.com/averageballer13/Hoodz
 
         UNAUDITED. This code has never been audited. Read it before you
@@ -26,7 +26,7 @@ import {ICooler} from "./ICooler.sol";
 
 /// @title  IClearinghouse
 /// @notice Interface of the Hoodz side of Hoodz Loans: the policy that lends treasury
-///         reserves against gHOODZ collateral at a fixed 0.5% annualised rate, with no
+///         reserves against gHOOD collateral at a fixed 0.5% annualised rate, with no
 ///         liquidations and perpetually rollable terms.
 interface IClearinghouse {
     // ---------------------------------------------------------------------------------------
@@ -45,7 +45,7 @@ interface IClearinghouse {
     event Swept(uint256 assets, uint256 shares);
     /// @notice Assets were returned to the treasury outside the rebalance cadence.
     event Defunded(address indexed token, uint256 amount);
-    /// @notice Seized gHOODZ collateral was unstaked and burned.
+    /// @notice Seized gHOOD collateral was unstaked and burned.
     event Burned(uint256 collateral, uint256 hoodzBurned);
     /// @notice Lending was switched on.
     event Activated();
@@ -76,7 +76,7 @@ interface IClearinghouse {
     error AlreadyActive();
     /// @notice Array arguments have mismatched lengths.
     error LengthDiscrepancy();
-    /// @notice gHOODZ leaves this policy only through `burn`.
+    /// @notice gHOOD leaves this policy only through `burn`.
     error OnlyBurnable();
     /// @notice There is no seized collateral to burn.
     error NothingToBurn();
@@ -86,7 +86,7 @@ interface IClearinghouse {
     // ---------------------------------------------------------------------------------------
 
     /// @notice Originate a loan for an escrow at the current oLTC and the fixed 0.5% rate.
-    /// @param  cooler_ Escrow to lend to; must be factory-minted and gHOODZ/reserve pinned.
+    /// @param  cooler_ Escrow to lend to; must be factory-minted and gHOOD/reserve pinned.
     /// @param  amount_ Principal to lend, in reserve decimals.
     /// @return loanID  Identifier of the new loan inside the escrow.
     function lendToCooler(ICooler cooler_, uint256 amount_) external returns (uint256 loanID);
@@ -96,7 +96,7 @@ interface IClearinghouse {
     /// @param  loanID_ Loan identifier.
     function rollLoan(ICooler cooler_, uint256 loanID_) external;
 
-    /// @notice Claim expired loans, seizing their gHOODZ collateral for later burning.
+    /// @notice Claim expired loans, seizing their gHOOD collateral for later burning.
     /// @param  coolers_ Escrows holding the defaulted loans.
     /// @param  loans_   Loan identifiers, index-aligned with `coolers_`.
     function claimDefaulted(address[] calldata coolers_, uint256[] calldata loans_) external;
@@ -114,7 +114,7 @@ interface IClearinghouse {
     function sweepIntoSavingsVault() external returns (uint256 shares);
 
     /// @notice Return assets to the treasury outside the rebalance cadence.
-    /// @param  token_  Token to return; gHOODZ is rejected because it is burn-only.
+    /// @param  token_  Token to return; gHOOD is rejected because it is burn-only.
     /// @param  amount_ Amount to return, in the token decimals.
     function defund(IERC20 token_, uint256 amount_) external;
 
@@ -124,15 +124,15 @@ interface IClearinghouse {
     /// @notice Resume lending and restart the funding cadence.
     function reactivate() external;
 
-    /// @notice Unstake every seized gHOODZ into HOODZ and burn it.
-    /// @return hoodzBurned HOODZ removed from supply.
+    /// @notice Unstake every seized gHOOD into HOOD and burn it.
+    /// @return hoodzBurned HOOD removed from supply.
     function burn() external returns (uint256 hoodzBurned);
 
     // ---------------------------------------------------------------------------------------
     //                                         VIEWS
     // ---------------------------------------------------------------------------------------
 
-    /// @notice Current origination loan-to-collateral, i.e. reserve lent per 1e18 gHOODZ.
+    /// @notice Current origination loan-to-collateral, i.e. reserve lent per 1e18 gHOOD.
     /// @return The oLTC, 1e18 fixed point.
     function loanToCollateral() external view returns (uint256);
 
@@ -142,7 +142,7 @@ interface IClearinghouse {
     /// @return Interest, in reserve decimals.
     function interestForLoan(uint256 principal_, uint256 duration_) external view returns (uint256);
 
-    /// @notice Reserve value of an amount of gHOODZ collateral at the current oLTC.
+    /// @notice Reserve value of an amount of gHOOD collateral at the current oLTC.
     /// @param  collateral_ Collateral amount, 1e18 decimals.
     /// @return Reserve amount, in reserve decimals.
     function debtForCollateral(uint256 collateral_) external view returns (uint256);

@@ -14,7 +14,7 @@ pragma solidity ^0.8.24;
         trading fees, never out of new supply - there is no mint.
 
         Web    https://hoodz.finance
-        X      https://x.com/Hoodzfinancial
+        X      https://x.com/Hoodzfinance
         Code   https://github.com/averageballer13/Hoodz
 
         UNAUDITED. This code has never been audited. Read it before you
@@ -23,14 +23,14 @@ pragma solidity ^0.8.24;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {IHOODZ} from "../interfaces/IHOODZ.sol";
+import {IHOOD} from "../interfaces/IHOOD.sol";
 import {IHoodzAuthority} from "../interfaces/IHoodzAuthority.sol";
 import {HoodzAccessControlled} from "../types/HoodzAccessControlled.sol";
 import {IPonsFeeRouter} from "./IPonsFeeRouter.sol";
 import {PonsLaunchConfig} from "./PonsLaunchConfig.sol";
 import {HoodzBurn} from "../types/HoodzBurn.sol";
 
-/// @notice Minimal swap surface used to buy HOODZ out of the graduated pool.
+/// @notice Minimal swap surface used to buy HOOD out of the graduated pool.
 /// @dev Shaped like the familiar `exactInputSingle`. On Robinhood Chain the graduated PONS pool lives in
 ///      the Uniswap v4 singleton, so this is the router facade in front of it rather than a v3 router;
 ///      the fee tier identifies the pool and `sqrtPriceLimitX96 = 0` means "no price limit", leaving
@@ -63,15 +63,15 @@ interface ISwapRouter {
 
 /// @title FeeRouterBuyback
 /// @author Hoodz
-/// @notice Turns Hoodz's share of PONS trading fees into permanently destroyed HOODZ.
+/// @notice Turns Hoodz's share of PONS trading fees into permanently destroyed HOOD.
 /// @dev The graduated pool's LP position is locked forever, so its trading fees are the one cash flow
 ///      the launch produces in perpetuity. This contract is where Hoodz's slice of that flow lands:
-///      it claims the reserve-denominated fee share from the PONS fee router, buys HOODZ back out of the
+///      it claims the reserve-denominated fee share from the PONS fee router, buys HOOD back out of the
 ///      same pool that generated the fees, and burns it. Mirrors PONS's own buyback-and-burn.
 ///
-///      Deliberately narrow. It cannot mint, it holds no privileged role over HOODZ beyond burning what
+///      Deliberately narrow. It cannot mint, it holds no privileged role over HOOD beyond burning what
 ///      it owns, and the only asset it can spend is whatever reserve has been routed to it. The burn is
-///      unconditional: HOODZ that reaches this contract never leaves it.
+///      unconditional: HOOD that reaches this contract never leaves it.
 ///
 ///      Every buyback carries both a caller-supplied `minOut` and a `deadline`, because a keeper
 ///      transaction that sits in the mempool is a free option for whoever is watching it.
@@ -89,7 +89,7 @@ contract FeeRouterBuyback is HoodzAccessControlled {
     /// @notice `minOut` was zero. An unbounded buyback is a donation to the first searcher who sees it.
     error ZeroMinOut();
 
-    /// @notice The swap delivered less HOODZ than `minOut`.
+    /// @notice The swap delivered less HOOD than `minOut`.
     error InsufficientOutput();
 
     /// @notice A required address argument was the zero address.
@@ -97,11 +97,11 @@ contract FeeRouterBuyback is HoodzAccessControlled {
 
     /* ------------------------------------------------------------- immutables */
 
-    /// @notice The immutable on-chain record of the HOODZ launch.
+    /// @notice The immutable on-chain record of the HOOD launch.
     PonsLaunchConfig public immutable CONFIG;
 
-    /// @notice The HOODZ token bought back and burned.
-    IHOODZ public immutable HOODZ;
+    /// @notice The HOOD token bought back and burned.
+    IHOOD public immutable HOOD;
 
     /// @notice The reserve token the protocol fee share is paid in.
     IERC20 public immutable RESERVE;
@@ -109,7 +109,7 @@ contract FeeRouterBuyback is HoodzAccessControlled {
     /// @notice The PONS fee router that pays out the protocol fee share.
     IPonsFeeRouter public immutable FEE_ROUTER;
 
-    /// @notice The router used to buy HOODZ out of the graduated pool.
+    /// @notice The router used to buy HOOD out of the graduated pool.
     ISwapRouter public immutable SWAP_ROUTER;
 
     /// @notice Fee tier identifying the graduated pool, read from {CONFIG}.
@@ -117,14 +117,14 @@ contract FeeRouterBuyback is HoodzAccessControlled {
 
     /* ------------------------------------------------------------------ state */
 
-    /// @notice Cumulative HOODZ destroyed by this contract, in HOODZ decimals.
+    /// @notice Cumulative HOOD destroyed by this contract, in HOOD decimals.
     uint256 public totalBurned;
 
     /* ----------------------------------------------------------------- events */
 
     /// @notice Emitted on every completed buyback.
     /// @param reserveIn Reserve token spent.
-    /// @param hoodzBurned HOODZ destroyed.
+    /// @param hoodzBurned HOOD destroyed.
     event BuybackAndBurn(uint256 reserveIn, uint256 hoodzBurned);
 
     /// @notice Emitted when fees are pulled in from the PONS fee router.
@@ -136,9 +136,9 @@ contract FeeRouterBuyback is HoodzAccessControlled {
     /* ------------------------------------------------------------ constructor */
 
     /// @param authority_ The `HoodzAuthority` granting the policy role that may trigger buybacks.
-    /// @param config_ The immutable {PonsLaunchConfig}; supplies HOODZ, the reserve token and the fee tier.
+    /// @param config_ The immutable {PonsLaunchConfig}; supplies HOOD, the reserve token and the fee tier.
     /// @param feeRouter_ The PONS fee router paying out the protocol fee share.
-    /// @param swapRouter_ The router used to buy HOODZ out of the graduated pool.
+    /// @param swapRouter_ The router used to buy HOOD out of the graduated pool.
     constructor(
         IHoodzAuthority authority_,
         PonsLaunchConfig config_,
@@ -157,7 +157,7 @@ contract FeeRouterBuyback is HoodzAccessControlled {
         if (hoodz_ == address(0) || reserve_ == address(0)) revert ZeroAddress();
 
         CONFIG = config_;
-        HOODZ = IHOODZ(hoodz_);
+        HOOD = IHOOD(hoodz_);
         RESERVE = IERC20(reserve_);
         FEE_ROUTER = feeRouter_;
         SWAP_ROUTER = swapRouter_;
@@ -166,15 +166,15 @@ contract FeeRouterBuyback is HoodzAccessControlled {
 
     /* -------------------------------------------------------------- buy /burn */
 
-    /// @notice Claim accrued fees, buy HOODZ with every reserve token on hand, and burn all of it.
+    /// @notice Claim accrued fees, buy HOOD with every reserve token on hand, and burn all of it.
     /// @dev Policy only. Claiming is best-effort - a fee router that reverts because nothing has accrued
     ///      must not strand reserve that is already sitting here. The swap is bounded by both `minOut`
-    ///      and `deadline`, and the HOODZ actually received is measured from balances rather than taken
+    ///      and `deadline`, and the HOOD actually received is measured from balances rather than taken
     ///      from the router's return value.
-    /// @param minOut Minimum HOODZ the swap must deliver. Must be non-zero.
+    /// @param minOut Minimum HOOD the swap must deliver. Must be non-zero.
     /// @param deadline Unix timestamp after which this call reverts.
     /// @return reserveIn Reserve token spent on the buyback.
-    /// @return hoodzBurned HOODZ destroyed, including any HOODZ that was already sitting in this contract.
+    /// @return hoodzBurned HOOD destroyed, including any HOOD that was already sitting in this contract.
     function buybackAndBurn(uint256 minOut, uint256 deadline)
         external
         onlyPolicy
@@ -188,13 +188,13 @@ contract FeeRouterBuyback is HoodzAccessControlled {
         reserveIn = RESERVE.balanceOf(address(this));
         if (reserveIn == 0) revert NothingToBuy();
 
-        uint256 hoodzBefore = HOODZ.balanceOf(address(this));
+        uint256 hoodzBefore = HOOD.balanceOf(address(this));
 
         RESERVE.forceApprove(address(SWAP_ROUTER), reserveIn);
         uint256 reported = SWAP_ROUTER.exactInputSingle(
             ISwapRouter.ExactInputSingleParams({
                 tokenIn: address(RESERVE),
-                tokenOut: address(HOODZ),
+                tokenOut: address(HOOD),
                 fee: LP_FEE_TIER,
                 recipient: address(this),
                 deadline: deadline,
@@ -206,13 +206,13 @@ contract FeeRouterBuyback is HoodzAccessControlled {
         // Leave no standing allowance behind, even if the router spent less than it was given.
         RESERVE.forceApprove(address(SWAP_ROUTER), 0);
 
-        uint256 received = HOODZ.balanceOf(address(this)) - hoodzBefore;
+        uint256 received = HOOD.balanceOf(address(this)) - hoodzBefore;
         if (received < minOut || reported < minOut) revert InsufficientOutput();
 
         hoodzBurned = hoodzBefore + received;
         totalBurned += hoodzBurned;
 
-        HoodzBurn.burn(IERC20(address(HOODZ)), hoodzBurned);
+        HoodzBurn.burn(IERC20(address(HOOD)), hoodzBurned);
 
         emit BuybackAndBurn(reserveIn, hoodzBurned);
     }
@@ -241,7 +241,7 @@ contract FeeRouterBuyback is HoodzAccessControlled {
     /// @return claimable Reserve token accrued at the fee router but not yet pulled in.
     function pendingFees() external view returns (uint256 held, uint256 claimable) {
         held = RESERVE.balanceOf(address(this));
-        try FEE_ROUTER.claimableFees(address(HOODZ)) returns (uint256 amount) {
+        try FEE_ROUTER.claimableFees(address(HOOD)) returns (uint256 amount) {
             claimable = amount;
         } catch {
             claimable = 0;
@@ -253,7 +253,7 @@ contract FeeRouterBuyback is HoodzAccessControlled {
     /// @dev Best-effort claim. A reverting or empty fee router is not a reason to fail a buyback that
     ///      already has reserve to spend.
     function _claim() private returns (uint256 claimed) {
-        try FEE_ROUTER.claimFees(address(HOODZ)) returns (uint256 amount) {
+        try FEE_ROUTER.claimFees(address(HOOD)) returns (uint256 amount) {
             claimed = amount;
             if (amount != 0) emit ProtocolFeesClaimed(amount);
         } catch {

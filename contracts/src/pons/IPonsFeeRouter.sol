@@ -14,7 +14,7 @@ pragma solidity ^0.8.24;
         trading fees, never out of new supply - there is no mint.
 
         Web    https://hoodz.finance
-        X      https://x.com/Hoodzfinancial
+        X      https://x.com/Hoodzfinance
         Code   https://github.com/averageballer13/Hoodz
 
         UNAUDITED. This code has never been audited. Read it before you
@@ -25,8 +25,8 @@ pragma solidity ^0.8.24;
 /// @notice Minimal integration surface for the PONS fee router.
 /// @dev Trading fees earned by a graduated PONS pool accrue to the router and are split between the
 ///      launchpad, the launch creator and the protocol. Hoodz's share is claimed in the reserve
-///      token by {FeeRouterBuyback}, which swaps it for HOODZ and burns it - mirroring PONS's own
-///      buyback-and-burn. The router never has authority over HOODZ supply.
+///      token by {FeeRouterBuyback}, which swaps it for HOOD and burns it - mirroring PONS's own
+///      buyback-and-burn. The router never has authority over HOOD supply.
 interface IPonsFeeRouter {
     /// @notice Emitted when accrued fees are pushed to the recipient of a launch.
     event FeesClaimed(address indexed token, address indexed recipient, uint256 amount);

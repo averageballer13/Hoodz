@@ -15,7 +15,7 @@ pragma solidity ^0.8.24;
         trading fees, never out of new supply - there is no mint.
 
         Web    https://hoodz.finance
-        X      https://x.com/Hoodzfinancial
+        X      https://x.com/Hoodzfinance
         Code   https://github.com/averageballer13/Hoodz
 
         UNAUDITED. This code has never been audited. Read it before you
@@ -32,6 +32,6 @@ interface IDistributor {
 
     /// @notice Reward that would be minted for a recipient at the current rate.
     /// @param who_ Recipient to quote (normally the staking contract).
-    /// @return The reward amount in HOODZ, 9 decimals.
+    /// @return The reward amount in HOOD, 9 decimals.
     function nextRewardFor(address who_) external view returns (uint256);
 }

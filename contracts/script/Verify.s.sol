@@ -18,7 +18,7 @@ import {console2} from "forge-std/console2.sol";
 ///         Robinhood Chain runs Blockscout, which is Etherscan-API compatible. The canonical
 ///         invocation for a single contract is:
 ///
-///   forge verify-contract <ADDRESS> src/tokens/sHOODZ.sol:sHOODZ \
+///   forge verify-contract <ADDRESS> src/tokens/sHOOD.sol:sHOOD \
 ///     --chain-id 4663 \
 ///     --verifier blockscout \
 ///     --verifier-url https://robinhoodchain.blockscout.com/api \
@@ -68,9 +68,9 @@ contract Verify is Script {
         console2.log("");
 
         _print("HoodzAuthority", "src/HoodzAuthority.sol:HoodzAuthority");
-        // HOODZ is deployed and verified by PONS, not by this repo - nothing to submit here.
-        _print("sHOODZ", "src/tokens/sHOODZ.sol:sHOODZ");
-        _print("gHOODZ", "src/tokens/gHOODZ.sol:gHOODZ");
+        // HOOD is deployed and verified by PONS, not by this repo - nothing to submit here.
+        _print("sHOOD", "src/tokens/sHOOD.sol:sHOOD");
+        _print("gHOOD", "src/tokens/gHOOD.sol:gHOOD");
         _print("HoodzTreasury", "src/HoodzTreasury.sol:HoodzTreasury");
         _print("HoodzBondingCalculator", "src/HoodzBondingCalculator.sol:HoodzBondingCalculator");
         _print("HoodzStaking", "src/HoodzStaking.sol:HoodzStaking");
@@ -92,7 +92,7 @@ contract Verify is Script {
     }
 
     /// @dev Emits one verification command, or a skip note when the manifest has no such entry.
-    /// @param name Manifest key, e.g. "HOODZ".
+    /// @param name Manifest key, e.g. "HOOD".
     /// @param target `path/to/File.sol:ContractName` as forge expects it.
     function _print(string memory name, string memory target) internal view {
         address addr = _address(name);

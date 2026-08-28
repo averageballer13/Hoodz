@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Dashboard — Hoodz</title>
-<meta name="description" content="Hoodz protocol dashboard: HOODZ price, market cap, treasury value, liquid backing, index, staking APY and runway on Robinhood Chain.">
+<meta name="description" content="Hoodz protocol dashboard: HOOD price, market cap, treasury value, liquid backing, index, staking APY and runway on Robinhood Chain.">
 <meta name="color-scheme" content="dark">
 <link rel="icon" href="/assets/img/favicon.svg?v=2" type="image/svg+xml">
 <link rel="icon" href="/assets/img/favicon-32.png?v=2" sizes="32x32">
@@ -106,7 +106,7 @@
       <section class="grid cols-4" aria-label="Protocol metrics">
         <article class="app-card is-hover">
           <div class="metric">
-            <span class="metric__label">HOODZ price</span>
+            <span class="metric__label">HOOD price</span>
             <span class="metric__value" data-bind="price">&mdash;</span>
             <span class="metric__sub">
               <span class="delta up" data-delta="0.0184" data-bind="priceChange">&mdash;</span> · 24h
@@ -117,7 +117,7 @@
           <div class="metric">
             <span class="metric__label">Market cap</span>
             <span class="metric__value" data-bind="marketCap">&mdash;</span>
-            <span class="metric__sub"><span data-bind="circulatingSupply">&mdash;</span> HOODZ circulating</span>
+            <span class="metric__sub"><span data-bind="circulatingSupply">&mdash;</span> HOOD circulating</span>
           </div>
         </article>
         <article class="app-card is-hover">
@@ -129,7 +129,7 @@
         </article>
         <article class="app-card is-hover">
           <div class="metric">
-            <span class="metric__label">Liquid backing / HOODZ</span>
+            <span class="metric__label">Liquid backing / HOOD</span>
             <span class="metric__value" data-bind="backingPerHoodz">&mdash;</span>
             <span class="metric__sub">Market trades at a <span data-bind="premium">&mdash;</span> premium</span>
           </div>
@@ -141,7 +141,7 @@
           <div class="metric">
             <span class="metric__label">Current index</span>
             <span class="metric__value" data-bind="index">&mdash;</span>
-            <span class="metric__sub">HOODZ per gHOODZ since genesis</span>
+            <span class="metric__sub">HOOD per gHOOD since genesis</span>
           </div>
         </article>
         <article class="app-card is-hover">
@@ -170,15 +170,15 @@
       <!-- backing chart -->
       <section class="app-card pad-lg" aria-labelledby="chart-title">
         <div class="card-head">
-          <h2 class="card-title" id="chart-title">Liquid backing per HOODZ</h2>
+          <h2 class="card-title" id="chart-title">Liquid backing per HOOD</h2>
           <span class="metric__sub">12 months · <span class="delta up">+—</span></span>
         </div>
 
         <figure class="stack gap-16" style="margin:0">
           <div class="chart-wrap">
             <svg class="chart" viewBox="0 0 960 340" role="img" aria-labelledby="bk-t bk-d" preserveAspectRatio="xMidYMid meet">
-              <title id="bk-t">Liquid backing per HOODZ, September 2025 to August 2026</title>
-              <desc id="bk-d">A rising area chart. Backing per HOODZ climbs steadily from —in September 2025 to —in August 2026, with no month-over-month declines.</desc>
+              <title id="bk-t">Liquid backing per HOOD, September 2025 to August 2026</title>
+              <desc id="bk-d">A rising area chart. Backing per HOOD climbs steadily from —in September 2025 to —in August 2026, with no month-over-month declines.</desc>
 
               <defs>
                 <linearGradient id="bkFill" x1="0" y1="0" x2="0" y2="1">
@@ -238,15 +238,15 @@
 
           <figcaption class="row between">
             <span class="legend">
-              <span class="legend__key"><span class="legend__swatch" aria-hidden="true"></span> Liquid backing per HOODZ, month end</span>
+              <span class="legend__key"><span class="legend__swatch" aria-hidden="true"></span> Liquid backing per HOOD, month end</span>
             </span>
             <span class="metric__sub">Backing excludes illiquid treasury positions.</span>
           </figcaption>
         </figure>
 
         <table class="visually-hidden">
-          <caption>Liquid backing per HOODZ by month</caption>
-          <thead><tr><th scope="col">Month</th><th scope="col">Backing per HOODZ (USD)</th></tr></thead>
+          <caption>Liquid backing per HOOD by month</caption>
+          <thead><tr><th scope="col">Month</th><th scope="col">Backing per HOOD (USD)</th></tr></thead>
           <tbody>
             <tr><th scope="row">Sep 2025</th><td>8.94</td></tr>
             <tr><th scope="row">Oct 2025</th><td>9.21</td></tr>
@@ -269,9 +269,9 @@
         <article class="app-card">
           <div class="card-head"><h2 class="card-title">Supply</h2></div>
           <dl class="kv">
-            <div class="kv__row"><dt>Total supply</dt><dd><span data-bind="totalSupply">&mdash;</span> HOODZ</dd></div>
-            <div class="kv__row"><dt>Circulating supply</dt><dd><span data-bind="circulatingSupply">&mdash;</span> HOODZ</dd></div>
-            <div class="kv__row"><dt>Staked supply</dt><dd><span data-bind="stakedSupply">&mdash;</span> HOODZ</dd></div>
+            <div class="kv__row"><dt>Total supply</dt><dd><span data-bind="totalSupply">&mdash;</span> HOOD</dd></div>
+            <div class="kv__row"><dt>Circulating supply</dt><dd><span data-bind="circulatingSupply">&mdash;</span> HOOD</dd></div>
+            <div class="kv__row"><dt>Staked supply</dt><dd><span data-bind="stakedSupply">&mdash;</span> HOOD</dd></div>
             <div class="kv__row"><dt>Staking ratio</dt><dd data-bind="stakingRatio">&mdash;</dd></div>
             <div class="kv__row"><dt>Fully diluted value</dt><dd data-bind="fdv">&mdash;</dd></div>
             <div class="kv__row is-total"><dt>Liquid backing</dt><dd class="kv__v" data-bind="liquidBacking">&mdash;</dd></div>
@@ -310,7 +310,7 @@
                   <td data-label="Share">—</td>
                 </tr>
                 <tr>
-                  <td data-label="Asset"><span class="asset"><span class="asset__mark" aria-hidden="true">∞</span> HOODZ-USDC <small>Locked v4 LP</small></span></td>
+                  <td data-label="Asset"><span class="asset"><span class="asset__mark" aria-hidden="true">∞</span> HOOD-USDC <small>Locked v4 LP</small></span></td>
                   <td data-label="Value" class="num-strong">—</td>
                   <td data-label="Share">—</td>
                 </tr>
@@ -333,30 +333,30 @@
         </div>
         <div class="grid cols-4">
           <div class="metric">
-            <span class="metric__label">HOODZ</span>
+            <span class="metric__label">HOOD</span>
             <span class="metric__value sm"><span data-bind="walletHoodz">&mdash;</span></span>
             <span class="metric__sub">Unstaked, wallet balance</span>
           </div>
           <div class="metric">
-            <span class="metric__label">sHOODZ</span>
+            <span class="metric__label">sHOOD</span>
             <span class="metric__value sm"><span data-bind="walletSHoodz">&mdash;</span></span>
             <span class="metric__sub"><span data-bind="stakedUsd">&mdash;</span> · rebasing</span>
           </div>
           <div class="metric">
-            <span class="metric__label">gHOODZ</span>
+            <span class="metric__label">gHOOD</span>
             <span class="metric__value sm"><span data-bind="walletGHoodz">&mdash;</span></span>
-            <span class="metric__sub"><span data-bind="gHoodzInHoodz">&mdash;</span> HOODZ equivalent</span>
+            <span class="metric__sub"><span data-bind="gHoodzInHoodz">&mdash;</span> HOOD equivalent</span>
           </div>
           <div class="metric">
             <span class="metric__label">Next reward</span>
             <span class="metric__value sm"><span data-bind="nextRewardAmount">&mdash;</span></span>
-            <span class="metric__sub">sHOODZ in <span class="countdown" data-countdown="rebase">—</span></span>
+            <span class="metric__sub">sHOOD in <span class="countdown" data-countdown="rebase">—</span></span>
           </div>
         </div>
         <hr class="hairline" style="margin:1.4vw 0">
         <div class="btn-row">
           <a class="btn-pr dark btn-sm" href="/app/stake.html">
-            <span class="btn-text-cont"><span class="btn-text-ghost" aria-hidden="true">Stake HOODZ</span><span class="btn-text">Stake HOODZ</span></span>
+            <span class="btn-text-cont"><span class="btn-text-ghost" aria-hidden="true">Stake HOOD</span><span class="btn-text">Stake HOOD</span></span>
           </a>
           <a class="btn-pr alt dark btn-sm" href="/app/bond.html">
             <span class="btn-text-cont"><span class="btn-text-ghost" aria-hidden="true">Buy a bond</span><span class="btn-text">Buy a bond</span></span>

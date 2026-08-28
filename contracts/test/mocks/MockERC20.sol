@@ -8,7 +8,7 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 /// @title  MockERC20
 /// @notice Test-only ERC20 with a configurable decimal count and permissionless mint/burn.
 /// @dev    The decimal count is the whole point: `HoodzTreasury.tokenValue()` normalises reserve
-///         tokens (6 / 8 / 18 decimals) down to HOODZ's 9, and that conversion needs exercising
+///         tokens (6 / 8 / 18 decimals) down to HOOD's 9, and that conversion needs exercising
 ///         against more than one shape of token.
 contract MockERC20 is ERC20 {
     uint8 private immutable _decimalsOverride;

@@ -14,7 +14,7 @@ pragma solidity ^0.8.24;
         trading fees, never out of new supply - there is no mint.
 
         Web    https://hoodz.finance
-        X      https://x.com/Hoodzfinancial
+        X      https://x.com/Hoodzfinance
         Code   https://github.com/averageballer13/Hoodz
 
         UNAUDITED. This code has never been audited. Read it before you
@@ -31,8 +31,8 @@ import {PoolKey} from "./IUniswapV4PoolManager.sol";
 ///      collected, and only to `beneficiary` - the principal can never be withdrawn by anyone,
 ///      including PONS, the launch creator and Hoodz governance.
 ///
-///      {HoodzLaunchGuard} reads this interface as one of the three preconditions for handing HOODZ mint
-///      authority to the Treasury. A locker that returns "unlockable" for HOODZ blocks the release.
+///      {HoodzLaunchGuard} reads this interface as one of the three preconditions for handing HOOD mint
+///      authority to the Treasury. A locker that returns "unlockable" for HOOD blocks the release.
 interface IPositionLocker {
     /// @notice The permanently locked LP position backing a graduated launch.
     /// @param token The launched token.

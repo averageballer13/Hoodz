@@ -10,10 +10,10 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {HoodzAuthority} from "../../src/HoodzAuthority.sol";
 import {HoodzTreasury} from "../../src/HoodzTreasury.sol";
 import {HoodzStaking} from "../../src/HoodzStaking.sol";
-import {IHOODZ} from "../../src/interfaces/IHOODZ.sol";
+import {IHOOD} from "../../src/interfaces/IHOOD.sol";
 import {MockPonsToken} from "../mocks/MockPonsToken.sol";
-import {sHOODZ} from "../../src/tokens/sHOODZ.sol";
-import {gHOODZ} from "../../src/tokens/gHOODZ.sol";
+import {sHOOD} from "../../src/tokens/sHOOD.sol";
+import {gHOOD} from "../../src/tokens/gHOOD.sol";
 import {Distributor} from "../../src/policies/Distributor.sol";
 import {IHoodzAuthority} from "../../src/interfaces/IHoodzAuthority.sol";
 
@@ -21,7 +21,7 @@ import {MockERC20} from "../mocks/MockERC20.sol";
 import {MockSavingsVault} from "../mocks/MockSavingsVault.sol";
 
 /// @title  HoodzStackSetup
-/// @notice Shared fixture: deploys and wires HoodzAuthority + HOODZ/sHOODZ/gHOODZ + treasury +
+/// @notice Shared fixture: deploys and wires HoodzAuthority + HOOD/sHOOD/gHOOD + treasury +
 ///         staking + distributor in the same order and with the same arguments as
 ///         `script/Deploy.s.sol`, so the tests and the deploy script can only ever drift together.
 /// @dev    The test contract itself holds `governor` and `policy`, which keeps the permissioned
@@ -36,7 +36,7 @@ abstract contract HoodzStackSetup is Test {
     uint256 internal constant EPOCH_LENGTH = 28_800;
     uint256 internal constant FIRST_EPOCH_NUMBER = 1;
 
-    /// @dev sHOODZ launch index: one sHOODZ per gHOODZ, in sHOODZ's 9 decimals.
+    /// @dev sHOOD launch index: one sHOOD per gHOOD, in sHOOD's 9 decimals.
     uint256 internal constant INITIAL_INDEX = 1e9;
 
     /// @dev Per-epoch staking emission, 1e6 denominator. 3000 == 0.30% per epoch.
@@ -62,8 +62,8 @@ abstract contract HoodzStackSetup is Test {
 
     HoodzAuthority internal authority;
     MockPonsToken internal hoodz;
-    sHOODZ internal sHoodz;
-    gHOODZ internal gHoodz;
+    sHOOD internal sHoodz;
+    gHOOD internal gHoodz;
     HoodzTreasury internal treasury;
     HoodzStaking internal staking;
     Distributor internal distributor;
@@ -94,9 +94,9 @@ abstract contract HoodzStackSetup is Test {
 
         // Stands in for the PONS-deployed token: fixed supply, no mint. The whole supply lands
         // on this fixture, which then plays the part of the curve and of buyers.
-        hoodz = new MockPonsToken("Hoodz", "HOODZ", 9, address(this));
-        sHoodz = new sHOODZ(auth);
-        gHoodz = new gHOODZ(auth, address(sHoodz));
+        hoodz = new MockPonsToken("Hoodz", "HOOD", 9, address(this));
+        sHoodz = new sHOOD(auth);
+        gHoodz = new gHOOD(auth, address(sHoodz));
 
         reserve = new MockERC20("Mock Reserve", "mRSV", 18);
         savings = new MockSavingsVault(IERC20(address(reserve)), "Mock Savings Reserve", "msRSV");
@@ -118,7 +118,7 @@ abstract contract HoodzStackSetup is Test {
 
         // --- token trio ---
         sHoodz.setIndex(INITIAL_INDEX);
-        sHoodz.setgHOODZ(address(gHoodz));
+        sHoodz.setgHOOD(address(gHoodz));
         sHoodz.initialize(address(staking), address(treasury));
         gHoodz.migrate(address(staking), address(sHoodz));
 
@@ -137,12 +137,12 @@ abstract contract HoodzStackSetup is Test {
         treasury.enable(HoodzTreasury.STATUS.RESERVEMANAGER, address(this), address(0));
         treasury.enable(HoodzTreasury.STATUS.REWARDMANAGER, address(this), address(0));
         treasury.enable(HoodzTreasury.STATUS.REWARDMANAGER, address(distributor), address(0));
-        treasury.enable(HoodzTreasury.STATUS.SHOODZ, address(sHoodz), address(0));
+        treasury.enable(HoodzTreasury.STATUS.SHOOD, address(sHoodz), address(0));
 
         vm.label(address(authority), "HoodzAuthority");
-        vm.label(address(hoodz), "HOODZ");
-        vm.label(address(sHoodz), "sHOODZ");
-        vm.label(address(gHoodz), "gHOODZ");
+        vm.label(address(hoodz), "HOOD");
+        vm.label(address(sHoodz), "sHOOD");
+        vm.label(address(gHoodz), "gHOOD");
         vm.label(address(treasury), "HoodzTreasury");
         vm.label(address(staking), "HoodzStaking");
         vm.label(address(distributor), "Distributor");
@@ -157,7 +157,7 @@ abstract contract HoodzStackSetup is Test {
     /// @dev Deposits reserve into the treasury booking the whole value as profit, so nothing is
     ///      minted and the entire value lands in excess reserves.
     /// @param amount_ Reserve amount, in the reserve's own decimals.
-    /// @return value The HOODZ-denominated (9 decimal) value credited.
+    /// @return value The HOOD-denominated (9 decimal) value credited.
     function _fundTreasury(uint256 amount_) internal returns (uint256 value) {
         reserve.mint(address(this), amount_);
         reserve.approve(address(treasury), amount_);
@@ -167,25 +167,25 @@ abstract contract HoodzStackSetup is Test {
 
     /// @dev Deposits reserve taking only `profit_`, so `value - profit_` is minted to this contract.
     /// @param amount_ Reserve amount, in the reserve's own decimals.
-    /// @param profit_ HOODZ-denominated profit retained by the treasury.
-    /// @return minted HOODZ minted to this contract.
+    /// @param profit_ HOOD-denominated profit retained by the treasury.
+    /// @return minted HOOD minted to this contract.
     function _depositForHoodz(uint256 amount_, uint256 profit_) internal returns (uint256 minted) {
         reserve.mint(address(this), amount_);
         reserve.approve(address(treasury), amount_);
         minted = treasury.deposit(amount_, address(reserve), profit_);
     }
 
-    /// @dev Mints HOODZ to `to_` out of treasury excess reserves. Requires a prior {_fundTreasury}.
+    /// @dev Mints HOOD to `to_` out of treasury excess reserves. Requires a prior {_fundTreasury}.
     /// @param to_ Recipient.
-    /// @param amount_ HOODZ amount, 9 decimals.
+    /// @param amount_ HOOD amount, 9 decimals.
     function _mintHoodz(address to_, uint256 amount_) internal {
         treasury.mint(to_, amount_);
     }
 
-    /// @dev Stakes HOODZ for `user_` and returns rebasing sHOODZ immediately.
+    /// @dev Stakes HOOD for `user_` and returns rebasing sHOOD immediately.
     /// @param user_ The staker.
-    /// @param amount_ HOODZ amount, 9 decimals.
-    /// @return The sHOODZ received.
+    /// @param amount_ HOOD amount, 9 decimals.
+    /// @return The sHOOD received.
     function _stake(address user_, uint256 amount_) internal returns (uint256) {
         _mintHoodz(user_, amount_);
         vm.startPrank(user_);
@@ -195,10 +195,10 @@ abstract contract HoodzStackSetup is Test {
         return out;
     }
 
-    /// @dev Stakes HOODZ for `user_` and returns non-rebasing gHOODZ.
+    /// @dev Stakes HOOD for `user_` and returns non-rebasing gHOOD.
     /// @param user_ The staker.
-    /// @param amount_ HOODZ amount, 9 decimals.
-    /// @return The gHOODZ received.
+    /// @param amount_ HOOD amount, 9 decimals.
+    /// @return The gHOOD received.
     function _stakeToG(address user_, uint256 amount_) internal returns (uint256) {
         _mintHoodz(user_, amount_);
         vm.startPrank(user_);

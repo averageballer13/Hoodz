@@ -80,7 +80,7 @@
 
         setStat('marketcap', compactUsd(t.circulating_market_cap), 'Live · Blockscout');
         setStat('holders', compactNum(t.holders_count), 'Live · Blockscout');
-        setStat('supply', supply !== null ? compactNum(supply) + ' ' + (t.symbol || 'HOODZ') : null,
+        setStat('supply', supply !== null ? compactNum(supply) + ' ' + (t.symbol || 'HOOD') : null,
                 'Fixed at launch');
 
         // ticker facts that are only true once the token exists
@@ -131,7 +131,7 @@
   /* ------------------------------------------------------------ contracts */
 
   var LABELS = {
-    HoodzAuthority: 'Authority', sHOODZ: 'sHOODZ', gHOODZ: 'gHOODZ',
+    HoodzAuthority: 'Authority', sHOOD: 'sHOOD', gHOOD: 'gHOOD',
     HoodzTreasury: 'Treasury', HoodzBondingCalculator: 'Bonding calculator',
     HoodzStaking: 'Staking', Distributor: 'Distributor', BondDepository: 'Bond depository',
     CoolerFactory: 'Loan factory', Clearinghouse: 'Clearinghouse',
@@ -157,7 +157,7 @@
     grid.innerHTML = '';
 
     if (manifest.token) {
-      grid.appendChild(contractLink('HOODZ token', manifest.token, base, true));
+      grid.appendChild(contractLink('HOOD token', manifest.token, base, true));
     }
     live.forEach(function (k) {
       grid.appendChild(contractLink(LABELS[k] || k, manifest.contracts[k], base, false));

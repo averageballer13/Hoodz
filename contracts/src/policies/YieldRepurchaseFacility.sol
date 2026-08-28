@@ -15,7 +15,7 @@ pragma solidity ^0.8.24;
         trading fees, never out of new supply - there is no mint.
 
         Web    https://hoodz.finance
-        X      https://x.com/Hoodzfinancial
+        X      https://x.com/Hoodzfinance
         Code   https://github.com/averageballer13/Hoodz
 
         UNAUDITED. This code has never been audited. Read it before you
@@ -28,7 +28,7 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 
 import {HoodzAccessControlled} from "../types/HoodzAccessControlled.sol";
 import {IHoodzAuthority} from "../interfaces/IHoodzAuthority.sol";
-import {IHOODZ} from "../interfaces/IHOODZ.sol";
+import {IHOOD} from "../interfaces/IHOOD.sol";
 import {ITreasury} from "../interfaces/ITreasury.sol";
 import {IPriceFeed} from "../interfaces/IPriceFeed.sol";
 import {IHoodzBondAuctioneer} from "../interfaces/IHoodzBondAuctioneer.sol";
@@ -39,7 +39,7 @@ import {HoodzBurn} from "../types/HoodzBurn.sol";
 /// @notice The Hoodz Yield Repurchase Facility (YRF), a port of the Olympus YRF. The
 ///         treasury parks its reserves in a yield bearing ERC4626 vault; once a week this
 ///         policy measures what that yield was worth and spends exactly that much, and never
-///         more, buying HOODZ back off the market through seven daily bond markets. Every HOODZ
+///         more, buying HOOD back off the market through seven daily bond markets. Every HOOD
 ///         it buys is burned, so the facility converts reserve yield into a permanent
 ///         reduction of supply without ever touching principal.
 /// @dev    UNAUDITED. Do not use in production without a full audit.
@@ -49,12 +49,12 @@ import {HoodzBurn} from "../types/HoodzBurn.sol";
 ///         one (7 markets per week, each sized `nextYield / 7`) and recomputes the weekly
 ///         budget when the counter reaches 21 and wraps to zero.
 ///
-///         SCALING. Reserve amounts are raw 1e18 units and HOODZ amounts raw 1e9 units.
+///         SCALING. Reserve amounts are raw 1e18 units and HOOD amounts raw 1e9 units.
 ///         `lastConversionRate` is `sReserve.previewRedeem(1e18)`, i.e. reserve assets per 1e18
 ///         vault shares in 1e18 fixed point; the week's yield is derived from its growth.
 ///         Bond prices follow the auctioneer convention: whole quote tokens per whole payout
-///         token, 1e18. Here the payout is the reserve and the quote is HOODZ, so the market
-///         price is HOODZ per reserve and a HIGHER price is better for the DAO.
+///         token, 1e18. Here the payout is the reserve and the quote is HOOD, so the market
+///         price is HOOD per reserve and a HIGHER price is better for the DAO.
 contract YieldRepurchaseFacility is IYieldRepurchaseFacility, HoodzAccessControlled {
     using SafeERC20 for IERC20;
 
@@ -62,8 +62,8 @@ contract YieldRepurchaseFacility is IYieldRepurchaseFacility, HoodzAccessControl
 
     /// @notice Fixed point unit for every ratio in this contract (1.0).
     uint256 internal constant ONE = 1e18;
-    /// @notice Raw unit of the HOODZ token, which carries 9 decimals.
-    uint256 internal constant HOODZ_SCALE = 1e9;
+    /// @notice Raw unit of the HOOD token, which carries 9 decimals.
+    uint256 internal constant HOOD_SCALE = 1e9;
     /// @notice Epochs in a day. The heart beats once per 8 hour epoch.
     uint256 internal constant EPOCHS_PER_DAY = 3;
     /// @notice Epochs in a week; the budget is recomputed when the counter reaches it.
@@ -83,8 +83,8 @@ contract YieldRepurchaseFacility is IYieldRepurchaseFacility, HoodzAccessControl
 
     /* ======================================= IMMUTABLES ======================================= */
 
-    /// @notice The HOODZ token bought back and burned by this facility.
-    IHOODZ public immutable hoodz;
+    /// @notice The HOOD token bought back and burned by this facility.
+    IHOOD public immutable hoodz;
     /// @notice Reserve asset spent on repurchases, assumed to carry 18 decimals.
     IERC20 public immutable reserve;
     /// @notice Yield bearing ERC4626 wrapper of `reserve` held by the treasury.
@@ -93,7 +93,7 @@ contract YieldRepurchaseFacility is IYieldRepurchaseFacility, HoodzAccessControl
     ITreasury public immutable treasury;
     /// @notice Auctioneer running the repurchase bond markets.
     IHoodzBondAuctioneer public immutable auctioneer;
-    /// @notice Oracle quoting one whole HOODZ in whole reserve tokens.
+    /// @notice Oracle quoting one whole HOOD in whole reserve tokens.
     IPriceFeed public immutable priceFeed;
     /// @notice Normalises the feed answer to 1e18: `10 ** (18 - priceFeed.decimals())`.
     uint256 public immutable priceFeedScalar;
@@ -121,16 +121,16 @@ contract YieldRepurchaseFacility is IYieldRepurchaseFacility, HoodzAccessControl
 
     /// @notice Wire the facility into the protocol.
     /// @param authority_   Hoodz authority holding the governor / guardian / policy / vault roles.
-    /// @param hoodz_        HOODZ token, 9 decimals.
+    /// @param hoodz_        HOOD token, 9 decimals.
     /// @param reserve_     Reserve asset, 18 decimals.
     /// @param sReserve_    ERC4626 vault wrapping `reserve_`, held by the treasury.
     /// @param treasury_    Hoodz Treasury.
     /// @param auctioneer_  Bond auctioneer that runs the repurchase markets.
-    /// @param priceFeed_   HOODZ price oracle, at most 18 decimals.
+    /// @param priceFeed_   HOOD price oracle, at most 18 decimals.
     /// @param maxPriceAge_ Maximum accepted age of an oracle answer, in seconds.
     constructor(
         IHoodzAuthority authority_,
-        IHOODZ hoodz_,
+        IHOOD hoodz_,
         IERC20 reserve_,
         IERC4626 sReserve_,
         ITreasury treasury_,
@@ -165,7 +165,7 @@ contract YieldRepurchaseFacility is IYieldRepurchaseFacility, HoodzAccessControl
     /// @inheritdoc IYieldRepurchaseFacility
     /// @dev Returns instead of reverting while shut down: the heart calls this on every epoch
     ///      and must never be bricked by monetary policy. The order inside a market day matters
-    ///      - the previous market is settled (HOODZ burned, dust returned) before the next one is
+    ///      - the previous market is settled (HOOD burned, dust returned) before the next one is
     ///      funded, so the facility never holds two markets' worth of reserves at once.
     function endEpoch() external onlyPolicy {
         if (isShutdown) return;
@@ -190,7 +190,7 @@ contract YieldRepurchaseFacility is IYieldRepurchaseFacility, HoodzAccessControl
         }
         epoch = epoch_;
 
-        // Close out yesterday's market: burn the HOODZ it bought, return anything unspent.
+        // Close out yesterday's market: burn the HOOD it bought, return anything unspent.
         _settleMarket();
 
         uint256 bidAmount = nextYield / MARKETS_PER_WEEK;
@@ -248,7 +248,7 @@ contract YieldRepurchaseFacility is IYieldRepurchaseFacility, HoodzAccessControl
     }
 
     /// @inheritdoc IYieldRepurchaseFacility
-    /// @dev Leaves this contract holding nothing: the live market is closed, the HOODZ bought so
+    /// @dev Leaves this contract holding nothing: the live market is closed, the HOOD bought so
     ///      far is burned and every unspent reserve token goes back to the treasury.
     function shutdown() external onlyGovernor {
         if (isShutdown) revert YRF_IsShutdown();
@@ -291,15 +291,15 @@ contract YieldRepurchaseFacility is IYieldRepurchaseFacility, HoodzAccessControl
         bidAmount = nextYield / MARKETS_PER_WEEK;
     }
 
-    /// @notice Price the oracle currently reports for one whole HOODZ.
-    /// @return price Whole reserve tokens per whole HOODZ, 1e18 fixed point.
+    /// @notice Price the oracle currently reports for one whole HOOD.
+    /// @return price Whole reserve tokens per whole HOOD, 1e18 fixed point.
     function currentPrice() external view returns (uint256 price) {
         price = _currentPrice();
     }
 
     /* ========================================= INTERNAL ======================================= */
 
-    /// @dev Oracle read normalised to 1e18 reserve per HOODZ, with zero and staleness checks.
+    /// @dev Oracle read normalised to 1e18 reserve per HOOD, with zero and staleness checks.
     function _currentPrice() internal view returns (uint256 price) {
         int256 answer = priceFeed.latestAnswer();
         if (answer <= 0) revert YRF_InvalidPrice(answer);
@@ -328,11 +328,11 @@ contract YieldRepurchaseFacility is IYieldRepurchaseFacility, HoodzAccessControl
         }
     }
 
-    /// @dev Open the daily repurchase market: the reserve is the payout and HOODZ is the quote,
-    ///      so bidders sell HOODZ to this facility. Price is HOODZ per reserve in 1e18, the
-    ///      inverse of the oracle's reserve-per-HOODZ quote. The market opens at twice the
+    /// @dev Open the daily repurchase market: the reserve is the payout and HOOD is the quote,
+    ///      so bidders sell HOOD to this facility. Price is HOOD per reserve in 1e18, the
+    ///      inverse of the oracle's reserve-per-HOOD quote. The market opens at twice the
     ///      oracle rate (a deep discount for the DAO) and decays down to it, so the facility
-    ///      never pays more than spot for the HOODZ it burns.
+    ///      never pays more than spot for the HOOD it burns.
     /// @param bidAmount Reserve to spend, raw 1e18 units.
     /// @return marketId     Identifier returned by the auctioneer.
     /// @return minimumPrice Floor price handed to the auctioneer, 1e18.
@@ -362,7 +362,7 @@ contract YieldRepurchaseFacility is IYieldRepurchaseFacility, HoodzAccessControl
         );
     }
 
-    /// @dev Settle a concluded market: drop the teller allowance, burn every HOODZ the market
+    /// @dev Settle a concluded market: drop the teller allowance, burn every HOOD the market
     ///      bought and hand any reserve that went unspent back to the treasury.
     function _settleMarket() internal {
         uint256 marketId = activeMarketId;
@@ -384,8 +384,8 @@ contract YieldRepurchaseFacility is IYieldRepurchaseFacility, HoodzAccessControl
     }
 
     /// @dev Book reserves back into the treasury without minting: `ITreasury.deposit` mints
-    ///      `value - profit` HOODZ to the caller, so passing `profit == value` (both 9 decimal
-    ///      HOODZ terms, as returned by `tokenValue`) credits the full amount and mints nothing.
+    ///      `value - profit` HOOD to the caller, so passing `profit == value` (both 9 decimal
+    ///      HOOD terms, as returned by `tokenValue`) credits the full amount and mints nothing.
     /// @param amount Reserve to return, raw 1e18 units.
     function _returnToTreasury(uint256 amount) internal {
         uint256 value = treasury.tokenValue(address(reserve), amount);

@@ -16,7 +16,7 @@ import {Clearinghouse} from "../src/loans/Clearinghouse.sol";
 import {HoodzStackSetup} from "./utils/HoodzStackSetup.sol";
 
 /// @title  ClearinghouseTest
-/// @notice Hoodz Loans end to end: lend reserve against gHOODZ, roll a loan forward, let one
+/// @notice Hoodz Loans end to end: lend reserve against gHOOD, roll a loan forward, let one
 ///         default, burn the seized collateral, and keep the policy's funding in step with the
 ///         treasury.
 /// @dev    Amounts are derived from the clearinghouse's own terms (`FUND_AMOUNT`,
@@ -61,7 +61,7 @@ contract ClearinghouseTest is HoodzStackSetup {
 
         loanAmount = clearinghouse.FUND_AMOUNT() / 10;
 
-        // Alice stakes three times the HOODZ she needs as collateral, leaving room for a roll.
+        // Alice stakes three times the HOOD she needs as collateral, leaving room for a roll.
         _stakeToG(alice, gHoodz.balanceFrom(_collateralFor(loanAmount)) * 3);
 
         vm.prank(alice);
@@ -82,7 +82,7 @@ contract ClearinghouseTest is HoodzStackSetup {
         assertTrue(clearinghouse.active(), "a fresh clearinghouse is open for business");
     }
 
-    /// @dev The offered loan-to-collateral drips upward over time - backing per gHOODZ grows -
+    /// @dev The offered loan-to-collateral drips upward over time - backing per gHOOD grows -
     ///      and is capped so a single term can never lever past the DAO's risk budget.
     function test_LoanToCollateralDripsUpwardAndIsCapped() public {
         uint256 atLaunch = clearinghouse.loanToCollateral();
@@ -175,8 +175,8 @@ contract ClearinghouseTest is HoodzStackSetup {
     }
 
     function test_DebtForCollateralMatchesTheOfferedTerms() public view {
-        uint256 collateral = 1e18; // one gHOODZ
-        assertEq(clearinghouse.debtForCollateral(collateral), clearinghouse.loanToCollateral(), "one gHOODZ of debt");
+        uint256 collateral = 1e18; // one gHOOD
+        assertEq(clearinghouse.debtForCollateral(collateral), clearinghouse.loanToCollateral(), "one gHOOD of debt");
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -311,7 +311,7 @@ contract ClearinghouseTest is HoodzStackSetup {
         _claimDefault(loanID);
     }
 
-    /// @dev There is no liquidation and no auction: at expiry the DAO simply keeps the gHOODZ and
+    /// @dev There is no liquidation and no auction: at expiry the DAO simply keeps the gHOOD and
     ///      writes the loan off. The borrower keeps every reserve token they drew.
     function test_DefaultSeizesCollateralAndWritesOffTheLoan() public {
         uint256 collateral = _collateralFor(loanAmount);
@@ -356,7 +356,7 @@ contract ClearinghouseTest is HoodzStackSetup {
     }
 
     /// @dev Seized collateral leaves the policy only by being destroyed. That burn is what makes
-    ///      a defaulted Hoodz Loan deflationary for everyone still holding HOODZ.
+    ///      a defaulted Hoodz Loan deflationary for everyone still holding HOOD.
     function test_BurnDestroysSeizedCollateral() public {
         uint256 loanID = _lend(loanAmount);
         vm.warp(block.timestamp + clearinghouse.DURATION() + 8 days);
@@ -371,12 +371,12 @@ contract ClearinghouseTest is HoodzStackSetup {
 
         assertEq(gHoodz.balanceOf(address(clearinghouse)), 0, "all seized collateral unwound");
         assertEq(supplyBefore - hoodz.totalSupply(), burned, "and burned, one for one");
-        assertApproxEqRel(burned, gHoodz.balanceFrom(seized), 1e12, "burned the HOODZ the gHOODZ was worth");
-        console2.log("HOODZ burned on default:", burned);
+        assertApproxEqRel(burned, gHoodz.balanceFrom(seized), 1e12, "burned the HOOD the gHOOD was worth");
+        console2.log("HOOD burned on default:", burned);
     }
 
     function test_RevertWhen_DefundingCollateral() public {
-        vm.expectRevert(); // OnlyBurnable: gHOODZ may never be swept out
+        vm.expectRevert(); // OnlyBurnable: gHOOD may never be swept out
         clearinghouse.defund(IERC20(address(gHoodz)), 1);
     }
 
@@ -463,12 +463,12 @@ contract ClearinghouseTest is HoodzStackSetup {
                                 HELPERS
     //////////////////////////////////////////////////////////////*/
 
-    /// @dev gHOODZ needed to back `principal_` at the currently offered loan-to-collateral.
+    /// @dev gHOOD needed to back `principal_` at the currently offered loan-to-collateral.
     function _collateralFor(uint256 principal_) internal view returns (uint256) {
         return (principal_ * 1e18) / clearinghouse.loanToCollateral();
     }
 
-    /// @dev Alice borrows `amount_` of reserve against gHOODZ through her escrow.
+    /// @dev Alice borrows `amount_` of reserve against gHOOD through her escrow.
     function _lend(uint256 amount_) internal returns (uint256 loanID) {
         vm.startPrank(alice);
         gHoodz.approve(address(clearinghouse), _collateralFor(amount_));

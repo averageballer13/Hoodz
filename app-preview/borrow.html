@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Borrow — Hoodz</title>
-<meta name="description" content="Hoodz Loans: borrow reserve against gHOODZ collateral at a fixed 0.5% with no liquidations, on Robinhood Chain.">
+<meta name="description" content="Hoodz Loans: borrow reserve against gHOOD collateral at a fixed 0.5% with no liquidations, on Robinhood Chain.">
 <meta name="color-scheme" content="dark">
 <link rel="icon" href="../assets/img/favicon.svg?v=2" type="image/svg+xml">
 <link rel="icon" href="../assets/img/favicon-32.png?v=2" sizes="32x32">
@@ -94,8 +94,8 @@
 
       <div class="page-head">
         <div>
-          <h2 class="metric__value">Borrow against gHOODZ. Never get liquidated.</h2>
-          <p class="muted">The Clearinghouse lends treasury reserve against gHOODZ at a fixed rate for a
+          <h2 class="metric__value">Borrow against gHOOD. Never get liquidated.</h2>
+          <p class="muted">The Clearinghouse lends treasury reserve against gHOOD at a fixed rate for a
             fixed term. There is no oracle, no health factor and no liquidation engine — if a loan is
             never repaid, the Treasury simply keeps the collateral it already holds.</p>
         </div>
@@ -108,11 +108,11 @@
             <span class="metric__label">
               oLTC
               <span class="info" tabindex="0" role="img"
-                    title="Loan-to-collateral: reserve lent per gHOODZ, set by governance below liquid backing."
-                    aria-label="Loan-to-collateral: reserve lent per gHOODZ, set by governance below liquid backing.">i</span>
+                    title="Loan-to-collateral: reserve lent per gHOOD, set by governance below liquid backing."
+                    aria-label="Loan-to-collateral: reserve lent per gHOOD, set by governance below liquid backing.">i</span>
             </span>
             <span class="metric__value"><span data-bind="oltc">2,894.12</span></span>
-            <span class="metric__sub"><span data-bind="reserveSymbol">USDC</span> per gHOODZ</span>
+            <span class="metric__sub"><span data-bind="reserveSymbol">USDC</span> per gHOOD</span>
           </div>
         </article>
         <article class="app-card">
@@ -152,19 +152,19 @@
             <div class="field">
               <label class="field__label" for="borrow-collateral">
                 <span>Collateral</span>
-                <span class="field__hint">Available <span data-bind="walletGHoodz">6.4218</span> gHOODZ</span>
+                <span class="field__hint">Available <span data-bind="walletGHoodz">6.4218</span> gHOOD</span>
               </label>
               <div class="input-pill">
                 <input id="borrow-collateral" name="collateral" type="text" inputmode="decimal"
                        autocomplete="off" spellcheck="false" placeholder="0.0000"
                        aria-describedby="borrow-collateral-usd">
-                <span class="input-pill__unit">gHOODZ</span>
+                <span class="input-pill__unit">gHOOD</span>
                 <button class="btn-max" type="button" id="borrow-max">Max</button>
               </div>
               <p class="field__hint" id="borrow-collateral-usd">≈ <span data-borrow-collateral-usd>$0.00</span> at the current index</p>
               <p class="notice is-gold" data-borrow-overdraft hidden>
                 <span class="notice__mark" aria-hidden="true">!</span>
-                <span>That is more gHOODZ than this demo wallet holds.</span>
+                <span>That is more gHOOD than this demo wallet holds.</span>
               </p>
             </div>
 
@@ -196,8 +196,8 @@
           <article class="app-card">
             <div class="card-head"><h3 class="card-title">Your position</h3></div>
             <dl class="kv">
-              <div class="kv__row"><dt>gHOODZ available</dt><dd><span data-bind="walletGHoodz">6.4218</span></dd></div>
-              <div class="kv__row"><dt>Collateral escrowed</dt><dd><span data-bind="loanCollateral">7.7500</span> gHOODZ</dd></div>
+              <div class="kv__row"><dt>gHOOD available</dt><dd><span data-bind="walletGHoodz">6.4218</span></dd></div>
+              <div class="kv__row"><dt>Collateral escrowed</dt><dd><span data-bind="loanCollateral">7.7500</span> gHOOD</dd></div>
               <div class="kv__row"><dt>Open loans</dt><dd data-bind="openLoans">3</dd></div>
               <div class="kv__row"><dt>Max new borrow</dt><dd><span data-bind="maxBorrow">18,585.45</span> <span data-bind="reserveSymbol">USDC</span></dd></div>
               <div class="kv__row is-total"><dt>Total debt</dt><dd class="kv__v"><span data-bind="loanDebt">22,466.60</span> <span data-bind="reserveSymbol">USDC</span></dd></div>
@@ -207,8 +207,8 @@
           <article class="app-card">
             <div class="card-head"><h3 class="card-title">How Hoodz Loans works</h3></div>
             <ol class="ol-steps muted">
-              <li>Deposit gHOODZ into a Cooler you own. Nobody else can move it.</li>
-              <li>The Clearinghouse lends <span data-bind="oltc">2,894.12</span> reserve per gHOODZ
+              <li>Deposit gHOOD into a Cooler you own. Nobody else can move it.</li>
+              <li>The Clearinghouse lends <span data-bind="oltc">2,894.12</span> reserve per gHOOD
                   — deliberately below liquid backing, so the Treasury is never underwater.</li>
               <li>Repay any amount at any time to release the matching slice of collateral.</li>
               <li>Miss the expiry and the Treasury claims the collateral. That is the whole
@@ -243,7 +243,7 @@
                 <td data-label="Loan">
                   <span class="asset"><span class="asset__mark" aria-hidden="true">12</span> Loan #12 <small>Opened 37 days ago</small></span>
                 </td>
-                <td data-label="Collateral" class="num-strong">4.5000 gHOODZ</td>
+                <td data-label="Collateral" class="num-strong">4.5000 gHOOD</td>
                 <td data-label="Principal" class="num-strong">13,023.54 USDC</td>
                 <td data-label="Interest">21.58 USDC</td>
                 <td data-label="Expires">
@@ -263,7 +263,7 @@
                 <td data-label="Loan">
                   <span class="asset"><span class="asset__mark" aria-hidden="true">9</span> Loan #9 <small>Expiring soon</small></span>
                 </td>
-                <td data-label="Collateral" class="num-strong">2.0000 gHOODZ</td>
+                <td data-label="Collateral" class="num-strong">2.0000 gHOOD</td>
                 <td data-label="Principal" class="num-strong">5,788.24 USDC</td>
                 <td data-label="Interest">9.59 USDC</td>
                 <td data-label="Expires">
@@ -283,7 +283,7 @@
                 <td data-label="Loan">
                   <span class="asset"><span class="asset__mark is-slate" aria-hidden="true">4</span> Loan #4 <small>Past expiry</small></span>
                 </td>
-                <td data-label="Collateral" class="num-strong">1.2500 gHOODZ</td>
+                <td data-label="Collateral" class="num-strong">1.2500 gHOOD</td>
                 <td data-label="Principal" class="num-strong">3,617.65 USDC</td>
                 <td data-label="Interest">6.00 USDC</td>
                 <td data-label="Expires"><span class="pill pill--expired">Expired 3d ago</span></td>
@@ -304,7 +304,7 @@
         <hr class="hairline" style="margin:1.4vw 0">
         <p class="notice is-gold">
           <span class="notice__mark" aria-hidden="true">!</span>
-          <span><b>Loan #4 is past expiry.</b> The Clearinghouse may claim its 1.2500 gHOODZ at any
+          <span><b>Loan #4 is past expiry.</b> The Clearinghouse may claim its 1.2500 gHOOD at any
             time. Repaying now still releases the collateral — until someone calls
             <code>claimDefaulted</code>.</span>
         </p>

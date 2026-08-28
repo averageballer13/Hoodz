@@ -8,8 +8,8 @@ import {console2} from "forge-std/console2.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import {IHoodzAuthority} from "../src/interfaces/IHoodzAuthority.sol";
-import {IHOODZ} from "../src/interfaces/IHOODZ.sol";
-import {IgHOODZ} from "../src/interfaces/IgHOODZ.sol";
+import {IHOOD} from "../src/interfaces/IHOOD.sol";
+import {IgHOOD} from "../src/interfaces/IgHOOD.sol";
 import {IStaking} from "../src/interfaces/IStaking.sol";
 import {ITreasury} from "../src/interfaces/ITreasury.sol";
 import {BondDepository} from "../src/policies/BondDepository.sol";
@@ -22,7 +22,7 @@ import {HoodzStackSetup} from "./utils/HoodzStackSetup.sol";
 ///         price down and demand push it back up, then redeem the vested payout.
 /// @dev    Market sizing here is deliberate rather than arbitrary, because the depository's own
 ///         formulas constrain it:
-///           * price is in HOODZ decimals, so 1e9 means "one quote token buys one HOODZ"
+///           * price is in HOOD decimals, so 1e9 means "one quote token buys one HOOD"
 ///             (the quote token is the 18-decimal reserve);
 ///           * `controlVariable = price * baseSupply / targetDebt` is stored in a uint64, so the
 ///             base supply must not dwarf the capacity by too many orders of magnitude;
@@ -36,13 +36,13 @@ contract BondDepositoryTest is HoodzStackSetup {
 
     uint256 internal marketId;
 
-    /// @dev Capacity in HOODZ (`capacityInQuote == false`): 100k HOODZ.
+    /// @dev Capacity in HOOD (`capacityInQuote == false`): 100k HOOD.
     uint256 internal constant CAPACITY = 100_000e9;
-    /// @dev Initial price in HOODZ decimals: parity, one reserve token per HOODZ.
+    /// @dev Initial price in HOOD decimals: parity, one reserve token per HOOD.
     uint256 internal constant INITIAL_PRICE = 1e9;
     /// @dev Max-debt buffer above target, 1e5 denominator. 100_000 == +100%.
     uint256 internal constant DEBT_BUFFER = 100_000;
-    /// @dev HOODZ supply seeded before the market opens, so the debt ratio is well defined.
+    /// @dev HOOD supply seeded before the market opens, so the debt ratio is well defined.
     uint256 internal constant SEEDED_SUPPLY = 10_000_000e9;
 
     uint256 internal constant VESTING = 7 days;
@@ -50,13 +50,13 @@ contract BondDepositoryTest is HoodzStackSetup {
     uint32 internal constant DEPOSIT_INTERVAL = 2 days;
     uint32 internal constant TUNE_INTERVAL = 2 days;
 
-    /// @dev `targetDebt * DEPOSIT_INTERVAL / DURATION` == 10k HOODZ; every bond below stays under.
+    /// @dev `targetDebt * DEPOSIT_INTERVAL / DURATION` == 10k HOOD; every bond below stays under.
     uint256 internal constant MAX_PAYOUT = (CAPACITY * DEPOSIT_INTERVAL) / DURATION;
 
     function setUp() public {
         _deployHoodzStack();
 
-        // Backing to mint bond payouts from, plus a live HOODZ supply: `debtRatio` divides by
+        // Backing to mint bond payouts from, plus a live HOOD supply: `debtRatio` divides by
         // `treasury.baseSupply()`, so it must be non-zero before any market is priced.
         _fundTreasury(50_000_000e18);
         _depositForHoodz(10_000_000e18, 0);
@@ -64,8 +64,8 @@ contract BondDepositoryTest is HoodzStackSetup {
 
         depo = new BondDepository(
             IHoodzAuthority(address(authority)),
-            IHOODZ(address(hoodz)),
-            IgHOODZ(address(gHoodz)),
+            IHOOD(address(hoodz)),
+            IgHOOD(address(gHoodz)),
             IStaking(address(staking)),
             ITreasury(address(treasury))
         );
@@ -73,7 +73,7 @@ contract BondDepositoryTest is HoodzStackSetup {
 
         treasury.enable(HoodzTreasury.STATUS.REWARDMANAGER, address(depo), address(0));
 
-        // Front end and DAO rewards off: they mint extra HOODZ on every deposit and would only
+        // Front end and DAO rewards off: they mint extra HOOD on every deposit and would only
         // add noise to the price and payout assertions below.
         depo.setRewards(0, 0);
 
@@ -101,7 +101,7 @@ contract BondDepositoryTest is HoodzStackSetup {
     }
 
     function test_PayoutForIsLinearInSize() public view {
-        assertEq(depo.payoutFor(1_000e18, marketId), 1_000e9, "1 reserve buys 1 HOODZ at parity");
+        assertEq(depo.payoutFor(1_000e18, marketId), 1_000e9, "1 reserve buys 1 HOOD at parity");
         assertEq(depo.payoutFor(100e18, marketId) * 10, depo.payoutFor(1_000e18, marketId), "linear in size");
     }
 
@@ -127,10 +127,10 @@ contract BondDepositoryTest is HoodzStackSetup {
         assertEq(expiry, block.timestamp + VESTING, "fixed-term vesting");
         assertEq(index, 0, "alice's first note");
 
-        // The payout is minted, staked, and held as gHOODZ until the note is redeemed.
+        // The payout is minted, staked, and held as gHOOD until the note is redeemed.
         assertEq(gHoodz.balanceOf(address(depo)) - gBefore, gHoodz.balanceTo(payout), "payout must be staked");
-        assertEq(hoodz.balanceOf(alice), 0, "the bonder receives a note, not loose HOODZ");
-        assertEq(hoodz.balanceOf(address(depo)), 0, "no HOODZ should be left idle in the depository");
+        assertEq(hoodz.balanceOf(alice), 0, "the bonder receives a note, not loose HOOD");
+        assertEq(hoodz.balanceOf(address(depo)), 0, "no HOOD should be left idle in the depository");
     }
 
     function test_DepositSendsTheQuoteTokenToTheTreasury() public {
@@ -211,7 +211,7 @@ contract BondDepositoryTest is HoodzStackSetup {
         assertGt(depo.debtRatio(marketId), 0, "the bond must show up in the debt ratio");
     }
 
-    /// @dev A cheaper price buys more HOODZ per quote token - the incentive to wait.
+    /// @dev A cheaper price buys more HOOD per quote token - the incentive to wait.
     function test_PayoutImprovesAsThePriceDecays() public {
         uint256 payoutNow = depo.payoutFor(1_000e18, marketId);
 
@@ -249,7 +249,7 @@ contract BondDepositoryTest is HoodzStackSetup {
         (uint256 payout,, uint256 index) = _bond(alice, 1_000e18);
 
         (uint256 pending, bool matured) = depo.pendingFor(alice, index);
-        assertEq(pending, gHoodz.balanceTo(payout), "the note is denominated in gHOODZ");
+        assertEq(pending, gHoodz.balanceTo(payout), "the note is denominated in gHOOD");
         assertFalse(matured, "not matured before vesting");
 
         vm.warp(block.timestamp + VESTING);
@@ -270,7 +270,7 @@ contract BondDepositoryTest is HoodzStackSetup {
         uint256 redeemed = depo.redeem(alice, indexes, true);
 
         assertGt(redeemed, 0, "redeem must pay out");
-        assertEq(gHoodz.balanceOf(alice), redeemed, "alice holds the gHOODZ");
+        assertEq(gHoodz.balanceOf(alice), redeemed, "alice holds the gHOOD");
 
         (uint256 pending,) = depo.pendingFor(alice, index);
         assertEq(pending, 0, "the note is spent");
@@ -290,7 +290,7 @@ contract BondDepositoryTest is HoodzStackSetup {
     }
 
     /// @dev The payout is staked the moment it is minted, so a note that vests across several
-    ///      epochs is worth more HOODZ when it is redeemed than it was when it was bought.
+    ///      epochs is worth more HOOD when it is redeemed than it was when it was bought.
     function test_BondAccruesRebasesWhileVesting() public {
         (uint256 payout,, uint256 index) = _bond(alice, 1_000e18);
 
@@ -347,7 +347,7 @@ contract BondDepositoryTest is HoodzStackSetup {
     }
 
     /// @dev Buys a bond for `user_` with `amount_` of the quote token and no slippage limit.
-    /// @return payout HOODZ owed by the new note.
+    /// @return payout HOOD owed by the new note.
     /// @return expiry Timestamp the note matures.
     /// @return index Index of the note in the user's note array.
     function _bond(address user_, uint256 amount_)

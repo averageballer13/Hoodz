@@ -6,8 +6,8 @@ pragma solidity ^0.8.24;
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 /// @title  MockPonsToken
-/// @notice Stand-in for the HOODZ token the PONS launchpad deploys. TEST ONLY.
-/// @dev    This contract exists so the suite has something to point `IHOODZ` at. It is deliberately
+/// @notice Stand-in for the HOOD token the PONS launchpad deploys. TEST ONLY.
+/// @dev    This contract exists so the suite has something to point `IHOOD` at. It is deliberately
 ///         as dumb as the real thing:
 ///
 ///           * fixed supply, minted once in the constructor and never again;

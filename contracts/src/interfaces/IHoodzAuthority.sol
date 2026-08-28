@@ -15,7 +15,7 @@ pragma solidity ^0.8.24;
         trading fees, never out of new supply - there is no mint.
 
         Web    https://hoodz.finance
-        X      https://x.com/Hoodzfinancial
+        X      https://x.com/Hoodzfinance
         Code   https://github.com/averageballer13/Hoodz
 
         UNAUDITED. This code has never been audited. Read it before you
@@ -29,7 +29,7 @@ pragma solidity ^0.8.24;
 ///          - governor: protocol owner, can rewire every module and reassign every role
 ///          - guardian: emergency multisig, can act on time-sensitive policy
 ///          - policy:   parameter setter (bond markets, staking warmup, distributor rates)
-///          - vault:    the only address allowed to mint HOODZ (the Hoodz Treasury)
+///          - vault:    the only address allowed to mint HOOD (the Hoodz Treasury)
 interface IHoodzAuthority {
     /* ========================================= EVENTS ========================================= */
 
@@ -65,7 +65,7 @@ interface IHoodzAuthority {
     /// @return The policy address.
     function policy() external view returns (address);
 
-    /// @notice Address currently holding the vault role (the only HOODZ minter).
+    /// @notice Address currently holding the vault role (the only HOOD minter).
     /// @return The vault address.
     function vault() external view returns (address);
 }

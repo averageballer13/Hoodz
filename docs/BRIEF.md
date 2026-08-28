@@ -1,4 +1,4 @@
-# HOODZ — Master Brief
+# HOOD — Master Brief
 
 > Shared source of truth for every agent/contributor working on this repo.
 > Read this before writing a single line.
@@ -11,9 +11,9 @@ Nothing about the mechanism design changes; only the naming, the chain, and the 
 | Olympus            | Hoodz           |
 | ------------------ | ------------------ |
 | Olympus DAO        | Hoodz           |
-| OHM                | HOODZ               |
-| sOHM               | sHOODZ              |
-| gOHM               | gHOODZ              |
+| OHM                | HOOD               |
+| sOHM               | sHOOD              |
+| gOHM               | gHOOD              |
 | Ethereum L1        | **Robinhood Chain** (EVM L2) |
 | Cooler Loans       | **Hoodz Loans**     |
 | Emissions Manager  | Emissions Manager  |
@@ -21,7 +21,7 @@ Nothing about the mechanism design changes; only the naming, the chain, and the 
 | Convertible Deposits (CD) | Convertible Deposits (CD) |
 | Olympus Treasury   | Hoodz Treasury      |
 
-**The HOODZ token is launched on PONS** — the non-custodial launchpad of Robinhood Chain.
+**The HOOD token is launched on PONS** — the non-custodial launchpad of Robinhood Chain.
 Everything token-launch related must be PONS-native (see §4).
 
 ## 2. Network facts (verified)
@@ -150,7 +150,7 @@ At ≥1920px: `padding: 19.2px 35.52px; font-size: 18px`.
    toggle row = circular `3.2vw/61px` icon ring (`inset 0 0 0 2px var(--grey)`) with a
    `+`→`−` cross (2px bars, 45% length) + `h3` question. Panel animates height.
 7. **Prefooter CTA** `.s-cta-prefooter` — black, `padding-top:120px`, centered h2
-   "Be smart, use HOODZ" + `ENTER HOODZ` `.btn-pr.dark`, giant artwork `75vw/1440px` below.
+   "Be smart, use HOOD" + `ENTER HOOD` `.btn-pr.dark`, giant artwork `75vw/1440px` below.
 8. **Footer** `.footer` — bg `--brand-black`, grid `2fr 1fr 1fr 1fr`, `column-gap 5vw`,
    brand mark `11.1vw/213px`, newsletter pill input (`height 2.9vw; border-radius 100vw;
    padding .7vw 5.55vw .7vw 1.4vw`) with submit arrow inset right, social icons `2.9vw/55px`.
@@ -178,7 +178,7 @@ PONS = the non-custodial launchpad on Robinhood Chain. V2 model:
 4. Non-custodial: the launchpad never holds user funds; every tx is signed by the user's wallet.
 
 Implications for our contracts:
-* `HOODZ` must be a clean, permissionless ERC20 at launch (no transfer tax, no blacklist,
+* `HOOD` must be a clean, permissionless ERC20 at launch (no transfer tax, no blacklist,
   no pausable transfer) so it is PONS-compatible. Mint authority is granted **after**
   graduation to the Treasury/vault, guarded by `HoodzAuthority`.
 * Ship `contracts/src/pons/` with:
@@ -187,7 +187,7 @@ Implications for our contracts:
     (curve reserve token, target raise, graduation threshold, LP fee tier, lock beneficiary).
   * `HoodzLaunchGuard.sol` — enforces that mint authority cannot move to the protocol
     before `graduated == true`, and that the LP position is locked forever.
-  * `FeeRouterBuyback.sol` — receives protocol fee share, buys HOODZ on the graduated v4
+  * `FeeRouterBuyback.sol` — receives protocol fee share, buys HOOD on the graduated v4
     pool and burns it (mirrors PONS's own buyback-and-burn).
 * Deploy script must support both `--chain 4663` and `--chain 46630`, and print a
   PONS-ready launch manifest (`docs/pons-launch.json`).

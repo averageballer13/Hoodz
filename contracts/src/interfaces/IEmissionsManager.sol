@@ -15,7 +15,7 @@ pragma solidity ^0.8.24;
         trading fees, never out of new supply - there is no mint.
 
         Web    https://hoodz.finance
-        X      https://x.com/Hoodzfinancial
+        X      https://x.com/Hoodzfinance
         Code   https://github.com/averageballer13/Hoodz
 
         UNAUDITED. This code has never been audited. Read it before you
@@ -24,16 +24,16 @@ pragma solidity ^0.8.24;
 
 /// @title  IEmissionsManager
 /// @notice Interface of the Hoodz Emissions Manager, the policy that sells newly minted
-///         HOODZ into the market whenever HOODZ trades at a premium to its backing.
+///         HOOD into the market whenever HOOD trades at a premium to its backing.
 /// @dev    UNAUDITED. Do not use in production without a full audit.
 ///
 ///         FIXED POINT CONVENTIONS
 ///         - `ONE` (1e18) is the fixed point unit for every ratio: price, backing, premium,
 ///           emission rate.
-///         - `price`   : whole reserve tokens per whole HOODZ, 1e18.
-///         - `backing` : whole reserve tokens of treasury backing per whole HOODZ, 1e18.
-///         - `premium` : `price / backing - 1`, 1e18 (0 when HOODZ trades at or below backing).
-///         - HOODZ amounts are raw 1e9 units.
+///         - `price`   : whole reserve tokens per whole HOOD, 1e18.
+///         - `backing` : whole reserve tokens of treasury backing per whole HOOD, 1e18.
+///         - `premium` : `price / backing - 1`, 1e18 (0 when HOOD trades at or below backing).
+///         - HOOD amounts are raw 1e9 units.
 interface IEmissionsManager {
     /* ------------------------------------------------------------------ events */
 
@@ -47,7 +47,7 @@ interface IEmissionsManager {
     event MinimumPremiumChanged(uint256 newMinimumPremium);
     /// @notice Emitted when governance changes the bond vesting period.
     event VestingPeriodChanged(uint48 newVestingPeriod);
-    /// @notice Emitted when governance updates the recorded backing per HOODZ.
+    /// @notice Emitted when governance updates the recorded backing per HOOD.
     event BackingChanged(uint256 newBacking);
     /// @notice Emitted when a daily emission market is opened.
     event MarketOpened(uint256 indexed marketId, uint256 emission, uint256 premium, uint256 minimumPrice);
@@ -88,8 +88,8 @@ interface IEmissionsManager {
     /// @notice Configure and activate the manager.
     /// @param baseEmissionRate_ Fraction of supply emitted per day at the minimum premium, 1e18.
     /// @param minimumPremium_   Premium below which nothing is emitted, 1e18.
-    /// @param vestingPeriod_    Seconds a bond buyer waits for their HOODZ.
-    /// @param backing_          Reserve backing per whole HOODZ, 1e18.
+    /// @param vestingPeriod_    Seconds a bond buyer waits for their HOOD.
+    /// @param backing_          Reserve backing per whole HOOD, 1e18.
     /// @param restartTimeframe_ Seconds after a shutdown during which `restart()` is allowed.
     function initialize(
         uint256 baseEmissionRate_,
@@ -103,7 +103,7 @@ interface IEmissionsManager {
     /// @param newRate New rate, 1e18 fixed point, in `(0, 1e18]`.
     function changeBaseEmissionRate(uint256 newRate) external;
 
-    /// @notice Change the minimum premium required before HOODZ is emitted.
+    /// @notice Change the minimum premium required before HOOD is emitted.
     /// @param newMinimumPremium New premium, 1e18 fixed point, strictly positive.
     function changeMinimumPremium(uint256 newMinimumPremium) external;
 
@@ -111,14 +111,14 @@ interface IEmissionsManager {
     /// @param newVestingPeriod New vesting period in seconds.
     function changeVestingPeriod(uint48 newVestingPeriod) external;
 
-    /// @notice Update the recorded treasury backing per HOODZ.
+    /// @notice Update the recorded treasury backing per HOOD.
     /// @param newBacking New backing, 1e18 fixed point; may move at most 10% per call.
     function setBacking(uint256 newBacking) external;
 
     /// @notice Resume emissions after a shutdown, inside the restart window.
     function restart() external;
 
-    /// @notice Halt emissions, close the live market, burn unsold HOODZ and return proceeds.
+    /// @notice Halt emissions, close the live market, burn unsold HOOD and return proceeds.
     function shutdown() external;
 
     /* ------------------------------------------------------------------- views */
@@ -130,23 +130,23 @@ interface IEmissionsManager {
     /// @notice Size of the next emission at the current oracle price.
     /// @dev    `emission = supply * (premium - minimumPremium) / (1 + premium) * baseEmissionRate`.
     /// @return premium  Current premium, 1e18.
-    /// @return emission HOODZ to mint and sell, raw 1e9 units; 0 while the premium is too low.
+    /// @return emission HOOD to mint and sell, raw 1e9 units; 0 while the premium is too low.
     function getNextEmission() external view returns (uint256 premium, uint256 emission);
 
-    /// @notice Circulating HOODZ supply used as the emission base.
-    /// @return supply Raw 1e9 HOODZ units, taken from the treasury's base supply.
+    /// @notice Circulating HOOD supply used as the emission base.
+    /// @return supply Raw 1e9 HOOD units, taken from the treasury's base supply.
     function getSupply() external view returns (uint256 supply);
 
     /// @notice Fraction of supply emitted per day at the minimum premium, 1e18.
     function baseEmissionRate() external view returns (uint256);
 
-    /// @notice Premium below which no HOODZ is emitted, 1e18.
+    /// @notice Premium below which no HOOD is emitted, 1e18.
     function minimumPremium() external view returns (uint256);
 
     /// @notice Vesting period applied to emission markets, in seconds.
     function vestingPeriod() external view returns (uint48);
 
-    /// @notice Reserve backing per whole HOODZ, 1e18.
+    /// @notice Reserve backing per whole HOOD, 1e18.
     function backing() external view returns (uint256);
 
     /// @notice Seconds after a shutdown during which `restart()` is allowed.

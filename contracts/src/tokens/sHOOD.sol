@@ -15,7 +15,7 @@ pragma solidity ^0.8.24;
         trading fees, never out of new supply - there is no mint.
 
         Web    https://hoodz.finance
-        X      https://x.com/Hoodzfinancial
+        X      https://x.com/Hoodzfinance
         Code   https://github.com/averageballer13/Hoodz
 
         UNAUDITED. This code has never been audited. Read it before you
@@ -27,13 +27,13 @@ import {EIP712} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {Nonces} from "@openzeppelin/contracts/utils/Nonces.sol";
 
-import {IsHOODZ} from "../interfaces/IsHOODZ.sol";
-import {IgHOODZ} from "../interfaces/IgHOODZ.sol";
+import {IsHOOD} from "../interfaces/IsHOOD.sol";
+import {IgHOOD} from "../interfaces/IgHOOD.sol";
 import {IHoodzAuthority} from "../interfaces/IHoodzAuthority.sol";
 import {HoodzAccessControlled} from "../types/HoodzAccessControlled.sol";
 
-/// @title  sHOODZ
-/// @notice Staked HOODZ: a rebasing receipt token (9 decimals) that grows every epoch.
+/// @title  sHOOD
+/// @notice Staked HOOD: a rebasing receipt token (9 decimals) that grows every epoch.
 /// @dev    UNAUDITED. Do not use in production without a full audit.
 ///
 ///         GONS ACCOUNTING (faithful port of sOHM)
@@ -53,35 +53,35 @@ import {HoodzAccessControlled} from "../types/HoodzAccessControlled.sol";
 ///         TOTAL_GONS is the largest multiple of INITIAL_FRAGMENTS_SUPPLY that fits in a uint256,
 ///         so _gonsPerFragment starts as an exact integer and stays maximally granular. The
 ///         MAX_SUPPLY cap keeps amount * _gonsPerFragment inside a uint256 forever.
-/// @notice The single view {sHOODZ} needs from the staking contract.
+/// @notice The single view {sHOOD} needs from the staking contract.
 /// @dev Declared locally rather than widening `IStaking`, which every other contract depends on.
 ///      `supplyInWarmup()` is a pure view over `gonsInWarmup` and never re-enters.
 interface IWarmupSupply {
-    /// @return sHOODZ held by the staking contract on behalf of depositors still in warmup.
+    /// @return sHOOD held by the staking contract on behalf of depositors still in warmup.
     function supplyInWarmup() external view returns (uint256);
 }
 
-contract sHOODZ is IsHOODZ, IERC20Metadata, EIP712, Nonces, HoodzAccessControlled {
+contract sHOOD is IsHOOD, IERC20Metadata, EIP712, Nonces, HoodzAccessControlled {
     /* ========================================= ERRORS ========================================= */
 
     /// @notice Caller is not the staking contract.
-    error sHOODZ_OnlyStaking(address caller);
+    error sHOOD_OnlyStaking(address caller);
     /// @notice Caller is not the treasury.
-    error sHOODZ_OnlyTreasury(address caller);
+    error sHOOD_OnlyTreasury(address caller);
     /// @notice A zero address was supplied where a real address is required.
-    error sHOODZ_ZeroAddress();
+    error sHOOD_ZeroAddress();
     /// @notice A one-shot setter was called twice.
-    error sHOODZ_AlreadySet();
+    error sHOOD_AlreadySet();
     /// @notice Balance is too small for the requested operation.
-    error sHOODZ_InsufficientBalance(address from, uint256 balance, uint256 needed);
+    error sHOOD_InsufficientBalance(address from, uint256 balance, uint256 needed);
     /// @notice Allowance is too small for the requested transferFrom.
-    error sHOODZ_InsufficientAllowance(address spender, uint256 currentAllowance, uint256 needed);
+    error sHOOD_InsufficientAllowance(address spender, uint256 currentAllowance, uint256 needed);
     /// @notice The operation would leave the account unable to cover its treasury debt.
-    error sHOODZ_DebtOutstanding(address account, uint256 debt);
+    error sHOOD_DebtOutstanding(address account, uint256 debt);
     /// @notice The permit signature is past its deadline.
-    error sHOODZ_ExpiredSignature(uint256 deadline);
+    error sHOOD_ExpiredSignature(uint256 deadline);
     /// @notice The permit signature does not belong to the owner.
-    error sHOODZ_InvalidSigner(address signer, address owner);
+    error sHOOD_InvalidSigner(address signer, address owner);
 
     /* ========================================= EVENTS ========================================= */
 
@@ -109,12 +109,12 @@ contract sHOODZ is IsHOODZ, IERC20Metadata, EIP712, Nonces, HoodzAccessControlle
 
     /* ======================================== CONSTANTS ======================================= */
 
-    /// @dev sHOODZ mirrors HOODZ: 9 decimals.
+    /// @dev sHOOD mirrors HOOD: 9 decimals.
     uint8 private constant DECIMALS = 9;
 
     uint256 private constant MAX_UINT256 = type(uint256).max;
 
-    /// @dev Genesis supply: 5,000,000 sHOODZ at 9 decimals (same seed as sOHM).
+    /// @dev Genesis supply: 5,000,000 sHOOD at 9 decimals (same seed as sOHM).
     uint256 private constant INITIAL_FRAGMENTS_SUPPLY = 5_000_000 * 10 ** 9;
 
     /// @dev Largest multiple of INITIAL_FRAGMENTS_SUPPLY representable in a uint256.
@@ -135,8 +135,8 @@ contract sHOODZ is IsHOODZ, IERC20Metadata, EIP712, Nonces, HoodzAccessControlle
     /// @notice The Hoodz Treasury, allowed to record debt against staked balances.
     address public treasury;
 
-    /// @notice The non-rebasing wrapper minted against sHOODZ held by the staking contract.
-    IgHOODZ public gHOODZ;
+    /// @notice The non-rebasing wrapper minted against sHOOD held by the staking contract.
+    IgHOOD public gHOOD;
 
     /// @notice Every rebase ever executed, oldest first.
     Rebase[] public rebases;
@@ -150,14 +150,14 @@ contract sHOODZ is IsHOODZ, IERC20Metadata, EIP712, Nonces, HoodzAccessControlle
     mapping(address => uint256) private _gonBalances;
     mapping(address => mapping(address => uint256)) private _allowedValue;
 
-    /// @notice HOODZ-denominated debt each account owes the treasury against its staked balance.
+    /// @notice HOOD-denominated debt each account owes the treasury against its staked balance.
     mapping(address => uint256) public debtBalances;
 
     /* ======================================== MODIFIERS ======================================= */
 
     /// @dev Restricts to the staking contract.
     modifier onlyStakingContract() {
-        if (msg.sender != stakingContract) revert sHOODZ_OnlyStaking(msg.sender);
+        if (msg.sender != stakingContract) revert sHOOD_OnlyStaking(msg.sender);
         _;
     }
 
@@ -172,18 +172,18 @@ contract sHOODZ is IsHOODZ, IERC20Metadata, EIP712, Nonces, HoodzAccessControlle
     /* ===================================== INITIALISATION ===================================== */
 
     /// @notice Set the genesis index, once. Stored in gons so index() tracks rebase growth.
-    /// @param _index Starting index in sHOODZ terms, 9 decimals (1e9 for a fresh launch).
+    /// @param _index Starting index in sHOOD terms, 9 decimals (1e9 for a fresh launch).
     function setIndex(uint256 _index) external onlyGovernor {
-        if (INDEX != 0) revert sHOODZ_AlreadySet();
+        if (INDEX != 0) revert sHOOD_AlreadySet();
         INDEX = gonsForBalance(_index);
     }
 
-    /// @notice Set the gHOODZ wrapper, once.
-    /// @param _gHOODZ Address of the gHOODZ token.
-    function setgHOODZ(address _gHOODZ) external onlyGovernor {
-        if (address(gHOODZ) != address(0)) revert sHOODZ_AlreadySet();
-        if (_gHOODZ == address(0)) revert sHOODZ_ZeroAddress();
-        gHOODZ = IgHOODZ(_gHOODZ);
+    /// @notice Set the gHOOD wrapper, once.
+    /// @param _gHOOD Address of the gHOOD token.
+    function setgHOOD(address _gHOOD) external onlyGovernor {
+        if (address(gHOOD) != address(0)) revert sHOOD_AlreadySet();
+        if (_gHOOD == address(0)) revert sHOOD_ZeroAddress();
+        gHOOD = IgHOOD(_gHOOD);
     }
 
     /// @notice Hand the entire supply to the staking contract and wire the treasury, once.
@@ -191,8 +191,8 @@ contract sHOODZ is IsHOODZ, IERC20Metadata, EIP712, Nonces, HoodzAccessControlle
     /// @param _treasury        Address of the Hoodz Treasury.
     /// @return The total supply now held by the staking contract, 9 decimals.
     function initialize(address _stakingContract, address _treasury) external onlyGovernor returns (uint256) {
-        if (stakingContract != address(0)) revert sHOODZ_AlreadySet();
-        if (_stakingContract == address(0) || _treasury == address(0)) revert sHOODZ_ZeroAddress();
+        if (stakingContract != address(0)) revert sHOOD_AlreadySet();
+        if (_stakingContract == address(0) || _treasury == address(0)) revert sHOOD_ZeroAddress();
 
         stakingContract = _stakingContract;
         treasury = _treasury;
@@ -206,9 +206,9 @@ contract sHOODZ is IsHOODZ, IERC20Metadata, EIP712, Nonces, HoodzAccessControlle
 
     /* ========================================= REBASE ========================================= */
 
-    /// @notice Increase the supply by profit_, distributing it pro-rata to every sHOODZ holder.
+    /// @notice Increase the supply by profit_, distributing it pro-rata to every sHOOD holder.
     /// @dev    Only the staking contract may call this, once per epoch.
-    /// @param profit_ HOODZ added to the staked pool this epoch, 9 decimals.
+    /// @param profit_ HOOD added to the staked pool this epoch, 9 decimals.
     /// @param epoch_  Epoch number this rebase belongs to.
     /// @return The new total supply, 9 decimals.
     function rebase(uint256 profit_, uint256 epoch_) public override onlyStakingContract returns (uint256) {
@@ -269,16 +269,16 @@ contract sHOODZ is IsHOODZ, IERC20Metadata, EIP712, Nonces, HoodzAccessControlle
     /// @notice Token symbol.
     /// @return The token symbol.
     function symbol() public pure override returns (string memory) {
-        return "sHOODZ";
+        return "sHOOD";
     }
 
-    /// @notice Number of decimals used by sHOODZ.
+    /// @notice Number of decimals used by sHOOD.
     /// @return Always 9.
     function decimals() public pure override returns (uint8) {
         return DECIMALS;
     }
 
-    /// @notice Total sHOODZ supply, including the reserve held by the staking contract.
+    /// @notice Total sHOOD supply, including the reserve held by the staking contract.
     /// @return The total supply, 9 decimals.
     function totalSupply() public view override returns (uint256) {
         return _totalSupply;
@@ -298,16 +298,16 @@ contract sHOODZ is IsHOODZ, IERC20Metadata, EIP712, Nonces, HoodzAccessControlle
         return _gonBalances[who_];
     }
 
-    /// @notice Convert an sHOODZ amount into gons at the current rate.
-    /// @param amount_ sHOODZ amount, 9 decimals.
+    /// @notice Convert an sHOOD amount into gons at the current rate.
+    /// @param amount_ sHOOD amount, 9 decimals.
     /// @return The equivalent number of gons.
     function gonsForBalance(uint256 amount_) public view override returns (uint256) {
         return amount_ * _gonsPerFragment;
     }
 
-    /// @notice Convert gons into an sHOODZ amount at the current rate.
+    /// @notice Convert gons into an sHOOD amount at the current rate.
     /// @param gons_ Number of gons.
-    /// @return The equivalent sHOODZ amount, 9 decimals.
+    /// @return The equivalent sHOOD amount, 9 decimals.
     function balanceForGons(uint256 gons_) public view override returns (uint256) {
         return gons_ / _gonsPerFragment;
     }
@@ -315,36 +315,36 @@ contract sHOODZ is IsHOODZ, IERC20Metadata, EIP712, Nonces, HoodzAccessControlle
     /// @notice Supply owned by users rather than parked in the staking contract.
     /// @dev    Two slices live inside `balanceOf(stakingContract)` but are economically owned by
     ///         users, so both are added back:
-    ///           - sHOODZ wrapped into gHOODZ, which is transferred TO the staking contract;
-    ///           - sHOODZ sitting in warmup, still credited to the depositor.
+    ///           - sHOOD wrapped into gHOOD, which is transferred TO the staking contract;
+    ///           - sHOOD sitting in warmup, still credited to the depositor.
     ///         Omitting the warmup slice would make {HoodzStaking.rebase} read every warmup deposit
     ///         as distributable surplus and hand it to existing stakers, leaving the depositor's
     ///         principal unbacked. This mirrors sOHM exactly.
-    /// @return The circulating sHOODZ supply, 9 decimals.
+    /// @return The circulating sHOOD supply, 9 decimals.
     function circulatingSupply() public view override returns (uint256) {
-        uint256 wrapped = address(gHOODZ) == address(0) ? 0 : gHOODZ.balanceFrom(gHOODZ.totalSupply());
+        uint256 wrapped = address(gHOOD) == address(0) ? 0 : gHOOD.balanceFrom(gHOOD.totalSupply());
         uint256 warmup = stakingContract == address(0) ? 0 : IWarmupSupply(stakingContract).supplyInWarmup();
         return _totalSupply - balanceOf(stakingContract) + wrapped + warmup;
     }
 
-    /// @notice Growth-adjusted index: what one sHOODZ staked at genesis is worth today.
+    /// @notice Growth-adjusted index: what one sHOOD staked at genesis is worth today.
     /// @return The index, 9 decimals.
     function index() public view override returns (uint256) {
         return balanceForGons(INDEX);
     }
 
-    /// @notice Convert an sHOODZ amount (9 decimals) into gHOODZ terms (18 decimals).
-    /// @param amount_ sHOODZ amount.
-    /// @return The equivalent gHOODZ amount.
+    /// @notice Convert an sHOOD amount (9 decimals) into gHOOD terms (18 decimals).
+    /// @param amount_ sHOOD amount.
+    /// @return The equivalent gHOOD amount.
     function toG(uint256 amount_) external view override returns (uint256) {
-        return gHOODZ.balanceTo(amount_);
+        return gHOOD.balanceTo(amount_);
     }
 
-    /// @notice Convert a gHOODZ amount (18 decimals) into sHOODZ terms (9 decimals).
-    /// @param amount_ gHOODZ amount.
-    /// @return The equivalent sHOODZ amount.
+    /// @notice Convert a gHOOD amount (18 decimals) into sHOOD terms (9 decimals).
+    /// @param amount_ gHOOD amount.
+    /// @return The equivalent sHOOD amount.
     function fromG(uint256 amount_) external view override returns (uint256) {
-        return gHOODZ.balanceFrom(amount_);
+        return gHOOD.balanceFrom(amount_);
     }
 
     /// @notice Remaining allowance of a spender over an owner balance.
@@ -363,7 +363,7 @@ contract sHOODZ is IsHOODZ, IERC20Metadata, EIP712, Nonces, HoodzAccessControlle
 
     /* ======================================== TRANSFERS ======================================= */
 
-    /// @notice Move sHOODZ from the caller to another account.
+    /// @notice Move sHOOD from the caller to another account.
     /// @param to_    Recipient.
     /// @param value_ Amount, 9 decimals.
     /// @return Always true; reverts otherwise.
@@ -372,7 +372,7 @@ contract sHOODZ is IsHOODZ, IERC20Metadata, EIP712, Nonces, HoodzAccessControlle
         return true;
     }
 
-    /// @notice Move sHOODZ on behalf of an owner, debiting the caller allowance.
+    /// @notice Move sHOOD on behalf of an owner, debiting the caller allowance.
     /// @param from_  Token owner.
     /// @param to_    Recipient.
     /// @param value_ Amount, 9 decimals.
@@ -381,7 +381,7 @@ contract sHOODZ is IsHOODZ, IERC20Metadata, EIP712, Nonces, HoodzAccessControlle
         uint256 currentAllowance = _allowedValue[from_][msg.sender];
         if (currentAllowance != type(uint256).max) {
             if (currentAllowance < value_) {
-                revert sHOODZ_InsufficientAllowance(msg.sender, currentAllowance, value_);
+                revert sHOOD_InsufficientAllowance(msg.sender, currentAllowance, value_);
             }
             unchecked {
                 _allowedValue[from_][msg.sender] = currentAllowance - value_;
@@ -395,11 +395,11 @@ contract sHOODZ is IsHOODZ, IERC20Metadata, EIP712, Nonces, HoodzAccessControlle
 
     /// @dev Convert the fragment amount into gons at the CURRENT rate, then move the gons.
     function _transfer(address from_, address to_, uint256 value_) internal {
-        if (to_ == address(0)) revert sHOODZ_ZeroAddress();
+        if (to_ == address(0)) revert sHOOD_ZeroAddress();
 
         uint256 gonValue = gonsForBalance(value_);
         uint256 fromGons = _gonBalances[from_];
-        if (fromGons < gonValue) revert sHOODZ_InsufficientBalance(from_, balanceForGons(fromGons), value_);
+        if (fromGons < gonValue) revert sHOOD_InsufficientBalance(from_, balanceForGons(fromGons), value_);
 
         unchecked {
             _gonBalances[from_] = fromGons - gonValue;
@@ -407,7 +407,7 @@ contract sHOODZ is IsHOODZ, IERC20Metadata, EIP712, Nonces, HoodzAccessControlle
         _gonBalances[to_] += gonValue;
 
         uint256 debt = debtBalances[from_];
-        if (debt != 0 && balanceOf(from_) < debt) revert sHOODZ_DebtOutstanding(from_, debt);
+        if (debt != 0 && balanceOf(from_) < debt) revert sHOOD_DebtOutstanding(from_, debt);
 
         emit Transfer(from_, to_, value_);
     }
@@ -450,7 +450,7 @@ contract sHOODZ is IsHOODZ, IERC20Metadata, EIP712, Nonces, HoodzAccessControlle
 
     /// @dev Write an allowance and log it.
     function _approve(address owner_, address spender_, uint256 value_) internal {
-        if (owner_ == address(0) || spender_ == address(0)) revert sHOODZ_ZeroAddress();
+        if (owner_ == address(0) || spender_ == address(0)) revert sHOOD_ZeroAddress();
         _allowedValue[owner_][spender_] = value_;
         emit Approval(owner_, spender_, value_);
     }
@@ -472,12 +472,12 @@ contract sHOODZ is IsHOODZ, IERC20Metadata, EIP712, Nonces, HoodzAccessControlle
         bytes32 r_,
         bytes32 s_
     ) external {
-        if (block.timestamp > deadline_) revert sHOODZ_ExpiredSignature(deadline_);
+        if (block.timestamp > deadline_) revert sHOOD_ExpiredSignature(deadline_);
 
         bytes32 structHash =
             keccak256(abi.encode(PERMIT_TYPEHASH, owner_, spender_, value_, _useNonce(owner_), deadline_));
         address signer = ECDSA.recover(_hashTypedDataV4(structHash), v_, r_, s_);
-        if (signer != owner_) revert sHOODZ_InvalidSigner(signer, owner_);
+        if (signer != owner_) revert sHOOD_InvalidSigner(signer, owner_);
 
         _approve(owner_, spender_, value_);
     }
@@ -486,22 +486,22 @@ contract sHOODZ is IsHOODZ, IERC20Metadata, EIP712, Nonces, HoodzAccessControlle
 
     /// @notice Record or clear treasury debt taken against a staked balance.
     /// @dev    Only the treasury may call this. A debtor cannot transfer below its debt.
-    /// @param amount_ Debt delta in HOODZ terms, 9 decimals.
+    /// @param amount_ Debt delta in HOOD terms, 9 decimals.
     /// @param debtor_ Account carrying the debt.
     /// @param add_    True to add debt, false to repay it.
     function changeDebt(uint256 amount_, address debtor_, bool add_) external {
-        if (msg.sender != treasury) revert sHOODZ_OnlyTreasury(msg.sender);
+        if (msg.sender != treasury) revert sHOOD_OnlyTreasury(msg.sender);
 
         uint256 debt = debtBalances[debtor_];
         if (add_) {
             debt += amount_;
         } else {
-            if (debt < amount_) revert sHOODZ_InsufficientBalance(debtor_, debt, amount_);
+            if (debt < amount_) revert sHOOD_InsufficientBalance(debtor_, debt, amount_);
             unchecked {
                 debt -= amount_;
             }
         }
-        if (debt > balanceOf(debtor_)) revert sHOODZ_DebtOutstanding(debtor_, debt);
+        if (debt > balanceOf(debtor_)) revert sHOOD_DebtOutstanding(debtor_, debt);
 
         debtBalances[debtor_] = debt;
         emit LogDebtChanged(debtor_, amount_, add_);

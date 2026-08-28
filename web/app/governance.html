@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Governance — Hoodz</title>
-<meta name="description" content="Hoodz governance: proposal states, For/Against/Abstain voting with gHOODZ, and vote delegation on Robinhood Chain.">
+<meta name="description" content="Hoodz governance: proposal states, For/Against/Abstain voting with gHOOD, and vote delegation on Robinhood Chain.">
 <meta name="color-scheme" content="dark">
 <link rel="icon" href="/assets/img/favicon.svg?v=2" type="image/svg+xml">
 <link rel="icon" href="/assets/img/favicon-32.png?v=2" sizes="32x32">
@@ -94,7 +94,7 @@
 
       <div class="page-head">
         <div>
-          <h2 class="metric__value">gHOODZ votes. One token, one vote.</h2>
+          <h2 class="metric__value">gHOOD votes. One token, one vote.</h2>
           <p class="muted">Every parameter of the protocol — emissions, bond capacity, the Hoodz Loans
             oLTC, treasury allocations — moves through this queue. Proposals that pass sit in the
             timelock before anyone can execute them.</p>
@@ -105,15 +105,15 @@
         <article class="app-card">
           <div class="metric">
             <span class="metric__label">Your voting power</span>
-            <span class="metric__value sm"><span data-bind="votingPower">&mdash;</span> gHOODZ</span>
+            <span class="metric__value sm"><span data-bind="votingPower">&mdash;</span> gHOOD</span>
             <span class="metric__sub">Delegated to <span data-bind="delegateLabel">&mdash;</span></span>
           </div>
         </article>
         <article class="app-card">
           <div class="metric">
             <span class="metric__label">Quorum</span>
-            <span class="metric__value sm">— gHOODZ</span>
-            <span class="metric__sub">≈ — of the gHOODZ supply</span>
+            <span class="metric__value sm">— gHOOD</span>
+            <span class="metric__sub">≈ — of the gHOOD supply</span>
           </div>
         </article>
         <article class="app-card">
@@ -164,7 +164,7 @@
           <dl class="kv">
             <div class="kv__row"><dt>Connected wallet</dt><dd class="addr" data-bind="walletLabel">&mdash;</dd></div>
             <div class="kv__row"><dt>Current delegate</dt><dd class="addr" data-bind="delegateLabel">&mdash;</dd></div>
-            <div class="kv__row"><dt>gHOODZ balance</dt><dd><span data-bind="walletGHoodz">&mdash;</span></dd></div>
+            <div class="kv__row"><dt>gHOOD balance</dt><dd><span data-bind="walletGHoodz">&mdash;</span></dd></div>
             <div class="kv__row is-total"><dt>Votes</dt><dd class="kv__v"><span data-bind="votingPower">&mdash;</span></dd></div>
           </dl>
         </div>
@@ -172,9 +172,9 @@
         <hr class="hairline" style="margin:1.4vw 0">
         <p class="notice">
           <span class="notice__mark" aria-hidden="true">i</span>
-          <span><b>sHOODZ does not vote.</b> Rebasing balances cannot be checkpointed, so governance
-            weight lives in gHOODZ. Wrap on the <a class="link-underline" href="/app/stake.html">stake page</a>
-            to make your stake countable — the underlying HOODZ keeps compounding either way.</span>
+          <span><b>sHOOD does not vote.</b> Rebasing balances cannot be checkpointed, so governance
+            weight lives in gHOOD. Wrap on the <a class="link-underline" href="/app/stake.html">stake page</a>
+            to make your stake countable — the underlying HOOD keeps compounding either way.</span>
         </p>
       </section>
 
@@ -209,7 +209,7 @@
               </div>
               <h4 class="proposal__title">Route — of PONS pool fees into buyback-and-burn</h4>
               <p class="proposal__body">Points the FeeRouterBuyback contract at the graduated
-                HOODZ-USDC v4 pool and sets the protocol fee share to —. Bought HOODZ is burned, not
+                HOOD-USDC v4 pool and sets the protocol fee share to —. Bought HOOD is burned, not
                 held.</p>
               <p class="proposal__meta">
                 <span>Proposed by 0x8a41…c2d9</span>
@@ -219,19 +219,19 @@
             <div class="stack gap-16">
               <div class="vote">
                 <div class="vote__row">
-                  <span class="vote__meta"><span>For</span><b>0.00 gHOODZ · —</b></span>
+                  <span class="vote__meta"><span>For</span><b>0.00 gHOOD · —</b></span>
                   <span class="vote__track"><span class="vote__fill for" data-fill="0" role="img" aria-label="For: 0 percent"></span></span>
                 </div>
                 <div class="vote__row">
-                  <span class="vote__meta"><span>Against</span><b>0.00 gHOODZ · —</b></span>
+                  <span class="vote__meta"><span>Against</span><b>0.00 gHOOD · —</b></span>
                   <span class="vote__track"><span class="vote__fill against" data-fill="0" role="img" aria-label="Against: 0 percent"></span></span>
                 </div>
                 <div class="vote__row">
-                  <span class="vote__meta"><span>Abstain</span><b>0.00 gHOODZ · —</b></span>
+                  <span class="vote__meta"><span>Abstain</span><b>0.00 gHOOD · —</b></span>
                   <span class="vote__track"><span class="vote__fill abstain" data-fill="0" role="img" aria-label="Abstain: 0 percent"></span></span>
                 </div>
               </div>
-              <p class="quorum">Quorum 0 / — gHOODZ — voting has not started.</p>
+              <p class="quorum">Quorum 0 / — gHOOD — voting has not started.</p>
               <div class="action-row">
                 <button class="btn-ghost is-quiet" type="button" disabled aria-disabled="true">For</button>
                 <button class="btn-ghost is-quiet" type="button" disabled aria-disabled="true">Against</button>
@@ -248,7 +248,7 @@
                 <span class="proposal__id">HIP-14</span>
               </div>
               <h4 class="proposal__title">Switch on the Yield Repurchase Facility</h4>
-              <p class="proposal__body">Spends treasury yield on open-market HOODZ whenever the market
+              <p class="proposal__body">Spends treasury yield on open-market HOOD whenever the market
                 price sits below liquid backing. Weekly budget capped at — of realised yield.</p>
               <p class="proposal__meta">
                 <span>Proposed by 0x1f77…9ab3</span>
@@ -258,19 +258,19 @@
             <div class="stack gap-16">
               <div class="vote">
                 <div class="vote__row">
-                  <span class="vote__meta"><span>For</span><b>— gHOODZ · —</b></span>
+                  <span class="vote__meta"><span>For</span><b>— gHOOD · —</b></span>
                   <span class="vote__track"><span class="vote__fill for" data-fill="0.8173" role="img" aria-label="For: 81.73 percent"></span></span>
                 </div>
                 <div class="vote__row">
-                  <span class="vote__meta"><span>Against</span><b>— gHOODZ · —</b></span>
+                  <span class="vote__meta"><span>Against</span><b>— gHOOD · —</b></span>
                   <span class="vote__track"><span class="vote__fill against" data-fill="0.1445" role="img" aria-label="Against: 14.45 percent"></span></span>
                 </div>
                 <div class="vote__row">
-                  <span class="vote__meta"><span>Abstain</span><b>318.72 gHOODZ · —</b></span>
+                  <span class="vote__meta"><span>Abstain</span><b>318.72 gHOOD · —</b></span>
                   <span class="vote__track"><span class="vote__fill abstain" data-fill="0.0382" role="img" aria-label="Abstain: 3.82 percent"></span></span>
                 </div>
               </div>
-              <p class="quorum">Quorum — / — gHOODZ — met.</p>
+              <p class="quorum">Quorum — / — gHOOD — met.</p>
               <div class="action-row">
                 <button class="btn-ghost" type="button" data-vote="For" data-proposal="HIP-14">For</button>
                 <button class="btn-ghost" type="button" data-vote="Against" data-proposal="HIP-14">Against</button>
@@ -297,19 +297,19 @@
             <div class="stack gap-16">
               <div class="vote">
                 <div class="vote__row">
-                  <span class="vote__meta"><span>For</span><b>— gHOODZ · —</b></span>
+                  <span class="vote__meta"><span>For</span><b>— gHOOD · —</b></span>
                   <span class="vote__track"><span class="vote__fill for" data-fill="0.9574" role="img" aria-label="For: 95.74 percent"></span></span>
                 </div>
                 <div class="vote__row">
-                  <span class="vote__meta"><span>Against</span><b>402.11 gHOODZ · —</b></span>
+                  <span class="vote__meta"><span>Against</span><b>402.11 gHOOD · —</b></span>
                   <span class="vote__track"><span class="vote__fill against" data-fill="0.0344" role="img" aria-label="Against: 3.44 percent"></span></span>
                 </div>
                 <div class="vote__row">
-                  <span class="vote__meta"><span>Abstain</span><b>96.40 gHOODZ · —</b></span>
+                  <span class="vote__meta"><span>Abstain</span><b>96.40 gHOOD · —</b></span>
                   <span class="vote__track"><span class="vote__fill abstain" data-fill="0.0082" role="img" aria-label="Abstain: 0.82 percent"></span></span>
                 </div>
               </div>
-              <p class="quorum">Quorum — / — gHOODZ — met.</p>
+              <p class="quorum">Quorum — / — gHOOD — met.</p>
               <div class="action-row">
                 <button class="btn-ghost" type="button" data-mock-action="Queued for execution"
                         data-mock-note="Not available until the protocol is wired."
@@ -336,19 +336,19 @@
             <div class="stack gap-16">
               <div class="vote">
                 <div class="vote__row">
-                  <span class="vote__meta"><span>For</span><b>— gHOODZ · —</b></span>
+                  <span class="vote__meta"><span>For</span><b>— gHOOD · —</b></span>
                   <span class="vote__track"><span class="vote__fill for" data-fill="0.8166" role="img" aria-label="For: 81.66 percent"></span></span>
                 </div>
                 <div class="vote__row">
-                  <span class="vote__meta"><span>Against</span><b>— gHOODZ · —</b></span>
+                  <span class="vote__meta"><span>Against</span><b>— gHOOD · —</b></span>
                   <span class="vote__track"><span class="vote__fill against" data-fill="0.1626" role="img" aria-label="Against: 16.26 percent"></span></span>
                 </div>
                 <div class="vote__row">
-                  <span class="vote__meta"><span>Abstain</span><b>240.55 gHOODZ · —</b></span>
+                  <span class="vote__meta"><span>Abstain</span><b>240.55 gHOOD · —</b></span>
                   <span class="vote__track"><span class="vote__fill abstain" data-fill="0.0208" role="img" aria-label="Abstain: 2.08 percent"></span></span>
                 </div>
               </div>
-              <p class="quorum">Quorum — / — gHOODZ — met.</p>
+              <p class="quorum">Quorum — / — gHOOD — met.</p>
               <div class="action-row">
                 <button class="btn-ghost is-quiet" type="button" disabled aria-disabled="true"
                         title="Still inside the 48-hour timelock">Execute</button>
@@ -374,19 +374,19 @@
             <div class="stack gap-16">
               <div class="vote">
                 <div class="vote__row">
-                  <span class="vote__meta"><span>For</span><b>— gHOODZ · —</b></span>
+                  <span class="vote__meta"><span>For</span><b>— gHOOD · —</b></span>
                   <span class="vote__track"><span class="vote__fill for" data-fill="0.9598" role="img" aria-label="For: 95.98 percent"></span></span>
                 </div>
                 <div class="vote__row">
-                  <span class="vote__meta"><span>Against</span><b>88.15 gHOODZ · —</b></span>
+                  <span class="vote__meta"><span>Against</span><b>88.15 gHOOD · —</b></span>
                   <span class="vote__track"><span class="vote__fill against" data-fill="0.0059" role="img" aria-label="Against: 0.59 percent"></span></span>
                 </div>
                 <div class="vote__row">
-                  <span class="vote__meta"><span>Abstain</span><b>512.30 gHOODZ · —</b></span>
+                  <span class="vote__meta"><span>Abstain</span><b>512.30 gHOOD · —</b></span>
                   <span class="vote__track"><span class="vote__fill abstain" data-fill="0.0343" role="img" aria-label="Abstain: 3.43 percent"></span></span>
                 </div>
               </div>
-              <p class="quorum">Quorum — / — gHOODZ — met.</p>
+              <p class="quorum">Quorum — / — gHOOD — met.</p>
               <div class="action-row">
                 <a class="btn-ghost is-quiet" href="https://robinhoodchain.blockscout.com" rel="noopener noreferrer" target="_blank">View transaction</a>
               </div>
@@ -411,19 +411,19 @@
             <div class="stack gap-16">
               <div class="vote">
                 <div class="vote__row">
-                  <span class="vote__meta"><span>For</span><b>— gHOODZ · —</b></span>
+                  <span class="vote__meta"><span>For</span><b>— gHOOD · —</b></span>
                   <span class="vote__track"><span class="vote__fill for" data-fill="0.1914" role="img" aria-label="For: 19.14 percent"></span></span>
                 </div>
                 <div class="vote__row">
-                  <span class="vote__meta"><span>Against</span><b>— gHOODZ · —</b></span>
+                  <span class="vote__meta"><span>Against</span><b>— gHOOD · —</b></span>
                   <span class="vote__track"><span class="vote__fill against" data-fill="0.716" role="img" aria-label="Against: 71.60 percent"></span></span>
                 </div>
                 <div class="vote__row">
-                  <span class="vote__meta"><span>Abstain</span><b>— gHOODZ · —</b></span>
+                  <span class="vote__meta"><span>Abstain</span><b>— gHOOD · —</b></span>
                   <span class="vote__track"><span class="vote__fill abstain" data-fill="0.0926" role="img" aria-label="Abstain: 9.26 percent"></span></span>
                 </div>
               </div>
-              <p class="quorum">Quorum — / — gHOODZ — met, but Against carried the vote.</p>
+              <p class="quorum">Quorum — / — gHOOD — met, but Against carried the vote.</p>
               <div class="action-row">
                 <a class="btn-ghost is-quiet" href="https://robinhoodchain.blockscout.com" rel="noopener noreferrer" target="_blank">View transaction</a>
               </div>

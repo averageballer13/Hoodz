@@ -14,7 +14,7 @@ pragma solidity ^0.8.24;
         trading fees, never out of new supply - there is no mint.
 
         Web    https://hoodz.finance
-        X      https://x.com/Hoodzfinancial
+        X      https://x.com/Hoodzfinance
         Code   https://github.com/averageballer13/Hoodz
 
         UNAUDITED. This code has never been audited. Read it before you
@@ -24,8 +24,8 @@ pragma solidity ^0.8.24;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import {IsHOODZ} from "./interfaces/IsHOODZ.sol";
-import {IgHOODZ} from "./interfaces/IgHOODZ.sol";
+import {IsHOOD} from "./interfaces/IsHOOD.sol";
+import {IgHOOD} from "./interfaces/IgHOOD.sol";
 import {IDistributor} from "./interfaces/IDistributor.sol";
 import {IHoodzAuthority} from "./interfaces/IHoodzAuthority.sol";
 import {HoodzAccessControlled} from "./types/HoodzAccessControlled.sol";
@@ -35,14 +35,14 @@ import {HoodzAccessControlled} from "./types/HoodzAccessControlled.sol";
  * @notice The Hoodz staking + rebase engine. A faithful re-implementation of
  *         `OlympusStaking`, rebranded for Hoodz on Robinhood Chain (chainId 4663).
  *
- *         HOODZ is deposited here and represented by either:
- *           - sHOODZ, a rebasing 1:1 claim whose balance grows every epoch, or
- *           - gHOODZ, a non-rebasing "index wrapped" claim whose balance is constant
- *             while its HOODZ value grows with `index()`.
+ *         HOOD is deposited here and represented by either:
+ *           - sHOOD, a rebasing 1:1 claim whose balance grows every epoch, or
+ *           - gHOOD, a non-rebasing "index wrapped" claim whose balance is constant
+ *             while its HOOD value grows with `index()`.
  *
- *         Every epoch (`epoch.length` seconds) `rebase()` pays `epoch.distribute` HOODZ out
- *         to sHOODZ holders, pulls the next epoch's emission from the `Distributor`, and
- *         recomputes `epoch.distribute` as the surplus HOODZ sitting in this contract.
+ *         Every epoch (`epoch.length` seconds) `rebase()` pays `epoch.distribute` HOOD out
+ *         to sHOOD holders, pulls the next epoch's emission from the `Distributor`, and
+ *         recomputes `epoch.distribute` as the surplus HOOD sitting in this contract.
  *
  * @dev    UNAUDITED. Do not use in production without a full audit.
  */
@@ -63,7 +63,7 @@ contract HoodzStaking is HoodzAccessControlled {
     error HoodzStaking_ClaimsLocked(address account);
     /// @notice `account` has nothing sitting in warmup to forfeit.
     error HoodzStaking_NothingInWarmup(address account);
-    /// @notice This contract does not hold enough HOODZ to honour the unstake.
+    /// @notice This contract does not hold enough HOOD to honour the unstake.
     error HoodzStaking_InsufficientBalance(uint256 requested, uint256 available);
 
     /* ========================================= EVENTS ========================================= */
@@ -80,11 +80,11 @@ contract HoodzStaking is HoodzAccessControlled {
     event Forfeit(address indexed account, uint256 amount);
     /// @notice Emitted when an account flips third-party deposit/claim permission.
     event LockToggled(address indexed account, bool lock);
-    /// @notice Emitted on every withdrawal of HOODZ.
+    /// @notice Emitted on every withdrawal of HOOD.
     event Unstake(address indexed caller, address indexed to, uint256 amount, bool rebasing);
-    /// @notice Emitted when sHOODZ is wrapped into gHOODZ.
+    /// @notice Emitted when sHOOD is wrapped into gHOOD.
     event Wrap(address indexed to, uint256 sAmount, uint256 gAmount);
-    /// @notice Emitted when gHOODZ is unwrapped into sHOODZ.
+    /// @notice Emitted when gHOOD is unwrapped into sHOOD.
     event Unwrap(address indexed to, uint256 gAmount, uint256 sAmount);
     /// @notice Emitted once per epoch rollover.
     event Rebase(uint256 indexed epochNumber, uint256 distributed, uint256 nextDistribute, uint256 index);
@@ -94,7 +94,7 @@ contract HoodzStaking is HoodzAccessControlled {
     /// @param length     epoch duration in seconds
     /// @param number     epochs elapsed since inception
     /// @param end        unix timestamp at which the current epoch may be rolled
-    /// @param distribute HOODZ paid to sHOODZ holders at the next rollover
+    /// @param distribute HOOD paid to sHOOD holders at the next rollover
     struct Epoch {
         uint256 length;
         uint256 number;
@@ -102,8 +102,8 @@ contract HoodzStaking is HoodzAccessControlled {
         uint256 distribute;
     }
 
-    /// @param deposit HOODZ principal, returned verbatim by `forfeit()`
-    /// @param gons    sHOODZ gons held on behalf of the depositor while in warmup
+    /// @param deposit HOOD principal, returned verbatim by `forfeit()`
+    /// @param gons    sHOOD gons held on behalf of the depositor while in warmup
     /// @param expiry  epoch number at which the position becomes claimable
     /// @param lock    when true, third parties may deposit/claim for this account
     struct Claim {
@@ -115,12 +115,12 @@ contract HoodzStaking is HoodzAccessControlled {
 
     /* ======================================== STORAGE ========================================= */
 
-    /// @notice The HOODZ token being staked.
-    IERC20 public immutable HOODZ;
+    /// @notice The HOOD token being staked.
+    IERC20 public immutable HOOD;
     /// @notice The rebasing staked token.
-    IsHOODZ public immutable sHOODZ;
+    IsHOOD public immutable sHOOD;
     /// @notice The index-wrapped, non-rebasing staked token.
-    IgHOODZ public immutable gHOODZ;
+    IgHOOD public immutable gHOOD;
 
     /// @notice The live epoch.
     Epoch public epoch;
@@ -140,9 +140,9 @@ contract HoodzStaking is HoodzAccessControlled {
     /* ====================================== CONSTRUCTOR ======================================= */
 
     /**
-     * @param _hoodz            HOODZ token address
-     * @param _sHOODZ           sHOODZ token address
-     * @param _gHOODZ           gHOODZ token address
+     * @param _hoodz            HOOD token address
+     * @param _sHOOD           sHOOD token address
+     * @param _gHOOD           gHOOD token address
      * @param _epochLength     epoch duration in seconds
      * @param _firstEpochNumber epoch number to start counting from
      * @param _firstEpochTime  unix timestamp of the first epoch rollover
@@ -150,19 +150,19 @@ contract HoodzStaking is HoodzAccessControlled {
      */
     constructor(
         address _hoodz,
-        address _sHOODZ,
-        address _gHOODZ,
+        address _sHOOD,
+        address _gHOOD,
         uint256 _epochLength,
         uint256 _firstEpochNumber,
         uint256 _firstEpochTime,
         address _authority
     ) HoodzAccessControlled(IHoodzAuthority(_authority)) {
-        if (_hoodz == address(0) || _sHOODZ == address(0) || _gHOODZ == address(0)) revert HoodzStaking_ZeroAddress();
+        if (_hoodz == address(0) || _sHOOD == address(0) || _gHOOD == address(0)) revert HoodzStaking_ZeroAddress();
         if (_epochLength == 0) revert HoodzStaking_ZeroEpochLength();
 
-        HOODZ = IERC20(_hoodz);
-        sHOODZ = IsHOODZ(_sHOODZ);
-        gHOODZ = IgHOODZ(_gHOODZ);
+        HOOD = IERC20(_hoodz);
+        sHOOD = IsHOOD(_sHOOD);
+        gHOOD = IgHOOD(_gHOOD);
 
         epoch = Epoch({length: _epochLength, number: _firstEpochNumber, end: _firstEpochTime, distribute: 0});
     }
@@ -170,14 +170,14 @@ contract HoodzStaking is HoodzAccessControlled {
     /* ======================================== MUTATIVE ======================================== */
 
     /**
-     * @notice Deposit HOODZ and receive sHOODZ or gHOODZ, immediately or after the warmup.
+     * @notice Deposit HOOD and receive sHOOD or gHOOD, immediately or after the warmup.
      * @dev    Triggers `rebase()` first so the epoch is always current before accounting.
      * @param _to       recipient of the staked position
-     * @param _amount   HOODZ to deposit
-     * @param _rebasing true to receive sHOODZ, false to receive gHOODZ
+     * @param _amount   HOOD to deposit
+     * @param _rebasing true to receive sHOOD, false to receive gHOOD
      * @param _claim    true to skip warmup when `warmupPeriod == 0`
-     * @return The amount credited: HOODZ/sHOODZ terms when `_rebasing`, gHOODZ terms otherwise,
-     *         or the HOODZ principal parked in warmup.
+     * @return The amount credited: HOOD/sHOOD terms when `_rebasing`, gHOOD terms otherwise,
+     *         or the HOOD principal parked in warmup.
      */
     function stake(address _to, uint256 _amount, bool _rebasing, bool _claim) external returns (uint256) {
         if (_to == address(0)) revert HoodzStaking_ZeroAddress();
@@ -185,7 +185,7 @@ contract HoodzStaking is HoodzAccessControlled {
 
         rebase();
 
-        HOODZ.safeTransferFrom(msg.sender, address(this), _amount);
+        HOOD.safeTransferFrom(msg.sender, address(this), _amount);
 
         if (_claim && warmupPeriod == 0) {
             emit Stake(msg.sender, _to, _amount, _rebasing, true);
@@ -195,7 +195,7 @@ contract HoodzStaking is HoodzAccessControlled {
         Claim memory info = warmupInfo[_to];
         if (!info.lock && _to != msg.sender) revert HoodzStaking_DepositsLocked(_to);
 
-        uint256 gons = sHOODZ.gonsForBalance(_amount);
+        uint256 gons = sHOOD.gonsForBalance(_amount);
         warmupInfo[_to] = Claim({
             deposit: info.deposit + _amount,
             gons: info.gons + gons,
@@ -213,8 +213,8 @@ contract HoodzStaking is HoodzAccessControlled {
      * @dev    Returns 0 (rather than reverting) when the position is empty or still warming,
      *         so it can be called opportunistically.
      * @param _to       account whose warmup is being claimed
-     * @param _rebasing true to receive sHOODZ, false to receive gHOODZ
-     * @return The amount sent, in sHOODZ terms when `_rebasing` and gHOODZ terms otherwise.
+     * @param _rebasing true to receive sHOOD, false to receive gHOOD
+     * @return The amount sent, in sHOOD terms when `_rebasing` and gHOOD terms otherwise.
      */
     function claim(address _to, bool _rebasing) public returns (uint256) {
         Claim memory info = warmupInfo[_to];
@@ -224,7 +224,7 @@ contract HoodzStaking is HoodzAccessControlled {
             delete warmupInfo[_to];
             gonsInWarmup -= info.gons;
 
-            uint256 amount = sHOODZ.balanceForGons(info.gons);
+            uint256 amount = sHOOD.balanceForGons(info.gons);
             emit Claimed(_to, amount, _rebasing);
             return _send(_to, amount, _rebasing);
         }
@@ -232,9 +232,9 @@ contract HoodzStaking is HoodzAccessControlled {
     }
 
     /**
-     * @notice Abandon a warmup position and take the HOODZ principal back.
+     * @notice Abandon a warmup position and take the HOOD principal back.
      * @dev    Rebases accrued while in warmup are forfeited to the contract, as in Olympus.
-     * @return The HOODZ principal returned to the caller.
+     * @return The HOOD principal returned to the caller.
      */
     function forfeit() external returns (uint256) {
         Claim memory info = warmupInfo[msg.sender];
@@ -244,7 +244,7 @@ contract HoodzStaking is HoodzAccessControlled {
         gonsInWarmup -= info.gons;
 
         emit Forfeit(msg.sender, info.deposit);
-        HOODZ.safeTransfer(msg.sender, info.deposit);
+        HOOD.safeTransfer(msg.sender, info.deposit);
 
         return info.deposit;
     }
@@ -260,14 +260,14 @@ contract HoodzStaking is HoodzAccessControlled {
     }
 
     /**
-     * @notice Redeem sHOODZ or gHOODZ for HOODZ.
-     * @dev    Checks-effects-interactions: the staked token is pulled in / burned and the HOODZ
-     *         balance is verified BEFORE any HOODZ leaves the contract.
-     * @param _to       recipient of the HOODZ
-     * @param _amount   sHOODZ when `_rebasing`, gHOODZ otherwise
+     * @notice Redeem sHOOD or gHOOD for HOOD.
+     * @dev    Checks-effects-interactions: the staked token is pulled in / burned and the HOOD
+     *         balance is verified BEFORE any HOOD leaves the contract.
+     * @param _to       recipient of the HOOD
+     * @param _amount   sHOOD when `_rebasing`, gHOOD otherwise
      * @param _trigger  true to roll the epoch before unstaking
-     * @param _rebasing true when `_amount` is denominated in sHOODZ
-     * @return amount_ HOODZ sent to `_to`
+     * @param _rebasing true when `_amount` is denominated in sHOOD
+     * @return amount_ HOOD sent to `_to`
      */
     function unstake(address _to, uint256 _amount, bool _trigger, bool _rebasing)
         external
@@ -279,59 +279,59 @@ contract HoodzStaking is HoodzAccessControlled {
         if (_trigger) rebase();
 
         if (_rebasing) {
-            // sHOODZ returns to the staking contract, removing it from circulating supply.
-            IERC20(address(sHOODZ)).safeTransferFrom(msg.sender, address(this), _amount);
+            // sHOOD returns to the staking contract, removing it from circulating supply.
+            IERC20(address(sHOOD)).safeTransferFrom(msg.sender, address(this), _amount);
             amount_ = _amount;
         } else {
-            // gHOODZ is burned; its HOODZ value is derived from the current index.
-            gHOODZ.burn(msg.sender, _amount);
-            amount_ = gHOODZ.balanceFrom(_amount);
+            // gHOOD is burned; its HOOD value is derived from the current index.
+            gHOOD.burn(msg.sender, _amount);
+            amount_ = gHOOD.balanceFrom(_amount);
         }
 
         uint256 balance = contractBalance();
         if (amount_ > balance) revert HoodzStaking_InsufficientBalance(amount_, balance);
 
         emit Unstake(msg.sender, _to, amount_, _rebasing);
-        HOODZ.safeTransfer(_to, amount_);
+        HOOD.safeTransfer(_to, amount_);
     }
 
     /**
-     * @notice Convert sHOODZ into gHOODZ at the current index.
-     * @param _to     recipient of the gHOODZ
-     * @param _amount sHOODZ to wrap
-     * @return gBalance_ gHOODZ minted
+     * @notice Convert sHOOD into gHOOD at the current index.
+     * @param _to     recipient of the gHOOD
+     * @param _amount sHOOD to wrap
+     * @return gBalance_ gHOOD minted
      */
     function wrap(address _to, uint256 _amount) external returns (uint256 gBalance_) {
         if (_to == address(0)) revert HoodzStaking_ZeroAddress();
         if (_amount == 0) revert HoodzStaking_ZeroAmount();
 
-        IERC20(address(sHOODZ)).safeTransferFrom(msg.sender, address(this), _amount);
-        gBalance_ = gHOODZ.balanceTo(_amount);
+        IERC20(address(sHOOD)).safeTransferFrom(msg.sender, address(this), _amount);
+        gBalance_ = gHOOD.balanceTo(_amount);
 
         emit Wrap(_to, _amount, gBalance_);
-        gHOODZ.mint(_to, gBalance_);
+        gHOOD.mint(_to, gBalance_);
     }
 
     /**
-     * @notice Convert gHOODZ back into sHOODZ at the current index.
-     * @dev    The gHOODZ is burned before the sHOODZ is released (checks-effects-interactions).
-     * @param _to     recipient of the sHOODZ
-     * @param _amount gHOODZ to unwrap
-     * @return sBalance_ sHOODZ sent
+     * @notice Convert gHOOD back into sHOOD at the current index.
+     * @dev    The gHOOD is burned before the sHOOD is released (checks-effects-interactions).
+     * @param _to     recipient of the sHOOD
+     * @param _amount gHOOD to unwrap
+     * @return sBalance_ sHOOD sent
      */
     function unwrap(address _to, uint256 _amount) external returns (uint256 sBalance_) {
         if (_to == address(0)) revert HoodzStaking_ZeroAddress();
         if (_amount == 0) revert HoodzStaking_ZeroAmount();
 
-        gHOODZ.burn(msg.sender, _amount);
-        sBalance_ = gHOODZ.balanceFrom(_amount);
+        gHOOD.burn(msg.sender, _amount);
+        sBalance_ = gHOOD.balanceFrom(_amount);
 
         emit Unwrap(_to, _amount, sBalance_);
-        IERC20(address(sHOODZ)).safeTransfer(_to, sBalance_);
+        IERC20(address(sHOOD)).safeTransfer(_to, sBalance_);
     }
 
     /**
-     * @notice Roll the epoch if it has ended: pay out sHOODZ holders, pull the next emission,
+     * @notice Roll the epoch if it has ended: pay out sHOOD holders, pull the next emission,
      *         and recompute the surplus to be distributed next epoch.
      * @dev    A no-op before `epoch.end`. Catches up one epoch per call.
      */
@@ -341,7 +341,7 @@ contract HoodzStaking is HoodzAccessControlled {
         uint256 number = epoch.number;
         uint256 distributed = epoch.distribute;
 
-        sHOODZ.rebase(distributed, number);
+        sHOOD.rebase(distributed, number);
 
         epoch.end += epoch.length;
         epoch.number = number + 1;
@@ -351,11 +351,11 @@ contract HoodzStaking is HoodzAccessControlled {
         }
 
         uint256 balance = contractBalance();
-        uint256 staked = sHOODZ.circulatingSupply();
+        uint256 staked = sHOOD.circulatingSupply();
         uint256 next = balance <= staked ? 0 : balance - staked;
         epoch.distribute = next;
 
-        emit Rebase(number, distributed, next, sHOODZ.index());
+        emit Rebase(number, distributed, next, sHOOD.index());
     }
 
     /* ========================================= ADMIN ========================================== */
@@ -381,27 +381,27 @@ contract HoodzStaking is HoodzAccessControlled {
     /* ========================================== VIEWS ========================================= */
 
     /**
-     * @notice HOODZ held by this contract, i.e. the backing for sHOODZ + gHOODZ + warmup.
-     * @return HOODZ balance of the staking contract
+     * @notice HOOD held by this contract, i.e. the backing for sHOOD + gHOOD + warmup.
+     * @return HOOD balance of the staking contract
      */
     function contractBalance() public view returns (uint256) {
-        return HOODZ.balanceOf(address(this));
+        return HOOD.balanceOf(address(this));
     }
 
     /**
-     * @notice sHOODZ currently sitting in warmup, in sHOODZ terms.
-     * @return the sHOODZ value of all warmup gons
+     * @notice sHOOD currently sitting in warmup, in sHOOD terms.
+     * @return the sHOOD value of all warmup gons
      */
     function supplyInWarmup() public view returns (uint256) {
-        return sHOODZ.balanceForGons(gonsInWarmup);
+        return sHOOD.balanceForGons(gonsInWarmup);
     }
 
     /**
-     * @notice The sHOODZ rebase index (HOODZ per gHOODZ).
+     * @notice The sHOOD rebase index (HOOD per gHOOD).
      * @return the current index
      */
     function index() public view returns (uint256) {
-        return sHOODZ.index();
+        return sHOOD.index();
     }
 
     /**
@@ -415,16 +415,16 @@ contract HoodzStaking is HoodzAccessControlled {
     /* ======================================== INTERNAL ======================================== */
 
     /**
-     * @dev Send a staked position out, either as sHOODZ (1:1) or as freshly minted gHOODZ.
-     *      When gHOODZ is minted the sHOODZ stays here as its backing.
+     * @dev Send a staked position out, either as sHOOD (1:1) or as freshly minted gHOOD.
+     *      When gHOOD is minted the sHOOD stays here as its backing.
      */
     function _send(address _to, uint256 _amount, bool _rebasing) internal returns (uint256) {
         if (_rebasing) {
-            IERC20(address(sHOODZ)).safeTransfer(_to, _amount);
+            IERC20(address(sHOOD)).safeTransfer(_to, _amount);
             return _amount;
         }
-        uint256 gBalance = gHOODZ.balanceTo(_amount);
-        gHOODZ.mint(_to, gBalance);
+        uint256 gBalance = gHOOD.balanceTo(_amount);
+        gHOOD.mint(_to, gBalance);
         return gBalance;
     }
 }

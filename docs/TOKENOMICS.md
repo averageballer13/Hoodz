@@ -5,7 +5,7 @@
 
 This document is the arithmetic behind [`PROTOCOL.md`](PROTOCOL.md). It answers four questions:
 
-* Where does HOODZ supply come from, and where does it go?
+* Where does HOOD supply come from, and where does it go?
 * What is "backing", how does it differ from price, and which one does the protocol control?
 * Who is diluted by emissions, and by how much?
 * What does the PONS-fee buyback loop actually contribute?
@@ -34,10 +34,10 @@ Every example uses the same base case so the numbers compose.
 
 | Symbol | Meaning                                                     |
 | ------ | ----------------------------------------------------------- |
-| `S`    | Circulating HOODZ supply                                      |
+| `S`    | Circulating HOOD supply                                      |
 | `R`    | Liquid treasury reserves, in reserve-token units             |
-| `b`    | Backing per HOODZ = `R / S`                                   |
-| `p`    | Market price of HOODZ in reserve units                        |
+| `b`    | Backing per HOOD = `R / S`                                   |
+| `p`    | Market price of HOOD in reserve units                        |
 | `π`    | Premium = `p / b - 1`                                        |
 | `i`    | Staking index (starts at 1.0, only rises)                    |
 | `r`    | Distributor reward rate per epoch                            |
@@ -46,7 +46,7 @@ Every example uses the same base case so the numbers compose.
 
 | Quantity                     | Value            |
 | ---------------------------- | ---------------- |
-| Supply `S`                   | 10,000,000 HOODZ  |
+| Supply `S`                   | 10,000,000 HOOD  |
 | Reserves `R`                 | 100,000,000      |
 | Backing `b`                  | 10.00            |
 | Price `p`                    | 12.00            |
@@ -56,7 +56,7 @@ Every example uses the same base case so the numbers compose.
 | Reserve yield                | 6% APY           |
 | Index `i`                    | 100              |
 
-Decimals mirror Olympus: HOODZ and sHOODZ are 9-decimal, gHOODZ is 18-decimal
+Decimals mirror Olympus: HOOD and sHOOD are 9-decimal, gHOOD is 18-decimal
 (`docs/pons-launch.json` → `token.decimals` = `9`). The token contracts in
 `contracts/src/tokens/` are the source of truth; if they disagree with this line, they win.
 
@@ -64,7 +64,7 @@ Decimals mirror Olympus: HOODZ and sHOODZ are 9-decimal, gHOODZ is 18-decimal
 
 ## 2. The supply model
 
-HOODZ supply has exactly four sources and two sinks. Nothing else can change it.
+HOOD supply has exactly four sources and two sinks. Nothing else can change it.
 
 ```mermaid
 flowchart LR
@@ -74,7 +74,7 @@ flowchart LR
         C["Emissions Manager<br/>sold for reserves"]
         D["Convertible Deposits<br/>on conversion"]
     end
-    S(("HOODZ<br/>supply"))
+    S(("HOOD<br/>supply"))
     subgraph Sinks
         E["YRF buy + burn<br/>paid from treasury yield"]
         F["FeeRouterBuyback<br/>paid from PONS trading fees"]
@@ -101,7 +101,7 @@ mechanism exists: they exist to outrun it.
 ### 2.0 Genesis supply
 
 None of the six terms above apply before the protocol is live. The initial supply comes from a
-**single mint**, signed by the launch operator, before HOODZ ever trades — the amount is published
+**single mint**, signed by the launch operator, before HOOD ever trades — the amount is published
 in `docs/pons-launch.json` (`token.launchSupply`) along with its transaction hash.
 
 Between that mint and the moment mint authority reaches the treasury, **supply is frozen**: the
@@ -171,16 +171,16 @@ the reason headline APY falls as the protocol matures even when governance chang
 
 ### 3.3 A concrete 30-day stake
 
-Stake 100 HOODZ at `i = 1.000000` with `r = 0.1%` per epoch, hold for 30 days (90 epochs):
+Stake 100 HOOD at `i = 1.000000` with `r = 0.1%` per epoch, hold for 30 days (90 epochs):
 
 ```
-sHOODZ balance = 100 * 1.001^90 = 109.412508 sHOODZ
+sHOOD balance = 100 * 1.001^90 = 109.412508 sHOOD
 index         = 1.094125
-gHOODZ balance = 100 / 1.0 = 100 gHOODZ, unchanged the entire time
+gHOOD balance = 100 / 1.0 = 100 gHOOD, unchanged the entire time
 ```
 
-The sHOODZ holder watched a number grow. The gHOODZ holder watched `index()` grow. They hold
-identical claims — 109.412508 sHOODZ is exactly 100 gHOODZ at that index.
+The sHOOD holder watched a number grow. The gHOOD holder watched `index()` grow. They hold
+identical claims — 109.412508 sHOOD is exactly 100 gHOOD at that index.
 
 ### 3.4 Runway
 
@@ -217,20 +217,20 @@ p = whatever the AMM says     not controlled: no oracle, no peg, no defence
 
 | Regime            | Emissions Manager | YRF        | Fee buyback | Net effect                       |
 | ----------------- | ----------------- | ---------- | ----------- | -------------------------------- |
-| `π` above minimum | **Sells HOODZ**    | buys+burns | buys+burns  | Reserves grow fast, supply grows |
+| `π` above minimum | **Sells HOOD**    | buys+burns | buys+burns  | Reserves grow fast, supply grows |
 | `π` below minimum | **Silent**        | buys+burns | buys+burns  | Supply shrinks, backing rises    |
-| `p < b` (discount)| Silent            | buys+burns *more HOODZ per reserve* | same | Fastest backing growth per token |
+| `p < b` (discount)| Silent            | buys+burns *more HOOD per reserve* | same | Fastest backing growth per token |
 
 The asymmetry is intentional. Selling into strength and buying into weakness is the only policy a
 protocol can run without an oracle and without a treasury large enough to defend a peg.
 
 ### 4.2 The soft floor from Hoodz Loans
 
-Hoodz has **no redemption mechanism** — you cannot hand HOODZ to the treasury for reserves. But
+Hoodz has **no redemption mechanism** — you cannot hand HOOD to the treasury for reserves. But
 Hoodz Loans creates something close to one.
 
-At `i = 100` and `b = 10`, one gHOODZ is backed by 1,000 reserve. **(param)** With the oLTC at 95%
-of that, a holder can borrow **950 reserve per gHOODZ** — the equivalent of selling at 9.50 per HOODZ
+At `i = 100` and `b = 10`, one gHOOD is backed by 1,000 reserve. **(param)** With the oLTC at 95%
+of that, a holder can borrow **950 reserve per gHOOD** — the equivalent of selling at 9.50 per HOOD
 — at 0.5% per year, with no liquidation, while keeping the collateral and all of its upside.
 
 For a holder who wants liquidity, borrowing at 9.50 dominates selling at anything below it. That
@@ -249,21 +249,21 @@ Three valuations of the same treasury:
 | --------- | ---------------------------------------------- | --------------------------- |
 | **TMV**   | every asset at spot, LP at spot                | headline reporting only     |
 | **RFV**   | stables at par, LP at its constant-product floor | the conservative number   |
-| **Liquid backing** | RFV minus illiquid assets, minus protocol-owned HOODZ | policy decisions   |
+| **Liquid backing** | RFV minus illiquid assets, minus protocol-owned HOOD | policy decisions   |
 
-TMV is the least useful. It includes the HOODZ sitting in protocol-owned liquidity, valued at the
-HOODZ price — so a rising HOODZ price makes the treasury look bigger, which makes the backing look
+TMV is the least useful. It includes the HOOD sitting in protocol-owned liquidity, valued at the
+HOOD price — so a rising HOOD price makes the treasury look bigger, which makes the backing look
 better, which is circular. Liquid backing strips that out.
 
 ### 5.1 LP risk-free value
 
-For a constant-product pool, the value if HOODZ were worth exactly one reserve unit is:
+For a constant-product pool, the value if HOOD were worth exactly one reserve unit is:
 
 ```
-RFV(pool) = 2 * sqrt(reserveHOODZ * reserveQuote)
+RFV(pool) = 2 * sqrt(reserveHOOD * reserveQuote)
 ```
 
-**(param)** A pool holding 500,000 HOODZ and 6,000,000 reserve, of which the treasury owns 80%:
+**(param)** A pool holding 500,000 HOOD and 6,000,000 reserve, of which the treasury owns 80%:
 
 ```
 k          = 500,000 * 6,000,000 = 3.0000e12
@@ -274,7 +274,7 @@ treasury's 80% share:
 ```
 
 The gap between 2.77M and 9.60M is precisely the part of the treasury's LP value that would
-evaporate if HOODZ returned to parity. Counting only the 2.77M is what "risk-free" means.
+evaporate if HOOD returned to parity. Counting only the 2.77M is what "risk-free" means.
 
 > **Robinhood Chain caveat.** The graduated PONS pool is **Uniswap v4**, where liquidity can be
 > concentrated and the `2*sqrt(k)` identity does not hold. The formula above is the intuition; a
@@ -282,20 +282,20 @@ evaporate if HOODZ returned to parity. Counting only the 2.77M is what "risk-fre
 > which then overstates excess reserves, which then over-mints. It is on the audit list in
 > [`SECURITY.md`](SECURITY.md).
 
-### 5.2 Backing per HOODZ in full
+### 5.2 Backing per HOOD in full
 
 ```
 liquid backing = stables at par
                + RFV of LP positions
                + outstanding Hoodz Loans principal
-               - HOODZ owned by the treasury (valued at 0 for backing purposes)
+               - HOOD owned by the treasury (valued at 0 for backing purposes)
                - illiquid / long-dated positions
 
-backing per HOODZ = liquid backing / (HOODZ.totalSupply() - treasury-held HOODZ)
+backing per HOOD = liquid backing / (HOOD.totalSupply() - treasury-held HOOD)
 ```
 
-Outstanding loan principal counts because it is a claim on gHOODZ collateral worth at least the
-debt (§6.4 of `PROTOCOL.md`). Treasury-held HOODZ does not count, in either the numerator or the
+Outstanding loan principal counts because it is a claim on gHOOD collateral worth at least the
+debt (§6.4 of `PROTOCOL.md`). Treasury-held HOOD does not count, in either the numerator or the
 denominator — a token cannot back itself.
 
 ---
@@ -311,7 +311,7 @@ Base case: `S = 10,000,000`, `R = 100,000,000`, `b = 10`, `p = 12`, `π = 20%`.
 
 ```
 emissionRate = 0.05% * (20% / 10%)   = 0.10% of supply
-emission     = 10,000,000 * 0.10%    = 10,000 HOODZ
+emission     = 10,000,000 * 0.10%    = 10,000 HOOD
 proceeds     = 10,000 * 12           = 120,000 reserve
 
 new S = 10,010,000
@@ -321,7 +321,7 @@ new b = 10.001998        (+0.0200%)
 
 ### 6.2 Who won and who lost
 
-Take a holder with 100,000 HOODZ (1.00% of supply) and follow both cases:
+Take a holder with 100,000 HOOD (1.00% of supply) and follow both cases:
 
 | Holder            | Share before | Share after | Backing claim before | Backing claim after |
 | ----------------- | ------------ | ----------- | -------------------- | ------------------- |
@@ -332,11 +332,11 @@ The unstaked holder's *share* fell by 0.1%. Their *claim* rose by 200 reserve, b
 grew by more than the supply did. This is the single most important line in the document:
 
 > **Emissions dilute your percentage and increase your claim. They are only bad for you if the
-> protocol sells HOODZ below backing — and by construction, it cannot.**
+> protocol sells HOOD below backing — and by construction, it cannot.**
 
 The staked holder additionally receives the rebase, which restores their percentage as well.
 
-The genuine cost of emissions is not to the balance sheet. It is to **price**: 10,000 HOODZ sold
+The genuine cost of emissions is not to the balance sheet. It is to **price**: 10,000 HOOD sold
 into the market each day is real sell pressure, and it is the mechanism by which a high premium
 gets compressed back toward backing. Emissions trade price appreciation for balance-sheet growth,
 deliberately.
@@ -346,7 +346,7 @@ deliberately.
 Every emission moves both terms of the premium against further emission:
 
 * `b` rises (reserves grew faster than supply) → `π = p/b - 1` falls.
-* `S` rises and HOODZ is sold → `p` tends to fall → `π` falls again.
+* `S` rises and HOOD is sold → `p` tends to fall → `π` falls again.
 
 At `π < minimumPremium` the manager emits nothing. There is no configuration in which it emits
 forever. Section 10 shows this over a simulated year.
@@ -363,7 +363,7 @@ forever. Section 10 shows this over a simulated year.
 debtRatio = 250,000 / 10,000,000 = 0.025
 bondPrice = 456 * 0.025          = 11.40      (5.0% below spot of 12)
 
-deposit 10,000 reserve  ->  payout 877.19 HOODZ, vesting over 7 days
+deposit 10,000 reserve  ->  payout 877.19 HOOD, vesting over 7 days
 backing cost of the mint = 877.19 * 10 = 8,771.93
 profit banked            = 10,000 - 8,771.93 = 1,228.07 reserve
 
@@ -380,10 +380,10 @@ deposited:
 
 ```
 conversion price = 12 * 1.15 = 13.80
-convertible into = 100,000 / 13.80 = 7,246.38 HOODZ
+convertible into = 100,000 / 13.80 = 7,246.38 HOOD
 ```
 
-| Outcome                    | Treasury receives                       | HOODZ minted | New backing        |
+| Outcome                    | Treasury receives                       | HOOD minted | New backing        |
 | -------------------------- | --------------------------------------- | ----------- | ------------------ |
 | **Converted** (`p` > 13.80)| 100,000 reserve, permanently             | 7,246.38    | 10.002752 (+0.0275%) |
 | **Expired unconverted**    | 1,000 reclaim fee + 493.15 yield         | 0           | slightly up, no dilution |
@@ -394,7 +394,7 @@ having stood ready.
 
 Compare the three issuance channels on the same 100,000 of incoming reserve:
 
-| Channel              | HOODZ issued | Net new backing | Issued at    |
+| Channel              | HOOD issued | Net new backing | Issued at    |
 | -------------------- | ----------- | --------------- | ------------ |
 | Bond (5% discount)   | 8,771.93    | 12,280.70       | 11.40 (below spot) |
 | Emission             | 8,333.33    | 16,666.67       | 12.00 (at spot)    |
@@ -411,8 +411,8 @@ to convert.
 Everything so far is funded by the protocol or by its depositors. This loop is not: it is funded by
 **traders**.
 
-HOODZ graduates from the PONS bonding curve into a permanently locked Uniswap v4 pool. That pool
-charges a fee on every trade, and a share of it routes to `FeeRouterBuyback`, which buys HOODZ on
+HOOD graduates from the PONS bonding curve into a permanently locked Uniswap v4 pool. That pool
+charges a fee on every trade, and a share of it routes to `FeeRouterBuyback`, which buys HOOD on
 the pool and burns it.
 
 **(param)** 2,000,000 reserve of daily volume, 1% LP fee, 40% protocol share, price 12:
@@ -420,8 +420,8 @@ the pool and burns it.
 ```
 daily fees      = 2,000,000 * 1%   = 20,000 reserve
 protocol share  = 20,000 * 40%     =  8,000 reserve
-HOODZ burned     = 8,000 / 12       =    666.67 HOODZ/day
-annualised      = 243,333 HOODZ     = 2.43% of a 10,000,000 supply
+HOOD burned     = 8,000 / 12       =    666.67 HOOD/day
+annualised      = 243,333 HOOD     = 2.43% of a 10,000,000 supply
 ```
 
 Three structural properties:
@@ -430,8 +430,8 @@ Three structural properties:
    because the denominator shrank. This is the only mechanism in Hoodz with that property.
 2. **It scales with attention, not with capital.** Volume, not TVL, is the input. A volatile week
    burns more than a quiet month.
-3. **It is countercyclical in HOODZ terms.** A fixed reserve budget retires more HOODZ at a lower
-   price. At `p = 8` the same 8,000/day burns 1,000 HOODZ instead of 666.67.
+3. **It is countercyclical in HOOD terms.** A fixed reserve budget retires more HOOD at a lower
+   price. At `p = 8` the same 8,000/day burns 1,000 HOOD instead of 666.67.
 
 Sensitivity of the annual burn as a percentage of a 10,000,000 supply:
 
@@ -449,7 +449,7 @@ Sensitivity of the annual burn as a percentage of a 10,000,000 supply:
 Base case, **mature regime**: `r = 0.01%` per epoch (a deliberately low rebase, with growth coming
 from emissions instead), 70% staked, everything else as in §1.
 
-| Flow                     | ΔS (HOODZ)     | ΔR (reserve) |
+| Flow                     | ΔS (HOOD)     | ΔR (reserve) |
 | ------------------------ | ------------- | ------------ |
 | Distributor rebase       | **+2,100.21** | 0            |
 | Emissions Manager        | **+10,000.00**| **+120,000** |
@@ -464,14 +464,14 @@ R: 100,000,000 -> 100,120,000        (+0.1200% per day)
 b: 10.000000   ->  10.001935         (+0.0193% per day)
 ```
 
-Annualised at these rates: **supply +44.36%, backing per HOODZ +7.31%.**
+Annualised at these rates: **supply +44.36%, backing per HOOD +7.31%.**
 
 That is the whole thesis in two numbers. Supply grows a lot. Backing per token still grows, because
 every unit of new supply arrives attached to more than its own weight in reserves. A holder who
 does nothing is diluted in percentage terms and better off in claim terms; a holder who stakes is
 roughly neutral in percentage terms and better off in claim terms.
 
-Note what is **not** in the table: the market price. Nothing above defends it, and 10,000 HOODZ/day
+Note what is **not** in the table: the market price. Nothing above defends it, and 10,000 HOOD/day
 of emission is real, ongoing sell pressure.
 
 ---
@@ -505,7 +505,7 @@ so **the Emissions Manager goes silent**. What remains?
 
 Weekly, at `p = 8`, `r = 0.01%`, 70% staked:
 
-| Flow             | ΔS (HOODZ)       |
+| Flow             | ΔS (HOOD)       |
 | ---------------- | --------------- |
 | Rebase           | +14,701.47      |
 | Emissions        | **0**           |
@@ -527,7 +527,7 @@ price floor. Three things it does not do:
 
 * It does not stop the price falling. 3.54% a year of backing growth will not absorb a determined
   seller.
-* It does not let you redeem. There is no path from HOODZ back to reserves except selling to another
+* It does not let you redeem. There is no path from HOOD back to reserves except selling to another
   buyer or borrowing through Hoodz Loans.
 * It does not protect a leveraged holder. Backing rising per token is no consolation if you sold.
 
@@ -565,7 +565,7 @@ Do not trust a dashboard. **(param)** Substitute your deployment's addresses:
 RPC=https://rpc.mainnet.chain.robinhood.com
 
 # supply and index
-cast call $HOODZ    "totalSupply()(uint256)"        --rpc-url $RPC
+cast call $HOOD    "totalSupply()(uint256)"        --rpc-url $RPC
 cast call $STAKING "index()(uint256)"              --rpc-url $RPC
 cast call $STAKING "secondsToNextEpoch()(uint256)" --rpc-url $RPC
 
@@ -577,7 +577,7 @@ cast call $TREASURY "excessReserves()(uint256)"    --rpc-url $RPC
 cast call $TREASURY "tokenValue(address,uint256)(uint256)" $RESERVE 1000000000000000000 --rpc-url $RPC
 
 # staked supply, for the leverage calculation in section 3.2
-cast call $SHOODZ "circulatingSupply()(uint256)"    --rpc-url $RPC
+cast call $SHOOD "circulatingSupply()(uint256)"    --rpc-url $RPC
 
 # next rebase reward for the staking contract
 cast call $DISTRIBUTOR "nextRewardFor(address)(uint256)" $STAKING --rpc-url $RPC

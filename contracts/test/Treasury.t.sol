@@ -11,13 +11,13 @@ import {MockERC20} from "./mocks/MockERC20.sol";
 /// @title  TreasuryTest
 /// @notice Deposit / withdraw / manage accounting, plus the decimal normalisation every backing
 ///         number in the protocol rests on.
-/// @dev    `tokenValue` converts a reserve amount into HOODZ's 9 decimals. Get it wrong and the
+/// @dev    `tokenValue` converts a reserve amount into HOOD's 9 decimals. Get it wrong and the
 ///         treasury either over-mints by a factor of 10^9 or refuses to mint at all, so it is
 ///         exercised here against 6, 8, 9 and 18 decimal reserves.
 contract TreasuryTest is HoodzStackSetup {
     MockERC20 internal usdc; // 6 decimals
     MockERC20 internal wbtc; // 8 decimals
-    MockERC20 internal nine; // 9 decimals, same as HOODZ
+    MockERC20 internal nine; // 9 decimals, same as HOOD
 
     function setUp() public {
         _deployHoodzStack();
@@ -35,7 +35,7 @@ contract TreasuryTest is HoodzStackSetup {
                             DECIMAL HANDLING
     //////////////////////////////////////////////////////////////*/
 
-    /// @dev One whole unit of any reserve token is worth 1e9 - one whole HOODZ of backing.
+    /// @dev One whole unit of any reserve token is worth 1e9 - one whole HOOD of backing.
     function test_TokenValueNormalisesToNineDecimals() public view {
         assertEq(treasury.tokenValue(address(reserve), 1e18), 1e9, "18 decimals");
         assertEq(treasury.tokenValue(address(usdc), 1e6), 1e9, "6 decimals");
@@ -53,8 +53,8 @@ contract TreasuryTest is HoodzStackSetup {
     function test_TokenValueRoundsDown() public view {
         assertEq(treasury.tokenValue(address(usdc), 1), 1e3, "1 wei of a 6-decimal token is 1e3");
         assertEq(treasury.tokenValue(address(reserve), 1), 0, "1 wei of an 18-decimal token rounds to 0");
-        assertEq(treasury.tokenValue(address(reserve), 1e9 - 1), 0, "still below one unit of HOODZ");
-        assertEq(treasury.tokenValue(address(reserve), 1e9), 1, "exactly one unit of HOODZ");
+        assertEq(treasury.tokenValue(address(reserve), 1e9 - 1), 0, "still below one unit of HOOD");
+        assertEq(treasury.tokenValue(address(reserve), 1e9), 1, "exactly one unit of HOOD");
     }
 
     function testFuzz_TokenValueMatchesTheScalingFactor(uint96 amount) public view {
@@ -81,7 +81,7 @@ contract TreasuryTest is HoodzStackSetup {
         uint256 value = _fundTreasury(1_000e18);
 
         assertEq(value, 1_000e9);
-        assertEq(hoodz.totalSupply(), 0, "no HOODZ issued");
+        assertEq(hoodz.totalSupply(), 0, "no HOOD issued");
         assertEq(treasury.totalReserves(), 1_000e9);
     }
 
@@ -91,7 +91,7 @@ contract TreasuryTest is HoodzStackSetup {
         usdc.approve(address(treasury), 1_000e6);
         uint256 minted = treasury.deposit(1_000e6, address(usdc), 0);
 
-        assertEq(minted, 1_000e9, "1000 USDC backs 1000 HOODZ");
+        assertEq(minted, 1_000e9, "1000 USDC backs 1000 HOOD");
         assertEq(treasury.totalReserves(), 1_000e9);
     }
 
@@ -118,7 +118,7 @@ contract TreasuryTest is HoodzStackSetup {
                             EXCESS RESERVES
     //////////////////////////////////////////////////////////////*/
 
-    /// @dev Excess reserves are backing beyond the circulating HOODZ - exactly the profit taken.
+    /// @dev Excess reserves are backing beyond the circulating HOOD - exactly the profit taken.
     function test_ExcessReservesEqualTakenProfit() public {
         assertEq(treasury.excessReserves(), 0, "an empty treasury has no excess");
 
@@ -138,7 +138,7 @@ contract TreasuryTest is HoodzStackSetup {
         assertEq(treasury.excessReserves(), 600e9, "minting spends excess");
     }
 
-    /// @dev The invariant that keeps HOODZ backed: you may never mint past the excess.
+    /// @dev The invariant that keeps HOOD backed: you may never mint past the excess.
     function test_RevertWhen_MintExceedsExcessReserves() public {
         _fundTreasury(100e18); // 100e9 of excess
 
@@ -170,13 +170,13 @@ contract TreasuryTest is HoodzStackSetup {
     //////////////////////////////////////////////////////////////*/
 
     function test_WithdrawBurnsHoodzAndReturnsReserve() public {
-        _depositForHoodz(1_000e18, 0); // 1000e9 HOODZ here, 1000e9 of reserves booked
+        _depositForHoodz(1_000e18, 0); // 1000e9 HOOD here, 1000e9 of reserves booked
 
         hoodz.approve(address(treasury), 400e9);
         treasury.withdraw(400e18, address(reserve));
 
         assertEq(reserve.balanceOf(address(this)), 400e18, "reserve returned");
-        assertEq(hoodz.balanceOf(address(this)), 600e9, "HOODZ burned 1:1 with the value taken");
+        assertEq(hoodz.balanceOf(address(this)), 600e9, "HOOD burned 1:1 with the value taken");
         assertEq(hoodz.totalSupply(), 600e9);
         assertEq(treasury.totalReserves(), 600e9, "reserves debited at value");
     }
@@ -202,7 +202,7 @@ contract TreasuryTest is HoodzStackSetup {
         treasury.withdraw(a, address(reserve));
 
         assertEq(treasury.totalReserves(), 0, "reserves settled back to zero");
-        assertEq(hoodz.totalSupply(), 0, "HOODZ settled back to zero");
+        assertEq(hoodz.totalSupply(), 0, "HOOD settled back to zero");
         assertEq(reserve.balanceOf(address(treasury)), 0);
     }
 
@@ -210,8 +210,8 @@ contract TreasuryTest is HoodzStackSetup {
                                  MANAGE
     //////////////////////////////////////////////////////////////*/
 
-    /// @dev `manage` lets an approved policy pull idle reserves out without burning HOODZ - but
-    ///      only as far as the excess allows, so circulating HOODZ stays fully backed.
+    /// @dev `manage` lets an approved policy pull idle reserves out without burning HOOD - but
+    ///      only as far as the excess allows, so circulating HOOD stays fully backed.
     function test_ManageMovesIdleReservesWithinExcess() public {
         _fundTreasury(1_000e18); // pure excess
 

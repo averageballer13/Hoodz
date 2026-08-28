@@ -15,7 +15,7 @@ pragma solidity ^0.8.24;
         trading fees, never out of new supply - there is no mint.
 
         Web    https://hoodz.finance
-        X      https://x.com/Hoodzfinancial
+        X      https://x.com/Hoodzfinance
         Code   https://github.com/averageballer13/Hoodz
 
         UNAUDITED. This code has never been audited. Read it before you
@@ -50,7 +50,7 @@ contract HoodzAuthority is IHoodzAuthority, HoodzAccessControlled {
 
     /* ========================================= EVENTS ========================================= */
 
-    /// @notice The vault role was escrowed with `launchGuard`; HOODZ supply is now frozen.
+    /// @notice The vault role was escrowed with `launchGuard`; HOOD supply is now frozen.
     event VaultLockedToGuard(address indexed launchGuard);
     /// @notice `launchGuard` completed its checks and released the vault role to `newVault`.
     event VaultReleasedFromGuard(address indexed launchGuard, address indexed newVault);
@@ -63,7 +63,7 @@ contract HoodzAuthority is IHoodzAuthority, HoodzAccessControlled {
     address public override guardian;
     /// @notice Current policy: parameter setter.
     address public override policy;
-    /// @notice Current vault: the only address allowed to mint HOODZ.
+    /// @notice Current vault: the only address allowed to mint HOOD.
     address public override vault;
 
     /// @notice Governor nominee awaiting pullGovernor().
@@ -141,7 +141,7 @@ contract HoodzAuthority is IHoodzAuthority, HoodzAccessControlled {
         emit PolicyPushed(policy, _newPolicy, _effectiveImmediately);
     }
 
-    /// @notice Nominate a new vault (the address allowed to mint HOODZ).
+    /// @notice Nominate a new vault (the address allowed to mint HOOD).
     /// @param _newVault           Successor address.
     /// @param _effectiveImmediately True to install the successor now instead of waiting for a pull.
     /// @dev Reverts while the vault role is escrowed with a launch guard.
@@ -157,7 +157,7 @@ contract HoodzAuthority is IHoodzAuthority, HoodzAccessControlled {
 
     /// @notice Escrow the vault role with the PONS launch guard. One-way, one-shot.
     /// @dev Governor only, and only once. Installs `_launchGuard` as the vault immediately, which
-    ///      freezes HOODZ supply: the guard has no mint function, so no HOODZ can be created until
+    ///      freezes HOOD supply: the guard has no mint function, so no HOOD can be created until
     ///      {releaseVaultFromGuard}. From this call onwards {pushVault} reverts, so the governor
     ///      cannot route around the guard's graduation and LP-lock checks.
     ///      Deploy order: HoodzAuthority -> HoodzLaunchGuard(authority) -> lockVaultToGuard(guard).

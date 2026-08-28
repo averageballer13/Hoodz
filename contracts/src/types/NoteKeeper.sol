@@ -14,7 +14,7 @@ pragma solidity ^0.8.24;
         trading fees, never out of new supply - there is no mint.
 
         Web    https://hoodz.finance
-        X      https://x.com/Hoodzfinancial
+        X      https://x.com/Hoodzfinance
         Code   https://github.com/averageballer13/Hoodz
 
         UNAUDITED. This code has never been audited. Read it before you
@@ -25,7 +25,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import {IHoodzAuthority} from "../interfaces/IHoodzAuthority.sol";
-import {IgHOODZ} from "../interfaces/IgHOODZ.sol";
+import {IgHOOD} from "../interfaces/IgHOOD.sol";
 import {IStaking} from "../interfaces/IStaking.sol";
 import {ITreasury} from "../interfaces/ITreasury.sol";
 import {INoteKeeper} from "../interfaces/INoteKeeper.sol";
@@ -37,13 +37,13 @@ import {FrontEndRewarder} from "./FrontEndRewarder.sol";
  * @notice Vesting-note bookkeeping for Hoodz bond markets.
  * @dev    Port of the Olympus V2 NoteKeeper.
  *
- *         Payout is stored in gHOODZ terms: on deposit the HOODZ payout is minted by the
- *         treasury, staked, and held by this contract as gHOODZ, so a vesting bond keeps
+ *         Payout is stored in gHOOD terms: on deposit the HOOD payout is minted by the
+ *         treasury, staked, and held by this contract as gHOOD, so a vesting bond keeps
  *         earning rebases until it is redeemed.
  *
  *         Hoodz deviation: the shared IStaking surface exposes no unwrap(), so a
- *         redemption with _sendgHOODZ == false unstakes the gHOODZ into liquid HOODZ for
- *         the note owner instead of unwrapping it into sHOODZ.
+ *         redemption with _sendgHOOD == false unstakes the gHOOD into liquid HOOD for
+ *         the note owner instead of unwrapping it into sHOOD.
  */
 abstract contract NoteKeeper is INoteKeeper, FrontEndRewarder {
     using SafeERC20 for IERC20;
@@ -78,8 +78,8 @@ abstract contract NoteKeeper is INoteKeeper, FrontEndRewarder {
     /// @dev Owner => note index => address approved to pull the note.
     mapping(address => mapping(uint256 => address)) private noteTransfers;
 
-    /// @notice gHOODZ, the vesting denomination of every note.
-    IgHOODZ internal immutable gHOODZ;
+    /// @notice gHOOD, the vesting denomination of every note.
+    IgHOOD internal immutable gHOOD;
 
     /// @notice Staking contract used to stake payouts and unstake redemptions.
     IStaking internal immutable staking;
@@ -91,22 +91,22 @@ abstract contract NoteKeeper is INoteKeeper, FrontEndRewarder {
 
     /**
      * @param _authority Hoodz authority contract.
-     * @param _hoodz      HOODZ token.
-     * @param _gHOODZ     gHOODZ token.
+     * @param _hoodz      HOOD token.
+     * @param _gHOOD     gHOOD token.
      * @param _staking   Hoodz staking contract.
      * @param _treasury  Hoodz treasury.
      */
     constructor(
         IHoodzAuthority _authority,
         IERC20 _hoodz,
-        IgHOODZ _gHOODZ,
+        IgHOOD _gHOOD,
         IStaking _staking,
         ITreasury _treasury
     ) FrontEndRewarder(_authority, _hoodz) {
-        if (address(_gHOODZ) == address(0) || address(_staking) == address(0) || address(_treasury) == address(0)) {
+        if (address(_gHOOD) == address(0) || address(_staking) == address(0) || address(_treasury) == address(0)) {
             revert NoteKeeper_ZeroAddress();
         }
-        gHOODZ = _gHOODZ;
+        gHOOD = _gHOOD;
         staking = _staking;
         treasury = _treasury;
     }
@@ -136,7 +136,7 @@ abstract contract NoteKeeper is INoteKeeper, FrontEndRewarder {
      * @notice Create a note for a user, mint the payout plus front end rewards, and stake the payout.
      * @dev    Internal: called by the bond depository once a deposit has been priced.
      * @param _user     Owner of the new note.
-     * @param _payout   HOODZ owed to the user.
+     * @param _payout   HOOD owed to the user.
      * @param _expiry   Timestamp the note matures.
      * @param _marketID Market the deposit came from.
      * @param _referral Front end operator credited for the deposit.
@@ -150,8 +150,8 @@ abstract contract NoteKeeper is INoteKeeper, FrontEndRewarder {
 
         index_ = notes[_user].length;
 
-        // payout is denominated in gHOODZ so the note keeps compounding while it vests
-        uint256 payoutInG = gHOODZ.balanceTo(_payout);
+        // payout is denominated in gHOOD so the note keeps compounding while it vests
+        uint256 payoutInG = gHOOD.balanceTo(_payout);
 
         notes[_user].push(
             Note({
@@ -166,7 +166,7 @@ abstract contract NoteKeeper is INoteKeeper, FrontEndRewarder {
         // front end operators and the DAO earn a share of every payout
         uint256 rewards_ = _giveRewards(_payout, _referral);
 
-        // mint payout + rewards, then stake only the payout (rewards stay liquid HOODZ)
+        // mint payout + rewards, then stake only the payout (rewards stay liquid HOOD)
         treasury.payout(address(this), _payout + rewards_);
         staking.stake(address(this), _payout, false, true);
 
@@ -180,10 +180,10 @@ abstract contract NoteKeeper is INoteKeeper, FrontEndRewarder {
      * @dev    Non-matured indexes are skipped rather than reverting, matching Olympus.
      * @param _user      Owner of the notes.
      * @param _indexes   Indexes to redeem.
-     * @param _sendgHOODZ True to receive gHOODZ, false to unstake into liquid HOODZ.
-     * @return payout_   Total gHOODZ credited.
+     * @param _sendgHOOD True to receive gHOOD, false to unstake into liquid HOOD.
+     * @return payout_   Total gHOOD credited.
      */
-    function redeem(address _user, uint256[] memory _indexes, bool _sendgHOODZ)
+    function redeem(address _user, uint256[] memory _indexes, bool _sendgHOOD)
         public
         override
         returns (uint256 payout_)
@@ -201,25 +201,25 @@ abstract contract NoteKeeper is INoteKeeper, FrontEndRewarder {
         }
 
         if (payout_ != 0) {
-            if (_sendgHOODZ) {
-                IERC20(address(gHOODZ)).safeTransfer(_user, payout_);
+            if (_sendgHOOD) {
+                IERC20(address(gHOOD)).safeTransfer(_user, payout_);
             } else {
-                // burn the gHOODZ held here and forward the underlying HOODZ to the owner
+                // burn the gHOOD held here and forward the underlying HOOD to the owner
                 staking.unstake(_user, payout_, false, false);
             }
         }
 
-        emit NoteRedeemed(_user, payout_, _sendgHOODZ);
+        emit NoteRedeemed(_user, payout_, _sendgHOOD);
     }
 
     /**
      * @notice Redeem every outstanding note held by a user.
      * @param _user      Owner of the notes.
-     * @param _sendgHOODZ True to receive gHOODZ, false to unstake into liquid HOODZ.
-     * @return payout_   Total gHOODZ credited.
+     * @param _sendgHOOD True to receive gHOOD, false to unstake into liquid HOOD.
+     * @return payout_   Total gHOOD credited.
      */
-    function redeemAll(address _user, bool _sendgHOODZ) external override returns (uint256 payout_) {
-        payout_ = redeem(_user, indexesFor(_user), _sendgHOODZ);
+    function redeemAll(address _user, bool _sendgHOOD) external override returns (uint256 payout_) {
+        payout_ = redeem(_user, indexesFor(_user), _sendgHOOD);
     }
 
     /* ========== TRANSFER ========== */
@@ -293,7 +293,7 @@ abstract contract NoteKeeper is INoteKeeper, FrontEndRewarder {
      * @notice Payout and maturity status of a single note.
      * @param _user  Note owner.
      * @param _index Index of the note.
-     * @return payout_  gHOODZ owed by the note.
+     * @return payout_  gHOOD owed by the note.
      * @return matured_ True when the note is redeemable right now.
      */
     function pendingFor(address _user, uint256 _index) public view override returns (uint256 payout_, bool matured_) {

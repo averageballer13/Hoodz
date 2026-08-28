@@ -14,7 +14,7 @@ pragma solidity ^0.8.24;
         trading fees, never out of new supply - there is no mint.
 
         Web    https://hoodz.finance
-        X      https://x.com/Hoodzfinancial
+        X      https://x.com/Hoodzfinance
         Code   https://github.com/averageballer13/Hoodz
 
         UNAUDITED. This code has never been audited. Read it before you
@@ -47,19 +47,19 @@ interface IHoodzAuthorityVaultHandoff {
 
 /// @title HoodzLaunchGuard
 /// @author Hoodz
-/// @notice Holds the HOODZ vault role hostage until the PONS launch has provably completed.
-/// @dev The failure mode this contract exists to prevent: a protocol that can mint HOODZ *while* HOODZ is
+/// @notice Holds the HOOD vault role hostage until the PONS launch has provably completed.
+/// @dev The failure mode this contract exists to prevent: a protocol that can mint HOOD *while* HOOD is
 ///      still price-discovering on a bonding curve. Between deployment and graduation the guard is the
-///      vault, and the guard has no mint function - so HOODZ's supply is frozen at exactly the amount
+///      vault, and the guard has no mint function - so HOOD's supply is frozen at exactly the amount
 ///      escrowed on the curve, and no amount of governance haste can change that.
 ///
 ///      Mint authority moves to the Treasury only when all three of these hold at the same time:
-///        (a) `IPonsLaunchpad.isGraduated(HOODZ)` is true - the curve has closed;
+///        (a) `IPonsLaunchpad.isGraduated(HOOD)` is true - the curve has closed;
 ///        (b) the graduated Uniswap v4 LP position is verified locked with no unlock path, ever;
 ///        (c) a governor-signed {arm} happened at least {TRANSFER_DELAY} (48h) ago.
 ///
 ///      (a) and (b) are re-checked live inside {releaseToTreasury}, not merely trusted from the earlier
-///      {verifyGraduation} snapshot. (c) gives HOODZ holders a fixed, public window to exit before the
+///      {verifyGraduation} snapshot. (c) gives HOOD holders a fixed, public window to exit before the
 ///      protocol gains the ability to mint. The guardian can {abort} at any point during that window,
 ///      which resets the clock; the governor can re-{arm} and wait out another 48 hours. The release is
 ///      one-way and one-shot - `released` never goes back to false.
@@ -75,7 +75,7 @@ interface IHoodzAuthorityVaultHandoff {
 contract HoodzLaunchGuard is HoodzAccessControlled {
     /* ----------------------------------------------------------------- errors */
 
-    /// @notice The PONS curve for HOODZ has not graduated yet.
+    /// @notice The PONS curve for HOOD has not graduated yet.
     error NotGraduated();
 
     /// @notice The graduated LP position is missing, empty, or not permanently locked.
@@ -103,13 +103,13 @@ contract HoodzLaunchGuard is HoodzAccessControlled {
 
     /* ------------------------------------------------------------- immutables */
 
-    /// @notice The immutable on-chain record of the HOODZ launch this guard is anchored to.
+    /// @notice The immutable on-chain record of the HOOD launch this guard is anchored to.
     PonsLaunchConfig public immutable CONFIG;
 
-    /// @notice The HOODZ token, read from {CONFIG} at deployment.
-    address public immutable HOODZ;
+    /// @notice The HOOD token, read from {CONFIG} at deployment.
+    address public immutable HOOD;
 
-    /// @notice The PONS launchpad that hosts the HOODZ launch.
+    /// @notice The PONS launchpad that hosts the HOOD launch.
     IPonsLaunchpad public immutable LAUNCHPAD;
 
     /// @notice The locker that owns the graduated LP position.
@@ -125,7 +125,7 @@ contract HoodzLaunchGuard is HoodzAccessControlled {
     /// @notice The `HoodzAuthority` this guard hands the vault role over on.
     /// @dev Captured at deployment and never read from the mutable `authority` pointer, so that a later
     ///      {HoodzAccessControlled-setAuthority} cannot redirect the handoff to a counterfeit authority.
-    address public immutable HOODZ_AUTHORITY;
+    address public immutable HOOD_AUTHORITY;
 
     /* ------------------------------------------------------------------ state */
 
@@ -158,7 +158,7 @@ contract HoodzLaunchGuard is HoodzAccessControlled {
     /* ------------------------------------------------------------ constructor */
 
     /// @param authority_ The `HoodzAuthority` this guard is governed by and hands the vault role over on.
-    /// @param config_ The immutable {PonsLaunchConfig} record for the HOODZ launch.
+    /// @param config_ The immutable {PonsLaunchConfig} record for the HOOD launch.
     /// @param launchpad_ The PONS launchpad hosting the launch.
     /// @param locker_ The locker that will own the graduated LP position.
     /// @param poolManager_ The Uniswap v4 PoolManager for the liquidity cross-check, or `address(0)` to skip it.
@@ -182,12 +182,12 @@ contract HoodzLaunchGuard is HoodzAccessControlled {
         if (hoodz_ == address(0)) revert ZeroAddress();
 
         CONFIG = config_;
-        HOODZ = hoodz_;
+        HOOD = hoodz_;
         LAUNCHPAD = launchpad_;
         LOCKER = locker_;
         POOL_MANAGER = poolManager_;
         TREASURY = treasury_;
-        HOODZ_AUTHORITY = address(authority_);
+        HOOD_AUTHORITY = address(authority_);
     }
 
     /* ------------------------------------------------------------- governance */
@@ -205,7 +205,7 @@ contract HoodzLaunchGuard is HoodzAccessControlled {
         emit Armed(msg.sender, stamp, stamp + uint64(TRANSFER_DELAY));
     }
 
-    /// @notice Prove on-chain that HOODZ graduated and its LP position is locked forever.
+    /// @notice Prove on-chain that HOOD graduated and its LP position is locked forever.
     /// @dev Permissionless: it records facts anyone can already read, and recording them cannot help an
     ///      attacker - {releaseToTreasury} re-derives both from source anyway.
     /// @return pool The graduated Uniswap v4 pool.
@@ -223,7 +223,7 @@ contract HoodzLaunchGuard is HoodzAccessControlled {
         emit GraduationVerified(pool, msg.sender, uint64(block.timestamp));
     }
 
-    /// @notice Hand HOODZ mint authority to the Treasury. One-way, one-shot.
+    /// @notice Hand HOOD mint authority to the Treasury. One-way, one-shot.
     /// @dev Governor only. Requires, at this exact block: a prior {verifyGraduation}, a live-checked
     ///      graduation, a live-checked permanent LP lock, and {TRANSFER_DELAY} elapsed since {arm}.
     ///      Pushes the vault role to the immutable {TREASURY} and asserts it actually landed.
@@ -239,8 +239,8 @@ contract HoodzLaunchGuard is HoodzAccessControlled {
         released = true;
         verifiedPool = pool;
 
-        IHoodzAuthorityVaultHandoff(HOODZ_AUTHORITY).releaseVaultFromGuard(TREASURY);
-        if (IHoodzAuthority(HOODZ_AUTHORITY).vault() != TREASURY) revert HandoffFailed();
+        IHoodzAuthorityVaultHandoff(HOOD_AUTHORITY).releaseVaultFromGuard(TREASURY);
+        if (IHoodzAuthority(HOOD_AUTHORITY).vault() != TREASURY) revert HandoffFailed();
 
         emit MintAuthorityReleased(TREASURY, uint64(block.timestamp));
     }
@@ -275,7 +275,7 @@ contract HoodzLaunchGuard is HoodzAccessControlled {
     }
 
     /// @notice Every release precondition, evaluated without reverting. For keepers and dashboards.
-    /// @return isGraduated_ Whether the PONS curve for HOODZ has graduated.
+    /// @return isGraduated_ Whether the PONS curve for HOOD has graduated.
     /// @return lpLocked_ Whether the graduated LP position is permanently locked.
     /// @return armed_ Whether the governor has armed the handoff.
     /// @return delayElapsed_ Whether {TRANSFER_DELAY} has elapsed since {arm}.
@@ -302,17 +302,17 @@ contract HoodzLaunchGuard is HoodzAccessControlled {
         return ok;
     }
 
-    /// @notice Whether this guard currently sits in the HOODZ vault role, freezing supply.
+    /// @notice Whether this guard currently sits in the HOOD vault role, freezing supply.
     /// @return True while the guard is the vault on the authority captured at deployment.
     function holdsVaultRole() external view returns (bool) {
-        return IHoodzAuthority(HOODZ_AUTHORITY).vault() == address(this);
+        return IHoodzAuthority(HOOD_AUTHORITY).vault() == address(this);
     }
 
     /* --------------------------------------------------------------- internal */
 
     /// @dev Non-reverting read of the launchpad's graduation flag.
     function _isGraduated() private view returns (bool) {
-        try LAUNCHPAD.isGraduated(HOODZ) returns (bool graduated_) {
+        try LAUNCHPAD.isGraduated(HOOD) returns (bool graduated_) {
             return graduated_;
         } catch {
             return false;
@@ -324,7 +324,7 @@ contract HoodzLaunchGuard is HoodzAccessControlled {
     /// @return ok True only if the position exists, holds liquidity, and has no unlock path at all.
     /// @return pool The graduated pool as reported by the launchpad.
     function _lockState() private view returns (bool ok, address pool) {
-        try LAUNCHPAD.poolOf(HOODZ) returns (address pool_) {
+        try LAUNCHPAD.poolOf(HOOD) returns (address pool_) {
             pool = pool_;
         } catch {
             return (false, address(0));
@@ -332,14 +332,14 @@ contract HoodzLaunchGuard is HoodzAccessControlled {
         if (pool == address(0)) return (false, address(0));
 
         IPositionLocker.LockedPosition memory position;
-        try LOCKER.lockOf(HOODZ) returns (IPositionLocker.LockedPosition memory position_) {
+        try LOCKER.lockOf(HOOD) returns (IPositionLocker.LockedPosition memory position_) {
             position = position_;
         } catch {
             return (false, pool);
         }
 
         // The lock must be for this token, in this pool, and hold real liquidity.
-        if (position.token != HOODZ) return (false, pool);
+        if (position.token != HOOD) return (false, pool);
         if (position.pool != pool) return (false, pool);
         if (position.liquidity == 0) return (false, pool);
         // The pool key must actually hash to the recorded pool id, so the id cannot be spoofed.
@@ -348,13 +348,13 @@ contract HoodzLaunchGuard is HoodzAccessControlled {
         if (position.unlockable) return (false, pool);
         if (position.unlockTime != type(uint256).max) return (false, pool);
 
-        try LOCKER.isPermanentlyLocked(HOODZ) returns (bool locked) {
+        try LOCKER.isPermanentlyLocked(HOOD) returns (bool locked) {
             if (!locked) return (false, pool);
         } catch {
             return (false, pool);
         }
 
-        try LOCKER.unlockable(HOODZ) returns (bool unlockable_) {
+        try LOCKER.unlockable(HOOD) returns (bool unlockable_) {
             if (unlockable_) return (false, pool);
         } catch {
             return (false, pool);

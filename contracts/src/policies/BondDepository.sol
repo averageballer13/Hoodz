@@ -14,7 +14,7 @@ pragma solidity ^0.8.24;
         trading fees, never out of new supply - there is no mint.
 
         Web    https://hoodz.finance
-        X      https://x.com/Hoodzfinancial
+        X      https://x.com/Hoodzfinance
         Code   https://github.com/averageballer13/Hoodz
 
         UNAUDITED. This code has never been audited. Read it before you
@@ -26,8 +26,8 @@ import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IER
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import {IHoodzAuthority} from "../interfaces/IHoodzAuthority.sol";
-import {IHOODZ} from "../interfaces/IHOODZ.sol";
-import {IgHOODZ} from "../interfaces/IgHOODZ.sol";
+import {IHOOD} from "../interfaces/IHOOD.sol";
+import {IgHOOD} from "../interfaces/IgHOOD.sol";
 import {IStaking} from "../interfaces/IStaking.sol";
 import {ITreasury} from "../interfaces/ITreasury.sol";
 import {NoteKeeper} from "../types/NoteKeeper.sol";
@@ -35,7 +35,7 @@ import {NoteKeeper} from "../types/NoteKeeper.sol";
 /**
  * @title  BondDepository
  * @author Hoodz
- * @notice Sells HOODZ at a dynamically priced discount in exchange for reserve assets.
+ * @notice Sells HOOD at a dynamically priced discount in exchange for reserve assets.
  * @dev    Port of the Olympus V2 BondDepository (BondDepositoryV2).
  *
  *         Pricing model, unchanged from Olympus:
@@ -52,7 +52,7 @@ import {NoteKeeper} from "../types/NoteKeeper.sol";
  *         Every market is a self-contained struct set indexed by its market ID. The IDs
  *         are stable forever: closing a market zeroes its capacity but never removes it.
  *
- *         Prices carry 9 decimals (HOODZ decimals), matching Olympus. Quote token decimals
+ *         Prices carry 9 decimals (HOOD decimals), matching Olympus. Quote token decimals
  *         are normalised out of the payout and debt-ratio maths via Metadata.quoteDecimals.
  *
  *         Note: this contract deliberately does not inherit IBondDepository (owned by the
@@ -105,12 +105,12 @@ contract BondDepository is NoteKeeper {
     /* ========== TYPES ========== */
 
     /// @notice Live accounting for one bond market.
-    /// @param capacity        Remaining capacity, in quote tokens or HOODZ per capacityInQuote.
+    /// @param capacity        Remaining capacity, in quote tokens or HOOD per capacityInQuote.
     /// @param quoteToken      Token accepted as payment.
     /// @param capacityInQuote True when capacity is denominated in the quote token.
-    /// @param totalDebt       Outstanding, decaying debt in HOODZ (9 decimals).
-    /// @param maxPayout       Largest payout a single deposit may take, in HOODZ.
-    /// @param sold            Cumulative HOODZ sold by this market.
+    /// @param totalDebt       Outstanding, decaying debt in HOOD (9 decimals).
+    /// @param maxPayout       Largest payout a single deposit may take, in HOOD.
+    /// @param sold            Cumulative HOOD sold by this market.
     /// @param purchased       Cumulative quote tokens taken in by this market.
     struct Market {
         uint256 capacity;
@@ -166,7 +166,7 @@ contract BondDepository is NoteKeeper {
 
     /* ========== CONSTANTS ========== */
 
-    /// @notice HOODZ decimals (9) + price decimals (9). Used to normalise payout maths.
+    /// @notice HOOD decimals (9) + price decimals (9). Used to normalise payout maths.
     uint256 internal constant PAYOUT_SCALE = 1e18;
 
     /// @notice Denominator of the debt buffer passed to create(). 1e5 == 100%, 1000 == 1%.
@@ -196,13 +196,13 @@ contract BondDepository is NoteKeeper {
 
     /**
      * @param _authority Hoodz authority contract.
-     * @param _hoodz      HOODZ token.
-     * @param _gHOODZ     gHOODZ token.
+     * @param _hoodz      HOOD token.
+     * @param _gHOOD     gHOOD token.
      * @param _staking   Hoodz staking contract.
      * @param _treasury  Hoodz treasury.
      */
-    constructor(IHoodzAuthority _authority, IHOODZ _hoodz, IgHOODZ _gHOODZ, IStaking _staking, ITreasury _treasury)
-        NoteKeeper(_authority, IERC20(address(_hoodz)), _gHOODZ, _staking, _treasury)
+    constructor(IHoodzAuthority _authority, IHOOD _hoodz, IgHOOD _gHOOD, IStaking _staking, ITreasury _treasury)
+        NoteKeeper(_authority, IERC20(address(_hoodz)), _gHOOD, _staking, _treasury)
     {
         // bulk approve so users never pay for an approval inside stake()
         IERC20(address(_hoodz)).forceApprove(address(_staking), type(uint256).max);
@@ -211,15 +211,15 @@ contract BondDepository is NoteKeeper {
     /* ========== DEPOSIT ========== */
 
     /**
-     * @notice Deposit quote tokens into a bond market in exchange for a vesting HOODZ note.
+     * @notice Deposit quote tokens into a bond market in exchange for a vesting HOOD note.
      * @dev    Decays debt, prices the deposit, mints and stakes the payout, then re-tunes.
      *         Payment is pulled from msg.sender straight into the treasury.
      * @param _id       Market ID to deposit into.
      * @param _amount   Amount of quote tokens to spend.
-     * @param _maxPrice Slippage bound: highest acceptable price, in HOODZ decimals.
+     * @param _maxPrice Slippage bound: highest acceptable price, in HOOD decimals.
      * @param _user     Recipient of the vesting note.
      * @param _referral Front end operator credited for the deposit.
-     * @return payout_  HOODZ owed to the user (delivered as gHOODZ once matured).
+     * @return payout_  HOOD owed to the user (delivered as gHOOD once matured).
      * @return expiry_  Timestamp the note matures.
      * @return index_   Index of the note in the user note array.
      */
@@ -249,7 +249,7 @@ contract BondDepository is NoteKeeper {
         // deposits do not experience slippage, so size is capped instead
         if (payout_ > market.maxPayout) revert Depository_MaxSizeExceeded(payout_, market.maxPayout);
 
-        // capacity is either HOODZ out or quote tokens in
+        // capacity is either HOOD out or quote tokens in
         market.capacity -= market.capacityInQuote ? _amount : payout_;
 
         // fixed-term bonds mature a set duration after deposit; fixed-expiry bonds
@@ -326,7 +326,7 @@ contract BondDepository is NoteKeeper {
         uint256 price = _marketPrice(_id);
         if (price == 0) return;
 
-        // standardise capacity into a base (HOODZ) amount
+        // standardise capacity into a base (HOOD) amount
         uint256 capacity = market.capacityInQuote
             ? ((market.capacity * PAYOUT_SCALE) / price) / (10 ** meta.quoteDecimals)
             : market.capacity;
@@ -458,20 +458,20 @@ contract BondDepository is NoteKeeper {
     /* ========== VIEW ========== */
 
     /**
-     * @notice Current price of the quote token in HOODZ, including pending decay.
+     * @notice Current price of the quote token in HOOD, including pending decay.
      * @dev    price = currentControlVariable * debtRatio, normalised by quote decimals.
      * @param _id Market ID.
-     * @return Price in HOODZ decimals (9).
+     * @return Price in HOOD decimals (9).
      */
     function marketPrice(uint256 _id) public view returns (uint256) {
         return (currentControlVariable(_id) * debtRatio(_id)) / (10 ** metadata[_id].quoteDecimals);
     }
 
     /**
-     * @notice HOODZ payout a given amount of quote tokens would buy right now.
+     * @notice HOOD payout a given amount of quote tokens would buy right now.
      * @param _amount Quote tokens to spend.
      * @param _id     Market ID.
-     * @return HOODZ payout, 9 decimals.
+     * @return HOOD payout, 9 decimals.
      */
     function payoutFor(uint256 _amount, uint256 _id) external view returns (uint256) {
         return ((_amount * PAYOUT_SCALE) / marketPrice(_id)) / (10 ** metadata[_id].quoteDecimals);
@@ -488,7 +488,7 @@ contract BondDepository is NoteKeeper {
     }
 
     /**
-     * @notice Ratio of outstanding debt to HOODZ base supply, in quote decimals.
+     * @notice Ratio of outstanding debt to HOOD base supply, in quote decimals.
      * @param _id Market ID.
      * @return Debt ratio.
      */
@@ -499,7 +499,7 @@ contract BondDepository is NoteKeeper {
     /**
      * @notice Outstanding debt of a market after applying pending decay.
      * @param _id Market ID.
-     * @return Current debt, in HOODZ decimals.
+     * @return Current debt, in HOOD decimals.
      */
     function currentDebt(uint256 _id) public view returns (uint256) {
         return markets[_id].totalDebt - debtDecay(_id);
@@ -508,7 +508,7 @@ contract BondDepository is NoteKeeper {
     /**
      * @notice Debt that has decayed away since the last decay checkpoint.
      * @param _id Market ID.
-     * @return decay_ Amount of debt to subtract, in HOODZ decimals.
+     * @return decay_ Amount of debt to subtract, in HOOD decimals.
      */
     function debtDecay(uint256 _id) public view returns (uint64 decay_) {
         Metadata memory meta = metadata[_id];
@@ -593,7 +593,7 @@ contract BondDepository is NoteKeeper {
     /**
      * @notice Market price using storage values, for use after a decay has been applied.
      * @param _id Market ID.
-     * @return Price in HOODZ decimals.
+     * @return Price in HOOD decimals.
      */
     function _marketPrice(uint256 _id) internal view returns (uint256) {
         return (uint256(terms[_id].controlVariable) * _debtRatio(_id)) / (10 ** metadata[_id].quoteDecimals);

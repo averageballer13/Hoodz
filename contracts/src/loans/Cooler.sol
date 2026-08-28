@@ -14,7 +14,7 @@ pragma solidity ^0.8.24;
         trading fees, never out of new supply - there is no mint.
 
         Web    https://hoodz.finance
-        X      https://x.com/Hoodzfinancial
+        X      https://x.com/Hoodzfinance
         Code   https://github.com/averageballer13/Hoodz
 
         UNAUDITED. This code has never been audited. Read it before you
@@ -222,7 +222,7 @@ contract Cooler is ICooler {
     ///      one more term of interest, tops the collateral up to the new oLTC and pushes the
     ///      expiry out by one duration. Any top-up is pulled from the escrow owner, who must
     ///      have approved this escrow for the collateral token. When the offered oLTC has
-    ///      grown (backing per gHOODZ rose) the top-up is zero and the roll is free.
+    ///      grown (backing per gHOOD rose) the top-up is zero and the roll is free.
     function rollLoan(uint256 loanID_) external override returns (uint256 newCollateral, uint256 newInterest) {
         Loan memory loan = _loans[loanID_];
         if (block.timestamp > loan.expiry) revert Defaulted();

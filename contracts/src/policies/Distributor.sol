@@ -14,7 +14,7 @@ pragma solidity ^0.8.24;
         trading fees, never out of new supply - there is no mint.
 
         Web    https://hoodz.finance
-        X      https://x.com/Hoodzfinancial
+        X      https://x.com/Hoodzfinance
         Code   https://github.com/averageballer13/Hoodz
 
         UNAUDITED. This code has never been audited. Read it before you
@@ -30,9 +30,9 @@ import {HoodzAccessControlled} from "../types/HoodzAccessControlled.sol";
  * @title  Distributor
  * @notice Hoodz's emissions policy. A faithful re-implementation of the Olympus
  *         `Distributor`: every time `HoodzStaking.rebase()` rolls an epoch it calls
- *         `distribute()`, which mints each recipient `baseSupply * rate / 1e6` HOODZ from the
+ *         `distribute()`, which mints each recipient `baseSupply * rate / 1e6` HOOD from the
  *         Hoodz Treasury. The staking contract is normally recipient #0, so its share becomes
- *         the next epoch's `epoch.distribute` and thus the sHOODZ rebase.
+ *         the next epoch's `epoch.distribute` and thus the sHOOD rebase.
  *
  *         Rates are per-epoch and expressed in millionths (`RATE_DENOMINATOR = 1_000_000`),
  *         so `5000` = 0.5% of base supply per epoch. Rates can be walked toward a target
@@ -83,7 +83,7 @@ contract Distributor is IDistributor, HoodzAccessControlled {
     /* ========================================= TYPES ========================================== */
 
     /// @param rate      per-epoch emission in millionths of `treasury.baseSupply()`
-    /// @param recipient address receiving the minted HOODZ; address(0) once retired
+    /// @param recipient address receiving the minted HOOD; address(0) once retired
     struct Info {
         uint256 rate;
         address recipient;
@@ -111,8 +111,8 @@ contract Distributor is IDistributor, HoodzAccessControlled {
 
     /// @notice The Hoodz Treasury, which mints the emission.
     ITreasury public immutable treasury;
-    /// @notice The HOODZ token being emitted (informational; the treasury does the minting).
-    address public immutable HOODZ;
+    /// @notice The HOOD token being emitted (informational; the treasury does the minting).
+    address public immutable HOOD;
     /// @notice The only address allowed to call `distribute()`.
     address public immutable staking;
 
@@ -126,7 +126,7 @@ contract Distributor is IDistributor, HoodzAccessControlled {
 
     /**
      * @param _treasury  Hoodz Treasury address (must grant this contract the REWARDMANAGER right)
-     * @param _hoodz      HOODZ token address
+     * @param _hoodz      HOOD token address
      * @param _staking   HoodzStaking address, the sole caller of `distribute()`
      * @param _authority HoodzAuthority holding the governor/guardian/policy/vault roles
      */
@@ -137,7 +137,7 @@ contract Distributor is IDistributor, HoodzAccessControlled {
             revert Distributor_ZeroAddress();
         }
         treasury = ITreasury(_treasury);
-        HOODZ = _hoodz;
+        HOOD = _hoodz;
         staking = _staking;
     }
 
@@ -181,9 +181,9 @@ contract Distributor is IDistributor, HoodzAccessControlled {
 
     /**
      * @notice The most the treasury can pay out right now.
-     * @dev    The binding constraint is whichever is smaller: the HOODZ actually held, or the
+     * @dev    The binding constraint is whichever is smaller: the HOOD actually held, or the
      *         excess-reserve ceiling that keeps backing per token honest.
-     * @return Payable HOODZ, 9 decimals.
+     * @return Payable HOOD, 9 decimals.
      */
     function payableNow() public view returns (uint256) {
         uint256 held = treasury.inventory();
@@ -195,7 +195,7 @@ contract Distributor is IDistributor, HoodzAccessControlled {
 
     /**
      * @notice Register a new emission recipient.
-     * @param _recipient  address to mint HOODZ to each epoch
+     * @param _recipient  address to mint HOOD to each epoch
      * @param _rewardRate per-epoch rate in millionths of base supply (5000 == 0.5%)
      */
     function addRecipient(address _recipient, uint256 _rewardRate) external onlyGovernor {
@@ -255,19 +255,19 @@ contract Distributor is IDistributor, HoodzAccessControlled {
     /* ========================================== VIEWS ========================================= */
 
     /**
-     * @notice HOODZ that would be minted this epoch for a given rate.
+     * @notice HOOD that would be minted this epoch for a given rate.
      * @param _rate per-epoch rate in millionths of base supply
-     * @return the emission in HOODZ
+     * @return the emission in HOOD
      */
     function nextRewardAt(uint256 _rate) public view returns (uint256) {
         return (treasury.baseSupply() * _rate) / RATE_DENOMINATOR;
     }
 
     /**
-     * @notice HOODZ that would be minted this epoch for a given recipient.
+     * @notice HOOD that would be minted this epoch for a given recipient.
      * @dev    Sums every slot pointing at `_recipient`, so duplicates are handled.
      * @param _recipient the address to price
-     * @return reward the emission in HOODZ
+     * @return reward the emission in HOOD
      */
     function nextRewardFor(address _recipient) external view override returns (uint256 reward) {
         uint256 length = info.length;

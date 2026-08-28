@@ -7,22 +7,22 @@ import {Test} from "forge-std/Test.sol";
 
 import {HoodzAuthority} from "../src/HoodzAuthority.sol";
 import {IHoodzAuthority} from "../src/interfaces/IHoodzAuthority.sol";
-import {sHOODZ} from "../src/tokens/sHOODZ.sol";
-import {gHOODZ} from "../src/tokens/gHOODZ.sol";
+import {sHOOD} from "../src/tokens/sHOOD.sol";
+import {gHOOD} from "../src/tokens/gHOOD.sol";
 
 import {MockStaking} from "./mocks/MockStaking.sol";
 
 /// @title  sHoodzTest
-/// @notice sHOODZ is a gons-based rebasing token: a balance is a view over a fixed gon supply.
+/// @notice sHOOD is a gons-based rebasing token: a balance is a view over a fixed gon supply.
 ///         These tests pin the two things that must never break - the gon invariant (a holder's
 ///         gons do not move on rebase, only what they are worth) and the index (it grows by
-///         exactly the rebase ratio, which is what makes gHOODZ worth more sHOODZ over time).
+///         exactly the rebase ratio, which is what makes gHOOD worth more sHOOD over time).
 /// @dev    Deliberately isolated from staking and the treasury: a {MockStaking} owns the unstaked
 ///         float and drives `rebase()`, so the maths is measured without protocol noise.
 contract sHoodzTest is Test {
     HoodzAuthority internal authority;
-    sHOODZ internal sHoodz;
-    gHOODZ internal gHoodz;
+    sHOOD internal sHoodz;
+    gHOOD internal gHoodz;
     MockStaking internal stakingMock;
 
     address internal guardian = makeAddr("guardian");
@@ -30,7 +30,7 @@ contract sHoodzTest is Test {
     address internal alice = makeAddr("alice");
     address internal bob = makeAddr("bob");
 
-    /// @dev One sHOODZ per gHOODZ at launch, in sHOODZ's 9 decimals.
+    /// @dev One sHOOD per gHOOD at launch, in sHOOD's 9 decimals.
     uint256 internal constant INITIAL_INDEX = 1e9;
 
     function setUp() public {
@@ -39,18 +39,18 @@ contract sHoodzTest is Test {
         authority = new HoodzAuthority(address(this), guardian, address(this), address(this));
         IHoodzAuthority auth = IHoodzAuthority(address(authority));
 
-        sHoodz = new sHOODZ(auth);
-        gHoodz = new gHOODZ(auth, address(sHoodz));
+        sHoodz = new sHOOD(auth);
+        gHoodz = new gHOOD(auth, address(sHoodz));
         stakingMock = new MockStaking();
         stakingMock.setSHoodz(address(sHoodz));
 
         sHoodz.setIndex(INITIAL_INDEX);
-        sHoodz.setgHOODZ(address(gHoodz));
+        sHoodz.setgHOOD(address(gHoodz));
         sHoodz.initialize(address(stakingMock), treasury);
         gHoodz.migrate(address(stakingMock), address(sHoodz));
 
-        vm.label(address(sHoodz), "sHOODZ");
-        vm.label(address(gHoodz), "gHOODZ");
+        vm.label(address(sHoodz), "sHOOD");
+        vm.label(address(gHoodz), "gHOOD");
         vm.label(address(stakingMock), "MockStaking");
     }
 
@@ -59,8 +59,8 @@ contract sHoodzTest is Test {
     //////////////////////////////////////////////////////////////*/
 
     function test_Metadata() public view {
-        assertEq(sHoodz.decimals(), 9, "sHOODZ tracks HOODZ at 9 decimals");
-        assertEq(sHoodz.symbol(), "sHOODZ");
+        assertEq(sHoodz.decimals(), 9, "sHOOD tracks HOOD at 9 decimals");
+        assertEq(sHoodz.symbol(), "sHOOD");
     }
 
     /// @dev On `initialize` the whole gon supply is parked with the staking contract, so nothing
@@ -68,7 +68,7 @@ contract sHoodzTest is Test {
     function test_InitialSupplyIsHeldByStaking() public view {
         uint256 supply = sHoodz.totalSupply();
 
-        assertGt(supply, 0, "sHOODZ must launch with a non-zero fragment supply");
+        assertGt(supply, 0, "sHOOD must launch with a non-zero fragment supply");
         assertEq(sHoodz.balanceOf(address(stakingMock)), supply, "staking holds the whole float");
         assertEq(sHoodz.circulatingSupply(), 0, "nothing circulates before anyone stakes");
         assertEq(sHoodz.index(), INITIAL_INDEX, "index starts at 1");
@@ -204,7 +204,7 @@ contract sHoodzTest is Test {
 
         assertEq(sHoodz.circulatingSupply(), 2_000e9, "warmup counts as circulating");
 
-        // 20 sHOODZ over 2000 circulating is +1% for everyone, alice included.
+        // 20 sHOOD over 2000 circulating is +1% for everyone, alice included.
         stakingMock.rebase(20e9, 1);
 
         assertApproxEqAbs(sHoodz.balanceOf(alice), 1_010e9, 1e3, "alice grows with the ratio");
@@ -244,7 +244,7 @@ contract sHoodzTest is Test {
     }
 
     /*//////////////////////////////////////////////////////////////
-                              gHOODZ BRIDGE
+                              gHOOD BRIDGE
     //////////////////////////////////////////////////////////////*/
 
     /// @dev `toG` / `fromG` are the only bridge between the rebasing and the non-rebasing view of
@@ -260,7 +260,7 @@ contract sHoodzTest is Test {
         assertApproxEqRel(back, a, 1e12, "toG/fromG must round trip");
     }
 
-    /// @dev gHOODZ is index-denominated: the same gHOODZ is worth more sHOODZ after a rebase.
+    /// @dev gHOOD is index-denominated: the same gHOOD is worth more sHOOD after a rebase.
     function test_gHoodzBalanceFromFollowsTheIndex() public {
         _distribute(alice, 1_000e9);
 
@@ -269,21 +269,21 @@ contract sHoodzTest is Test {
 
         _rebasePercent(1);
 
-        assertApproxEqRel(gHoodz.balanceFrom(oneG), (valueBefore * 101) / 100, 1e14, "gHOODZ must appreciate");
+        assertApproxEqRel(gHoodz.balanceFrom(oneG), (valueBefore * 101) / 100, 1e14, "gHOOD must appreciate");
     }
 
     function test_gHoodzIndexMirrorsSHoodz() public {
         _distribute(alice, 1_000e9);
         _rebasePercent(3);
 
-        assertEq(gHoodz.index(), sHoodz.index(), "gHOODZ reads its index straight from sHOODZ");
+        assertEq(gHoodz.index(), sHoodz.index(), "gHOOD reads its index straight from sHOOD");
     }
 
     /*//////////////////////////////////////////////////////////////
                                 HELPERS
     //////////////////////////////////////////////////////////////*/
 
-    /// @dev Moves sHOODZ out of the staking float into circulation, simulating a stake.
+    /// @dev Moves sHOOD out of the staking float into circulation, simulating a stake.
     function _distribute(address to_, uint256 amount_) internal {
         stakingMock.transferTo(to_, amount_);
     }

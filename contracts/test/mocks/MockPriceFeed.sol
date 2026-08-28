@@ -7,15 +7,15 @@ import {IPriceFeed} from "../../src/interfaces/IPriceFeed.sol";
 
 /// @title  MockPriceFeed
 /// @notice Chainlink-shaped price feed implementing {IPriceFeed}, the oracle the Emissions
-///         Manager and the Yield Repurchase Facility price HOODZ with.
-/// @dev    Quotes one whole HOODZ in whole reserve tokens, carrying {decimals} decimals. The
+///         Manager and the Yield Repurchase Facility price HOOD with.
+/// @dev    Quotes one whole HOOD in whole reserve tokens, carrying {decimals} decimals. The
 ///         staleness setters exist so a test can drive a consumer's `maxPriceAge` check, and
 ///         {setAnswer} accepts a negative answer so the "reject answer <= 0" branch is reachable.
 contract MockPriceFeed is IPriceFeed {
     /// @inheritdoc IPriceFeed
     uint8 public override decimals;
 
-    /// @notice Human-readable feed name, e.g. "HOODZ / DAI".
+    /// @notice Human-readable feed name, e.g. "HOOD / DAI".
     string public description;
 
     /// @notice Chainlink aggregator interface version.

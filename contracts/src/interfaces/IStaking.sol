@@ -15,7 +15,7 @@ pragma solidity ^0.8.24;
         trading fees, never out of new supply - there is no mint.
 
         Web    https://hoodz.finance
-        X      https://x.com/Hoodzfinancial
+        X      https://x.com/Hoodzfinance
         Code   https://github.com/averageballer13/Hoodz
 
         UNAUDITED. This code has never been audited. Read it before you
@@ -23,29 +23,29 @@ pragma solidity ^0.8.24;
 */
 
 /// @title  IStaking
-/// @notice The Hoodz staking contract: HOODZ in, sHOODZ or gHOODZ out, rebasing every epoch.
+/// @notice The Hoodz staking contract: HOOD in, sHOOD or gHOOD out, rebasing every epoch.
 /// @dev    UNAUDITED. Do not use in production without a full audit.
 interface IStaking {
-    /// @notice Stake HOODZ to receive sHOODZ or gHOODZ.
+    /// @notice Stake HOOD to receive sHOOD or gHOOD.
     /// @param to_      Recipient of the staked position (or of the warmup claim).
-    /// @param amount_  HOODZ amount to stake, 9 decimals.
-    /// @param rebasing_ True to receive rebasing sHOODZ, false to receive gHOODZ.
+    /// @param amount_  HOOD amount to stake, 9 decimals.
+    /// @param rebasing_ True to receive rebasing sHOOD, false to receive gHOOD.
     /// @param claim_   True to bypass/settle warmup immediately when allowed.
-    /// @return The amount of sHOODZ (rebasing) or gHOODZ (non-rebasing) credited.
+    /// @return The amount of sHOOD (rebasing) or gHOOD (non-rebasing) credited.
     function stake(address to_, uint256 amount_, bool rebasing_, bool claim_) external returns (uint256);
 
-    /// @notice Unstake sHOODZ or gHOODZ back into HOODZ.
-    /// @param to_      Recipient of the HOODZ.
-    /// @param amount_  Amount of sHOODZ (rebasing) or gHOODZ (non-rebasing) to burn.
+    /// @notice Unstake sHOOD or gHOOD back into HOOD.
+    /// @param to_      Recipient of the HOOD.
+    /// @param amount_  Amount of sHOOD (rebasing) or gHOOD (non-rebasing) to burn.
     /// @param trigger_ True to trigger a rebase before unstaking.
-    /// @param rebasing_ True if amount_ is denominated in sHOODZ, false for gHOODZ.
-    /// @return The amount of HOODZ returned, 9 decimals.
+    /// @param rebasing_ True if amount_ is denominated in sHOOD, false for gHOOD.
+    /// @return The amount of HOOD returned, 9 decimals.
     function unstake(address to_, uint256 amount_, bool trigger_, bool rebasing_) external returns (uint256);
 
     /// @notice Trigger the epoch rebase if the current epoch has ended.
     function rebase() external;
 
-    /// @notice The current sHOODZ index.
+    /// @notice The current sHOOD index.
     /// @return The index, 9 decimals.
     function index() external view returns (uint256);
 

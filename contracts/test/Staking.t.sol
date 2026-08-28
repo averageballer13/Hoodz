@@ -17,7 +17,7 @@ import {HoodzStackSetup} from "./utils/HoodzStackSetup.sol";
 contract StakingTest is HoodzStackSetup {
     function setUp() public {
         _deployHoodzStack();
-        // 10m reserve booked entirely as profit -> 10m HOODZ of excess reserves to emit from.
+        // 10m reserve booked entirely as profit -> 10m HOOD of excess reserves to emit from.
         _fundTreasury(10_000_000e18);
     }
 
@@ -28,20 +28,20 @@ contract StakingTest is HoodzStackSetup {
     function test_StakeMintsRebasingSHoodz() public {
         uint256 received = _stake(alice, 1_000e9);
 
-        assertEq(received, 1_000e9, "stake returns the sHOODZ credited");
-        assertEq(sHoodz.balanceOf(alice), 1_000e9, "alice holds sHOODZ 1:1 with HOODZ");
-        assertEq(hoodz.balanceOf(alice), 0, "the HOODZ was consumed");
-        assertEq(hoodz.balanceOf(address(staking)), 1_000e9, "staking custodies the HOODZ");
+        assertEq(received, 1_000e9, "stake returns the sHOOD credited");
+        assertEq(sHoodz.balanceOf(alice), 1_000e9, "alice holds sHOOD 1:1 with HOOD");
+        assertEq(hoodz.balanceOf(alice), 0, "the HOOD was consumed");
+        assertEq(hoodz.balanceOf(address(staking)), 1_000e9, "staking custodies the HOOD");
         assertEq(sHoodz.circulatingSupply(), 1_000e9, "the stake is now circulating");
     }
 
     function test_StakeMintsNonRebasingGHoodz() public {
         uint256 received = _stakeToG(alice, 1_000e9);
 
-        assertEq(received, sHoodz.toG(1_000e9), "gHOODZ is index-denominated");
+        assertEq(received, sHoodz.toG(1_000e9), "gHOOD is index-denominated");
         assertEq(gHoodz.balanceOf(alice), received);
-        assertEq(sHoodz.balanceOf(alice), 0, "no sHOODZ when staking straight to gHOODZ");
-        // At an index of 1.0, 1000 HOODZ (9 dec) is 1000 gHOODZ (18 dec).
+        assertEq(sHoodz.balanceOf(alice), 0, "no sHOOD when staking straight to gHOOD");
+        // At an index of 1.0, 1000 HOOD (9 dec) is 1000 gHOOD (18 dec).
         assertApproxEqRel(received, 1_000e18, 1e12);
     }
 
@@ -54,7 +54,7 @@ contract StakingTest is HoodzStackSetup {
         vm.stopPrank();
 
         assertEq(returned, 1_000e9);
-        assertEq(hoodz.balanceOf(alice), 1_000e9, "HOODZ came back");
+        assertEq(hoodz.balanceOf(alice), 1_000e9, "HOOD came back");
         assertEq(sHoodz.balanceOf(alice), 0);
     }
 
@@ -66,7 +66,7 @@ contract StakingTest is HoodzStackSetup {
         uint256 returned = staking.unstake(alice, g, false, false);
         vm.stopPrank();
 
-        assertApproxEqAbs(returned, 1_000e9, 1, "gHOODZ unwinds to the same HOODZ at a flat index");
+        assertApproxEqAbs(returned, 1_000e9, 1, "gHOOD unwinds to the same HOOD at a flat index");
         assertEq(gHoodz.balanceOf(alice), 0);
     }
 
@@ -186,7 +186,7 @@ contract StakingTest is HoodzStackSetup {
 
         uint256 expected = (treasury.baseSupply() * REWARD_RATE) / RATE_DENOMINATOR;
         assertEq(distributor.nextRewardFor(address(staking)), expected, "reward rate must be honoured");
-        assertEq(expected, 3e9, "0.30% of a 1000 HOODZ base supply");
+        assertEq(expected, 3e9, "0.30% of a 1000 HOOD base supply");
 
         uint256 excessBefore = treasury.excessReserves();
         uint256 stakingBefore = hoodz.balanceOf(address(staking));
@@ -219,7 +219,7 @@ contract StakingTest is HoodzStackSetup {
         console2.log("index after 11 epochs:", staking.index());
     }
 
-    /// @dev A gHOODZ holder earns the same yield as an sHOODZ holder, through the index rather
+    /// @dev A gHOOD holder earns the same yield as an sHOOD holder, through the index rather
     ///      than through a growing balance.
     function test_GHoodzHolderEarnsTheSameYield() public {
         _stake(alice, 1_000e9);
@@ -227,8 +227,8 @@ contract StakingTest is HoodzStackSetup {
 
         _rollEpochs(6);
 
-        assertEq(gHoodz.balanceOf(bob), g, "gHOODZ balances never rebase");
-        assertApproxEqRel(gHoodz.balanceFrom(g), sHoodz.balanceOf(alice), 1e14, "gHOODZ and sHOODZ yield alike");
+        assertEq(gHoodz.balanceOf(bob), g, "gHOOD balances never rebase");
+        assertApproxEqRel(gHoodz.balanceFrom(g), sHoodz.balanceOf(alice), 1e14, "gHOOD and sHOOD yield alike");
     }
 
     function test_UnstakeAfterRebasesReturnsMoreHoodz() public {
@@ -244,11 +244,11 @@ contract StakingTest is HoodzStackSetup {
         vm.stopPrank();
 
         assertEq(returned, balance, "unstake is 1:1 with the rebased balance");
-        assertGt(hoodz.balanceOf(alice), 1_000e9, "yield realised as HOODZ");
+        assertGt(hoodz.balanceOf(alice), 1_000e9, "yield realised as HOOD");
     }
 
-    /// @dev Staking must stay fully backed: the HOODZ held by the staking contract can never be
-    ///      less than the sHOODZ it owes to circulating holders.
+    /// @dev Staking must stay fully backed: the HOOD held by the staking contract can never be
+    ///      less than the sHOOD it owes to circulating holders.
     function test_StakingStaysSolventAcrossEpochs() public {
         _stake(alice, 5_000e9);
         _stake(bob, 2_500e9);
@@ -258,7 +258,7 @@ contract StakingTest is HoodzStackSetup {
             assertGe(
                 hoodz.balanceOf(address(staking)),
                 sHoodz.circulatingSupply(),
-                "staking must hold at least the sHOODZ it owes"
+                "staking must hold at least the sHOOD it owes"
             );
         }
     }

@@ -12,7 +12,7 @@
  *
  * Import resolution:
  *   "./x.sol" / "../x.sol"        resolved by solc against the importing source unit name
- *                                 (source unit names are repo-relative: "src/tokens/HOODZ.sol")
+ *                                 (source unit names are repo-relative: "src/tokens/HOOD.sol")
  *   "@openzeppelin/contracts/..." nearest node_modules walking up from contracts/
  *   "node_modules/..."            relative to contracts/
  *

@@ -14,7 +14,7 @@ pragma solidity ^0.8.24;
         trading fees, never out of new supply - there is no mint.
 
         Web    https://hoodz.finance
-        X      https://x.com/Hoodzfinancial
+        X      https://x.com/Hoodzfinance
         Code   https://github.com/averageballer13/Hoodz
 
         UNAUDITED. This code has never been audited. Read it before you
@@ -23,7 +23,7 @@ pragma solidity ^0.8.24;
 
 /// @title PonsLaunchConfig
 /// @author Hoodz
-/// @notice The immutable, on-chain record of the HOODZ launch on PONS.
+/// @notice The immutable, on-chain record of the HOOD launch on PONS.
 /// @dev Deployed once, before the curve is funded, and never again. Every field is `immutable`, set in
 ///      the constructor and burned into the deployed bytecode: there is no owner, no setter, no
 ///      upgrade path and no storage to overwrite. Its only job is to make the terms of the launch -
@@ -31,13 +31,13 @@ pragma solidity ^0.8.24;
 ///      who may ever touch the locked LP's fees - independently verifiable by anyone reading the chain,
 ///      rather than a claim in a document.
 ///
-///      {HoodzLaunchGuard} anchors itself to this record, so the guard's notion of "the HOODZ launch"
+///      {HoodzLaunchGuard} anchors itself to this record, so the guard's notion of "the HOOD launch"
 ///      cannot be re-pointed at a different token after deployment.
 contract PonsLaunchConfig {
     /* ------------------------------------------------------------------ types */
 
     /// @notice The complete launch record.
-    /// @param hoodzToken The HOODZ ERC20 being launched.
+    /// @param hoodzToken The HOOD ERC20 being launched.
     /// @param reserveToken The quote asset collected by the bonding curve.
     /// @param curve The PONS bonding curve escrow for this launch.
     /// @param targetRaise Total reserve the curve is sized to collect across its whole range.
@@ -80,7 +80,7 @@ contract PonsLaunchConfig {
 
     /* ------------------------------------------------------------- immutables */
 
-    address private immutable _HOODZ_TOKEN;
+    address private immutable _HOOD_TOKEN;
     address private immutable _RESERVE_TOKEN;
     address private immutable _CURVE;
     uint256 private immutable _TARGET_RAISE;
@@ -105,7 +105,7 @@ contract PonsLaunchConfig {
 
     /* ------------------------------------------------------------ constructor */
 
-    /// @param hoodzToken_ The HOODZ ERC20 being launched. Must be a clean, permissionless ERC20.
+    /// @param hoodzToken_ The HOOD ERC20 being launched. Must be a clean, permissionless ERC20.
     /// @param reserveToken_ The quote asset collected by the bonding curve.
     /// @param curve_ The PONS bonding curve escrow for this launch.
     /// @param targetRaise_ Total reserve the curve is sized to collect.
@@ -135,7 +135,7 @@ contract PonsLaunchConfig {
 
         uint64 stamp = launchTimestamp_ == 0 ? uint64(block.timestamp) : launchTimestamp_;
 
-        _HOODZ_TOKEN = hoodzToken_;
+        _HOOD_TOKEN = hoodzToken_;
         _RESERVE_TOKEN = reserveToken_;
         _CURVE = curve_;
         _TARGET_RAISE = targetRaise_;
@@ -158,10 +158,10 @@ contract PonsLaunchConfig {
 
     /* ---------------------------------------------------------------- getters */
 
-    /// @notice The HOODZ ERC20 launched through PONS.
-    /// @return The HOODZ token address.
+    /// @notice The HOOD ERC20 launched through PONS.
+    /// @return The HOOD token address.
     function hoodzToken() external view returns (address) {
-        return _HOODZ_TOKEN;
+        return _HOOD_TOKEN;
     }
 
     /// @notice The quote asset the bonding curve collected.
@@ -211,7 +211,7 @@ contract PonsLaunchConfig {
     /// @return The populated {LaunchManifest}.
     function manifest() external view returns (LaunchManifest memory) {
         return LaunchManifest({
-            hoodzToken: _HOODZ_TOKEN,
+            hoodzToken: _HOOD_TOKEN,
             reserveToken: _RESERVE_TOKEN,
             curve: _CURVE,
             targetRaise: _TARGET_RAISE,

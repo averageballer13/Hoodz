@@ -14,7 +14,7 @@ pragma solidity ^0.8.24;
         trading fees, never out of new supply - there is no mint.
 
         Web    https://hoodz.finance
-        X      https://x.com/Hoodzfinancial
+        X      https://x.com/Hoodzfinance
         Code   https://github.com/averageballer13/Hoodz
 
         UNAUDITED. This code has never been audited. Read it before you
@@ -25,7 +25,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import {IHoodzAuthority} from "../interfaces/IHoodzAuthority.sol";
-import {IHOODZ} from "../interfaces/IHOODZ.sol";
+import {IHOOD} from "../interfaces/IHOOD.sol";
 import {HoodzAccessControlled} from "../types/HoodzAccessControlled.sol";
 import {HoodzBurn} from "../types/HoodzBurn.sol";
 import {ISwapRouter} from "./FeeRouterBuyback.sol";
@@ -44,19 +44,19 @@ interface IWrappedNative is IERC20 {
 ///
 ///         Why this contract is the whole protocol now:
 ///
-///         HOODZ is deployed by PONS with a fixed 1,000,000,000 supply and no mint function, so
+///         HOOD is deployed by PONS with a fixed 1,000,000,000 supply and no mint function, so
 ///         Olympus's engine - create tokens from nothing and sell them at a premium - is simply not
 ///         available. There is exactly one recurring source of value: the creator fee PONS pays on
-///         every trade of HOODZ. Point PONS at this address and the fee becomes, automatically and
+///         every trade of HOOD. Point PONS at this address and the fee becomes, automatically and
 ///         without anyone's discretion:
 ///
-///           * `stakersBps`  swapped to HOODZ and sent to the staking contract. This is what pays
+///           * `stakersBps`  swapped to HOOD and sent to the staking contract. This is what pays
 ///             the rebase. `HoodzStaking.rebase()` computes `contractBalance - circulatingStaked`
 ///             and does not care where the surplus came from, so a plain transfer here does exactly
 ///             what minting used to do - except it is funded by real revenue instead of dilution.
-///           * `burnBps`     swapped to HOODZ and sent to the dead address. Circulating supply only
+///           * `burnBps`     swapped to HOOD and sent to the dead address. Circulating supply only
 ///             ever falls.
-///           * `treasuryBps` swapped to HOODZ and sent to the treasury, rebuilding the inventory
+///           * `treasuryBps` swapped to HOOD and sent to the treasury, rebuilding the inventory
 ///             that bonds and emissions pay out of.
 ///
 ///         The yield is therefore honest and bounded: it is fees divided by staked supply, and
@@ -77,7 +77,7 @@ contract CreatorFeeSplitter is HoodzAccessControlled {
     error NothingToDistribute();
     /// @notice `minOut` was zero. An unbounded swap is a donation to the first searcher who sees it.
     error ZeroMinOut();
-    /// @notice The swap delivered less HOODZ than `minOut`.
+    /// @notice The swap delivered less HOOD than `minOut`.
     error InsufficientOutput(uint256 received, uint256 minOut);
     /// @notice The three shares must add up to exactly 10_000 basis points.
     error SharesMustSumToOne(uint256 got);
@@ -93,11 +93,11 @@ contract CreatorFeeSplitter is HoodzAccessControlled {
 
     /* -------------------------------------------------------------- immutables */
 
-    /// @notice The HOODZ token bought with fee income.
-    IHOODZ public immutable HOODZ;
+    /// @notice The HOOD token bought with fee income.
+    IHOOD public immutable HOOD;
     /// @notice Wrapped native, the swap's input leg.
     IWrappedNative public immutable WRAPPED_NATIVE;
-    /// @notice Router used to buy HOODZ out of the graduated PONS pool.
+    /// @notice Router used to buy HOOD out of the graduated PONS pool.
     ISwapRouter public immutable SWAP_ROUTER;
     /// @notice Fee tier identifying the graduated pool.
     uint24 public immutable LP_FEE_TIER;
@@ -117,21 +117,21 @@ contract CreatorFeeSplitter is HoodzAccessControlled {
 
     /// @notice Cumulative native value distributed.
     uint256 public totalNativeIn;
-    /// @notice Cumulative HOODZ sent to stakers.
+    /// @notice Cumulative HOOD sent to stakers.
     uint256 public totalToStakers;
-    /// @notice Cumulative HOODZ burned.
+    /// @notice Cumulative HOOD burned.
     uint256 public totalBurned;
-    /// @notice Cumulative HOODZ sent to the treasury.
+    /// @notice Cumulative HOOD sent to the treasury.
     uint256 public totalToTreasury;
 
     /* ----------------------------------------------------------------- events */
 
     /// @notice A fee distribution completed.
     /// @param nativeIn   Native value spent.
-    /// @param hoodzOut   HOODZ bought.
-    /// @param toStakers  HOODZ sent to staking.
-    /// @param burned     HOODZ burned.
-    /// @param toTreasury HOODZ sent to the treasury.
+    /// @param hoodzOut   HOOD bought.
+    /// @param toStakers  HOOD sent to staking.
+    /// @param burned     HOOD burned.
+    /// @param toTreasury HOOD sent to the treasury.
     event FeesDistributed(
         uint256 nativeIn, uint256 hoodzOut, uint256 toStakers, uint256 burned, uint256 toTreasury
     );
@@ -145,7 +145,7 @@ contract CreatorFeeSplitter is HoodzAccessControlled {
     /* ------------------------------------------------------------ constructor */
 
     /// @param authority_      Authority granting the policy and governor roles.
-    /// @param hoodz_          The HOODZ token, as deployed by PONS.
+    /// @param hoodz_          The HOOD token, as deployed by PONS.
     /// @param wrappedNative_  Wrapped native token used as the swap input.
     /// @param swapRouter_     Router for the graduated pool.
     /// @param lpFeeTier_      Fee tier of the graduated pool.
@@ -156,7 +156,7 @@ contract CreatorFeeSplitter is HoodzAccessControlled {
     /// @param treasuryBps_    Initial treasury share.
     constructor(
         IHoodzAuthority authority_,
-        IHOODZ hoodz_,
+        IHOOD hoodz_,
         IWrappedNative wrappedNative_,
         ISwapRouter swapRouter_,
         uint24 lpFeeTier_,
@@ -171,7 +171,7 @@ contract CreatorFeeSplitter is HoodzAccessControlled {
                 || address(swapRouter_) == address(0) || staking_ == address(0) || treasury_ == address(0)
         ) revert ZeroAddress();
 
-        HOODZ = hoodz_;
+        HOOD = hoodz_;
         WRAPPED_NATIVE = wrappedNative_;
         SWAP_ROUTER = swapRouter_;
         LP_FEE_TIER = lpFeeTier_;
@@ -193,13 +193,13 @@ contract CreatorFeeSplitter is HoodzAccessControlled {
 
     /* ------------------------------------------------------------ distribute */
 
-    /// @notice Convert everything on hand into HOODZ and split it.
+    /// @notice Convert everything on hand into HOOD and split it.
     /// @dev Permissionless: anyone may run it, nobody can misdirect it. The destinations are
     ///      immutable and the split is governor-set, so the only thing a caller controls is when it
     ///      happens and what slippage they are willing to accept.
-    /// @param minOut   Minimum HOODZ out of the swap. Must be non-zero.
+    /// @param minOut   Minimum HOOD out of the swap. Must be non-zero.
     /// @param deadline Latest timestamp this may execute.
-    /// @return hoodzOut Total HOODZ bought.
+    /// @return hoodzOut Total HOOD bought.
     function distribute(uint256 minOut, uint256 deadline) external returns (uint256 hoodzOut) {
         if (block.timestamp > deadline) revert DeadlineExpired();
         if (minOut == 0) revert ZeroMinOut();
@@ -207,14 +207,14 @@ contract CreatorFeeSplitter is HoodzAccessControlled {
         uint256 nativeIn = address(this).balance;
         if (nativeIn == 0) revert NothingToDistribute();
 
-        // wrap, then buy HOODZ out of the graduated pool
+        // wrap, then buy HOOD out of the graduated pool
         WRAPPED_NATIVE.deposit{value: nativeIn}();
         IERC20(address(WRAPPED_NATIVE)).forceApprove(address(SWAP_ROUTER), nativeIn);
 
         hoodzOut = SWAP_ROUTER.exactInputSingle(
             ISwapRouter.ExactInputSingleParams({
                 tokenIn: address(WRAPPED_NATIVE),
-                tokenOut: address(HOODZ),
+                tokenOut: address(HOOD),
                 fee: LP_FEE_TIER,
                 recipient: address(this),
                 deadline: deadline,
@@ -225,7 +225,7 @@ contract CreatorFeeSplitter is HoodzAccessControlled {
         );
         if (hoodzOut < minOut) revert InsufficientOutput(hoodzOut, minOut);
 
-        // Split the realised HOODZ, not the notional: the treasury leg takes the remainder so
+        // Split the realised HOOD, not the notional: the treasury leg takes the remainder so
         // rounding dust can never strand a wei in this contract.
         uint256 toStakers = (hoodzOut * stakersBps) / BPS;
         uint256 toBurn = (hoodzOut * burnBps) / BPS;
@@ -239,9 +239,9 @@ contract CreatorFeeSplitter is HoodzAccessControlled {
         // Stakers' share goes straight into the staking contract's balance. rebase() reads
         // `contractBalance - circulatingStaked`, so this becomes the epoch's distribution with no
         // further wiring - the same slot minting used to fill.
-        if (toStakers != 0) IERC20(address(HOODZ)).safeTransfer(STAKING, toStakers);
-        HoodzBurn.burn(IERC20(address(HOODZ)), toBurn);
-        if (toTreasury != 0) IERC20(address(HOODZ)).safeTransfer(TREASURY, toTreasury);
+        if (toStakers != 0) IERC20(address(HOOD)).safeTransfer(STAKING, toStakers);
+        HoodzBurn.burn(IERC20(address(HOOD)), toBurn);
+        if (toTreasury != 0) IERC20(address(HOOD)).safeTransfer(TREASURY, toTreasury);
 
         emit FeesDistributed(nativeIn, hoodzOut, toStakers, toBurn, toTreasury);
     }

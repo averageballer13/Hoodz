@@ -1,9 +1,9 @@
 # Hoodz
 
-**[hoodz.finance](https://hoodz.finance)** · **[@Hoodzfinancial](https://x.com/Hoodzfinancial)**
+**[hoodz.finance](https://hoodz.finance)** · **[@Hoodzfinance](https://x.com/Hoodzfinance)**
 
 **A faithful, rebranded re-implementation of the Olympus DAO protocol, deployed on Robinhood Chain
-(EVM, chainId `4663`), with the `HOODZ` token launched through the PONS launchpad.**
+(EVM, chainId `4663`), with the `HOOD` token launched through the PONS launchpad.**
 
 > ## UNAUDITED — EDUCATIONAL CLONE
 >
@@ -12,7 +12,7 @@
 > `/// @dev UNAUDITED. Do not use in production without a full audit.` banner, and that banner is
 > the literal truth.
 >
-> * Nothing in this repo is deployed. There is no official HOODZ token, no official website, no
+> * Nothing in this repo is deployed. There is no official HOOD token, no official website, no
 >   team, no treasury, and no promise that any of the above will ever exist.
 > * Do not send money to any address claiming to be this project.
 > * This is **not** investment advice, not a securities offering, and not affiliated with,
@@ -52,8 +52,8 @@ Neither path wires roles for you; see `docs/DEPLOYMENT.md`.
 Hoodz is a reserve-backed currency protocol. It has three jobs:
 
 1. **Hold assets.** A treasury owns reserve tokens and protocol-owned liquidity. The value it
-   holds per circulating HOODZ is the *backing*.
-2. **Issue HOODZ against those assets.** New HOODZ is only ever minted against reserves the treasury
+   holds per circulating HOOD is the *backing*.
+2. **Issue HOOD against those assets.** New HOOD is only ever minted against reserves the treasury
    actually holds — through bonds, through the Emissions Manager, or through Convertible Deposits.
    Each of those paths is designed to mint at a price *above* backing, so the backing per token
    rises rather than falls.
@@ -74,9 +74,9 @@ the chain and the launch venue — nothing else.
 | Olympus DAO                     | Hoodz                        |
 | ------------------------------- | ------------------------------- |
 | Olympus DAO                     | Hoodz                        |
-| OHM                             | **HOODZ**                        |
-| sOHM                            | **sHOODZ**                       |
-| gOHM                            | **gHOODZ**                       |
+| OHM                             | **HOOD**                        |
+| sOHM                            | **sHOOD**                       |
+| gOHM                            | **gHOOD**                       |
 | Ethereum L1                     | **Robinhood Chain** (EVM L2)    |
 | Cooler Loans                    | **Hoodz Loans**                  |
 | Olympus Treasury                | **Hoodz Treasury**               |
@@ -110,9 +110,9 @@ PONSDAO/
       HoodzTreasury.sol          the vault: reserves, permissions, mint authority
       HoodzStaking.sol           epochs, warmup, the rebase trigger
       HoodzBondingCalculator.sol LP valuation for treasury accounting
-      interfaces/      IHoodzAuthority, IHOODZ, IsHOODZ, IgHOODZ, IStaking, ITreasury, IDistributor, ...
+      interfaces/      IHoodzAuthority, IHOOD, IsHOOD, IgHOOD, IStaking, ITreasury, IDistributor, ...
       types/           HoodzAccessControlled - the shared role-gated base
-      tokens/          HOODZ, sHOODZ, gHOODZ
+      tokens/          HOOD, sHOOD, gHOOD
       policies/        BondDepository, Distributor, EmissionsManager,
                        YieldRepurchaseFacility, ConvertibleDepository
       loans/           Hoodz Loans: Clearinghouse, Cooler, CoolerFactory
@@ -261,7 +261,7 @@ cast chain-id --rpc-url https://rpc.mainnet.chain.robinhood.com   # -> 4663
 
 ## 5. The PONS launch
 
-**PONS** is the non-custodial launchpad on Robinhood Chain. HOODZ launches there, and that
+**PONS** is the non-custodial launchpad on Robinhood Chain. HOOD launches there, and that
 constrains both the token and the deployment order.
 
 How PONS V2 works:
@@ -276,10 +276,10 @@ How PONS V2 works:
 
 What that forces on us:
 
-* **HOODZ must be a clean, permissionless ERC20 at launch.** No transfer tax, no blacklist, no
+* **HOOD must be a clean, permissionless ERC20 at launch.** No transfer tax, no blacklist, no
   pausable transfers, no hooks on transfer. PONS will reject anything else, and so should you.
-* **Supply is frozen while HOODZ is price-discovering.** The `vault` role — the only role that can
-  mint HOODZ — moves: launch operator (for exactly **one** mint, the launch supply) →
+* **Supply is frozen while HOOD is price-discovering.** The `vault` role — the only role that can
+  mint HOOD — moves: launch operator (for exactly **one** mint, the launch supply) →
   **`HoodzLaunchGuard`** → `HoodzTreasury`. The guard has no mint function at all, so while it holds
   the role, total supply cannot change. Nothing else ever holds `vault`.
 * **Mint authority reaches the treasury only after graduation is proven on-chain.** The guard's
@@ -291,14 +291,14 @@ What that forces on us:
   only*; the principal is withdrawable by nobody. No unlock path, no timelock, no override.
 * `contracts/src/pons/` holds the integration surface: `IPonsLaunchpad`, `IPonsBondingCurve`,
   `IPonsFeeRouter` and `IPositionLocker` (the interfaces we integrate against), `PonsLaunchConfig`
-  (an immutable on-chain record of the launch parameters — HOODZ, reserve token, curve, target
+  (an immutable on-chain record of the launch parameters — HOOD, reserve token, curve, target
   raise, graduation threshold, LP fee tier, lock beneficiary, launch timestamp),
-  `HoodzLaunchGuard`, and `FeeRouterBuyback` (receives the protocol fee share, buys HOODZ on the
+  `HoodzLaunchGuard`, and `FeeRouterBuyback` (receives the protocol fee share, buys HOOD on the
   graduated v4 pool, burns it in the same transaction).
 * The deploy script supports `--chain 4663` and `--chain 46630` and writes a PONS-ready launch
   manifest to `docs/pons-launch.json`.
 
-Launch order in one line: **authority → clean HOODZ → one launch mint → PONS curve → vault role to
+Launch order in one line: **authority → clean HOOD → one launch mint → PONS curve → vault role to
 the guard (supply frozen) → graduation + LP lock verified → `arm()` → 48 hours →
 `releaseToTreasury()`.**
 The step-by-step, with signers, verifications and failure modes, is in

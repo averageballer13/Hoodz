@@ -14,7 +14,7 @@ pragma solidity ^0.8.24;
         trading fees, never out of new supply - there is no mint.
 
         Web    https://hoodz.finance
-        X      https://x.com/Hoodzfinancial
+        X      https://x.com/Hoodzfinance
         Code   https://github.com/averageballer13/Hoodz
 
         UNAUDITED. This code has never been audited. Read it before you
@@ -27,8 +27,8 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 
 import {HoodzAccessControlled} from "../types/HoodzAccessControlled.sol";
 import {IHoodzAuthority} from "../interfaces/IHoodzAuthority.sol";
-import {IHOODZ} from "../interfaces/IHOODZ.sol";
-import {IgHOODZ} from "../interfaces/IgHOODZ.sol";
+import {IHOOD} from "../interfaces/IHOOD.sol";
+import {IgHOOD} from "../interfaces/IgHOOD.sol";
 import {IStaking} from "../interfaces/IStaking.sol";
 import {ITreasury} from "../interfaces/ITreasury.sol";
 import {IClearinghouse} from "../interfaces/IClearinghouse.sol";
@@ -39,31 +39,31 @@ import {HoodzBurn} from "../types/HoodzBurn.sol";
 
 /// @title  Clearinghouse
 /// @notice The Hoodz side of Hoodz Loans: the policy that lends treasury reserves against
-///         gHOODZ at a fixed 0.5% annualised rate, with no liquidations and rollable terms.
+///         gHOOD at a fixed 0.5% annualised rate, with no liquidations and rollable terms.
 /// @dev    UNAUDITED. Do not use in production without a full audit.
 ///
 ///         ## What the borrower gets
-///         A 121-day loan against gHOODZ at a hard-coded 0.5% annualised rate. Interest is
+///         A 121-day loan against gHOOD at a hard-coded 0.5% annualised rate. Interest is
 ///         prepaid per term. There is no liquidation and no margin call: if the loan is not
 ///         repaid or rolled by expiry, the DAO simply keeps the collateral. Because the loan
 ///         can be rolled indefinitely, the practical term is perpetual.
 ///
 ///         ## What the DAO gets
-///         A floor bid on gHOODZ. Every loan is written strictly below the liquid backing per
-///         gHOODZ, so any default hands the treasury collateral worth more than the reserves
-///         it lent. Seized gHOODZ is unstaked and burned via {burn}, which is accretive to the
+///         A floor bid on gHOOD. Every loan is written strictly below the liquid backing per
+///         gHOOD, so any default hands the treasury collateral worth more than the reserves
+///         it lent. Seized gHOOD is unstaked and burned via {burn}, which is accretive to the
 ///         remaining holders.
 ///
 ///         ## The oLTC drip
 ///         `LOAN_TO_COLLATERAL` is not a constant. It is an "origination loan-to-collateral"
 ///         that drips upward on a pre-committed, immutable schedule, tracking the fact that
-///         liquid backing per gHOODZ grows as the treasury earns yield:
+///         liquid backing per gHOOD grows as the treasury earns yield:
 ///
 ///             elapsed  = block.timestamp - oltcEpoch
 ///             drip     = OLTC_BASE * OLTC_GROWTH_PER_YEAR * elapsed / (1e18 * 365 days)
 ///             oLTC(t)  = min(OLTC_BASE + drip, OLTC_MAX)
 ///
-///         In words: the amount of reserve lent per 1e18 gHOODZ starts at `OLTC_BASE` and
+///         In words: the amount of reserve lent per 1e18 gHOOD starts at `OLTC_BASE` and
 ///         grows linearly by `OLTC_GROWTH_PER_YEAR` (a 1e18 fraction of the base) per year,
 ///         until it is frozen at `OLTC_MAX`. The schedule is fixed at deployment and cannot
 ///         be tuned by governance, so a borrower can price a perpetual position today. It is
@@ -103,7 +103,7 @@ contract Clearinghouse is IClearinghouse, ICoolerCallback, HoodzAccessControlled
     /// @notice Reserve balance the policy targets after every {rebalance}.
     uint256 public constant FUND_AMOUNT = 5_000_000e18;
 
-    /// @notice Starting origination loan-to-collateral: reserve lent per 1e18 gHOODZ.
+    /// @notice Starting origination loan-to-collateral: reserve lent per 1e18 gHOOD.
     uint256 public constant OLTC_BASE = 3_000e18;
 
     /// @notice Linear growth of the oLTC per year, as a 1e18 fraction of `OLTC_BASE`.
@@ -112,7 +112,7 @@ contract Clearinghouse is IClearinghouse, ICoolerCallback, HoodzAccessControlled
     /// @notice Hard ceiling the oLTC drip freezes at.
     uint256 public constant OLTC_MAX = 9_000e18;
 
-    /// @notice Absolute cap on the gHOODZ paid to a keeper for claiming one defaulted loan.
+    /// @notice Absolute cap on the gHOOD paid to a keeper for claiming one defaulted loan.
     uint256 public constant MAX_REWARD = 1e17;
 
     /// @dev Share of seized collateral a keeper may earn, 1e18 fixed point (5%).
@@ -126,12 +126,12 @@ contract Clearinghouse is IClearinghouse, ICoolerCallback, HoodzAccessControlled
     // ---------------------------------------------------------------------------------------
 
     /// @notice Collateral accepted by this policy.
-    IgHOODZ public immutable gHOODZ;
+    IgHOOD public immutable gHOOD;
 
     /// @notice Governance token burned when collateral is seized.
-    IHOODZ public immutable hoodz;
+    IHOOD public immutable hoodz;
 
-    /// @notice Staking contract used to unwind gHOODZ into HOODZ before burning.
+    /// @notice Staking contract used to unwind gHOOD into HOOD before burning.
     IStaking public immutable staking;
 
     /// @notice Reserve asset lent to borrowers.
@@ -170,16 +170,16 @@ contract Clearinghouse is IClearinghouse, ICoolerCallback, HoodzAccessControlled
     // ---------------------------------------------------------------------------------------
 
     /// @notice Wires the policy to the token stack, the treasury and the escrow factory.
-    /// @param  gHOODZ_     Collateral token accepted by this policy.
-    /// @param  hoodz_      HOODZ token, burned when seized collateral is unwound.
-    /// @param  staking_   Staking contract used to unstake gHOODZ into HOODZ.
+    /// @param  gHOOD_     Collateral token accepted by this policy.
+    /// @param  hoodz_      HOOD token, burned when seized collateral is unwound.
+    /// @param  staking_   Staking contract used to unstake gHOOD into HOOD.
     /// @param  reserve_   Reserve asset lent to borrowers.
     /// @param  sReserve_  ERC-4626 vault holding the reserve asset.
     /// @param  treasury_  Hoodz Treasury.
     /// @param  factory_   Trusted escrow factory.
     /// @param  authority_ HoodzAuthority granting the governor/guardian/policy roles.
     constructor(
-        address gHOODZ_,
+        address gHOOD_,
         address hoodz_,
         address staking_,
         address reserve_,
@@ -189,13 +189,13 @@ contract Clearinghouse is IClearinghouse, ICoolerCallback, HoodzAccessControlled
         IHoodzAuthority authority_
     ) HoodzAccessControlled(authority_) {
         if (
-            gHOODZ_ == address(0) || hoodz_ == address(0) || staking_ == address(0) || reserve_ == address(0)
+            gHOOD_ == address(0) || hoodz_ == address(0) || staking_ == address(0) || reserve_ == address(0)
                 || sReserve_ == address(0) || treasury_ == address(0) || factory_ == address(0)
         ) revert ZeroAddress();
         if (IERC4626(sReserve_).asset() != reserve_) revert BadSavingsVault();
 
-        gHOODZ = IgHOODZ(gHOODZ_);
-        hoodz = IHOODZ(hoodz_);
+        gHOOD = IgHOOD(gHOOD_);
+        hoodz = IHOOD(hoodz_);
         staking = IStaking(staking_);
         reserve = IERC20(reserve_);
         sReserve = IERC4626(sReserve_);
@@ -214,7 +214,7 @@ contract Clearinghouse is IClearinghouse, ICoolerCallback, HoodzAccessControlled
     // ---------------------------------------------------------------------------------------
 
     /// @inheritdoc IClearinghouse
-    /// @dev The borrower must have approved this policy for the gHOODZ collateral. The whole
+    /// @dev The borrower must have approved this policy for the gHOOD collateral. The whole
     ///      request/clear cycle happens atomically inside this call, so the escrow is never
     ///      left holding an unfilled request that a third party could interfere with.
     function lendToCooler(ICooler cooler_, uint256 amount_) external override returns (uint256 loanID) {
@@ -234,8 +234,8 @@ contract Clearinghouse is IClearinghouse, ICoolerCallback, HoodzAccessControlled
         interestReceivables += interest;
 
         // Escrow the collateral on behalf of the borrower.
-        SafeERC20.safeTransferFrom(gHOODZ, msg.sender, address(this), collateralAmount);
-        SafeERC20.forceApprove(gHOODZ, address(cooler_), collateralAmount);
+        SafeERC20.safeTransferFrom(gHOOD, msg.sender, address(this), collateralAmount);
+        SafeERC20.forceApprove(gHOOD, address(cooler_), collateralAmount);
         uint256 reqID = cooler_.requestLoan(amount_, INTEREST_RATE, ltc, DURATION);
 
         // Fill it with reserves, which the escrow forwards to the borrower.
@@ -249,7 +249,7 @@ contract Clearinghouse is IClearinghouse, ICoolerCallback, HoodzAccessControlled
     /// @inheritdoc IClearinghouse
     /// @dev Sets fresh terms at the current oLTC and immediately executes the roll. Any
     ///      collateral top-up is pulled from the escrow owner, so the borrower must have
-    ///      approved the escrow (not this policy) for gHOODZ. While the oLTC drips upward the
+    ///      approved the escrow (not this policy) for gHOOD. While the oLTC drips upward the
     ///      top-up is zero and rolling costs one term of interest and nothing else.
     function rollLoan(ICooler cooler_, uint256 loanID_) external override {
         if (!active) revert NotActive();
@@ -268,7 +268,7 @@ contract Clearinghouse is IClearinghouse, ICoolerCallback, HoodzAccessControlled
     /// @inheritdoc IClearinghouse
     /// @dev Permissionless. Receivables are written down by the {onDefault} callback the
     ///      escrow fires, so this function only aggregates and pays the keeper. The seized
-    ///      gHOODZ stays here until someone calls {burn}.
+    ///      gHOOD stays here until someone calls {burn}.
     function claimDefaulted(address[] calldata coolers_, uint256[] calldata loans_) external override {
         uint256 length = coolers_.length;
         if (length != loans_.length) revert LengthDiscrepancy();
@@ -282,7 +282,7 @@ contract Clearinghouse is IClearinghouse, ICoolerCallback, HoodzAccessControlled
             if (!factory.created(coolers_[i])) revert OnlyFromFactory();
             // The escrow being factory-made is not enough: it says nothing about WHO funded this
             // particular loan. Without the lender check a keeper could point us at defaults on
-            // loans funded by some other lender and collect a gHOODZ reward out of our balance for
+            // loans funded by some other lender and collect a gHOOD reward out of our balance for
             // seizures we never receive.
             if (ICooler(coolers_[i]).getLoan(loans_[i]).lender != address(this)) revert NotLender();
 
@@ -295,7 +295,7 @@ contract Clearinghouse is IClearinghouse, ICoolerCallback, HoodzAccessControlled
             keeperReward += _keeperReward(seized, elapsed);
         }
 
-        if (keeperReward != 0) SafeERC20.safeTransfer(gHOODZ, msg.sender, keeperReward);
+        if (keeperReward != 0) SafeERC20.safeTransfer(gHOOD, msg.sender, keeperReward);
 
         emit Defaulted(totalPrincipal, totalInterest, totalCollateral, keeperReward);
     }
@@ -366,12 +366,12 @@ contract Clearinghouse is IClearinghouse, ICoolerCallback, HoodzAccessControlled
     }
 
     /// @inheritdoc IClearinghouse
-    /// @dev gHOODZ is rejected: seized collateral leaves this contract only through {burn}.
+    /// @dev gHOOD is rejected: seized collateral leaves this contract only through {burn}.
     ///      Savings vault shares are redeemed first so the treasury always books the
     ///      underlying reserve rather than a wrapper it may not price.
     function defund(IERC20 token_, uint256 amount_) external override onlyGovernor {
         if (amount_ == 0) revert ZeroAmount();
-        if (address(token_) == address(gHOODZ)) revert OnlyBurnable();
+        if (address(token_) == address(gHOOD)) revert OnlyBurnable();
 
         if (address(token_) == address(sReserve)) {
             amount_ = sReserve.redeem(amount_, address(this), address(this));
@@ -413,12 +413,12 @@ contract Clearinghouse is IClearinghouse, ICoolerCallback, HoodzAccessControlled
     }
 
     /// @inheritdoc IClearinghouse
-    /// @dev Permissionless: burning seized collateral only ever benefits HOODZ holders.
+    /// @dev Permissionless: burning seized collateral only ever benefits HOOD holders.
     function burn() external override returns (uint256 hoodzBurned) {
-        uint256 balance = gHOODZ.balanceOf(address(this));
+        uint256 balance = gHOOD.balanceOf(address(this));
         if (balance == 0) revert NothingToBurn();
 
-        SafeERC20.forceApprove(gHOODZ, address(staking), balance);
+        SafeERC20.forceApprove(gHOOD, address(staking), balance);
         hoodzBurned = staking.unstake(address(this), balance, false, false);
         HoodzBurn.burn(IERC20(address(hoodz)), hoodzBurned);
 
@@ -465,10 +465,10 @@ contract Clearinghouse is IClearinghouse, ICoolerCallback, HoodzAccessControlled
     // ---------------------------------------------------------------------------------------
 
     /// @dev An escrow is only trustworthy when the trusted factory minted it AND it is pinned
-    ///      to exactly the gHOODZ/reserve pair this policy underwrites.
+    ///      to exactly the gHOOD/reserve pair this policy underwrites.
     function _validateCooler(ICooler cooler_) internal view {
         if (!factory.created(address(cooler_))) revert OnlyFromFactory();
-        if (address(cooler_.collateral()) != address(gHOODZ) || address(cooler_.debt()) != address(reserve)) {
+        if (address(cooler_.collateral()) != address(gHOOD) || address(cooler_.debt()) != address(reserve)) {
             revert BadEscrow();
         }
     }
@@ -491,8 +491,8 @@ contract Clearinghouse is IClearinghouse, ICoolerCallback, HoodzAccessControlled
         sReserve.withdraw(amount_ - idle, address(this), address(this));
     }
 
-    /// @dev Push reserves back to the treasury without minting HOODZ: the deposit is booked
-    ///      entirely as profit, so `deposit` returns zero HOODZ to this policy.
+    /// @dev Push reserves back to the treasury without minting HOOD: the deposit is booked
+    ///      entirely as profit, so `deposit` returns zero HOOD to this policy.
     function _returnToTreasury(uint256 amount_) internal {
         reserve.forceApprove(address(treasury), amount_);
         treasury.deposit(amount_, address(reserve), treasury.tokenValue(address(reserve), amount_));

@@ -47,11 +47,11 @@ in. A flawless Hoodz on a broken reserve asset is a broken protocol.
 | Asset                        | Loss scenario                                                        | Severity  |
 | ---------------------------- | -------------------------------------------------------------------- | --------- |
 | Treasury reserves            | Drained via `withdraw`/`manage`, or a bad permission grant             | Critical  |
-| **Mint authority**           | Unbounded HOODZ issuance — every other asset becomes worthless          | Critical  |
-| Staking index integrity      | Index manipulated or rolled back; every sHOODZ↔gHOODZ conversion wrong   | Critical  |
-| Hoodz Loans collateral        | gHOODZ seized, or loans issued far above collateral value               | High      |
+| **Mint authority**           | Unbounded HOOD issuance — every other asset becomes worthless          | Critical  |
+| Staking index integrity      | Index manipulated or rolled back; every sHOOD↔gHOOD conversion wrong   | Critical  |
+| Hoodz Loans collateral        | gHOOD seized, or loans issued far above collateral value               | High      |
 | The locked LP position       | Liquidity removed from a pool that was promised to be permanent        | High      |
-| Bond / CD / emission pricing | HOODZ minted below backing, permanently dilutive                        | High      |
+| Bond / CD / emission pricing | HOOD minted below backing, permanently dilutive                        | High      |
 | Governance control           | A hostile proposal reaches the timelock and executes                   | High      |
 | Rebase availability          | Rewards halt (bad, but solvency is untouched)                          | Medium    |
 
@@ -118,15 +118,15 @@ cannot fix with better Solidity.
 **Tokens**
 - Precision loss in the gons↔balance conversions; a rounding direction that favours the user
   repeatedly and drains the last wei-holders.
-- `sHOODZ.setIndex` callable after the first rebase would rewrite history. It must be single-use.
-- `gHOODZ.migrate` callable twice would re-point minting authority.
-- gHOODZ's `ERC20Votes` checkpoints: a wrong `_update` override breaks delegation accounting, and
+- `sHOOD.setIndex` callable after the first rebase would rewrite history. It must be single-use.
+- `gHOOD.migrate` callable twice would re-point minting authority.
+- gHOOD's `ERC20Votes` checkpoints: a wrong `_update` override breaks delegation accounting, and
   therefore governance.
 
 **Staking**
 - Rebase front-running: stake immediately before a rebase, capture it, unstake. Warmup is the
   mitigation; a zero warmup on mainnet is a live exploit.
-- `epoch.distribute` computed from a balance the attacker can influence by donating sHOODZ to the
+- `epoch.distribute` computed from a balance the attacker can influence by donating sHOOD to the
   staking contract.
 - Re-entrancy through a hostile recipient on unstake.
 - `firstEpochTime` in the past causing multiple epochs to roll in a single call.
@@ -166,7 +166,7 @@ cannot fix with better Solidity.
 **YRF**
 - Yield computed from a configured APY rather than measured from the wrapper — lets it spend
   principal.
-- Repurchasing at a price it does not sanity-check, so a manipulated pool sells it worthless HOODZ.
+- Repurchasing at a price it does not sanity-check, so a manipulated pool sells it worthless HOOD.
 
 **Convertible Deposits**
 - Conversion price stale relative to spot, letting a depositor convert at a discount instead of a
@@ -181,7 +181,7 @@ cannot fix with better Solidity.
   the role is left on the operator key, or if the launch supply differs from the published number.
   This window is the highest-risk moment of the entire project's life.
 - `HoodzLaunchGuard` holding `vault` but exposing any path that mints, delegatecalls, or forwards a
-  call to HOODZ. The guard's security property is the *absence* of a mint function; anything that
+  call to HOOD. The guard's security property is the *absence* of a mint function; anything that
   reintroduces one defeats the freeze.
 - `graduated` and the LP-lock check sourced from launchpad/locker calls that can be spoofed, or
   that pass against a locker whose interface differs from the one assumed at compile time.
@@ -198,7 +198,7 @@ cannot fix with better Solidity.
   protect against a hostile governor. A governor address nobody controls bricks the launch with
   supply already frozen. This is an accepted design trade-off; see §3.4.
 - `FeeRouterBuyback` holding a balance an attacker can direct, or possessing any withdrawal or
-  arbitrary-call path. It must be able to do exactly two things: buy HOODZ, and burn it.
+  arbitrary-call path. It must be able to do exactly two things: buy HOOD, and burn it.
 - Sandwiching the buyback, which is predictable in size and timing. `minOut == 0` must be rejected
   and `deadline` must be short.
 
@@ -290,15 +290,15 @@ A minimum scope. An auditor should expand it, not trim it.
 **Tokens**
 - Gons arithmetic: overflow at `TOTAL_GONS`, precision loss, rounding direction on every path.
 - `index()` is monotonically non-decreasing under every reachable sequence of calls.
-- `setIndex` and `gHOODZ.migrate` are genuinely single-use.
-- sHOODZ↔gHOODZ round-trips do not leak value in either direction.
+- `setIndex` and `gHOOD.migrate` are genuinely single-use.
+- sHOOD↔gHOOD round-trips do not leak value in either direction.
 - `circulatingSupply()` cannot be manipulated by donation or by transfers to the staking contract.
 - `ERC20Votes` checkpointing is correct across mint, burn and transfer, given the v5 `_update`
   override chain.
 
 **Staking and distribution**
 - Warmup cannot be bypassed; rebase front-running is not profitable at the configured warmup.
-- `epoch.distribute` cannot be inflated by donating sHOODZ or HOODZ to the staking contract.
+- `epoch.distribute` cannot be inflated by donating sHOOD or HOOD to the staking contract.
 - Reward minting is genuinely capped by `excessReserves()` on every path.
 - Epoch boundaries under L2 timestamp behaviour, including a `firstEpochTime` in the past.
 - Re-entrancy on stake, unstake, claim and the bounty payment.
@@ -342,7 +342,7 @@ A minimum scope. An auditor should expand it, not trim it.
 - Deposit-token wrapper is not vulnerable to inflation/first-depositor attacks.
 
 **PONS integration**
-- **`HoodzLaunchGuard` cannot mint, delegatecall, or forward a call to HOODZ, on any path.** Its
+- **`HoodzLaunchGuard` cannot mint, delegatecall, or forward a call to HOOD, on any path.** Its
   entire security property is the absence of a mint function while it holds `vault`. Prove it
   exhaustively.
 - `verifyGraduation()` fails closed on every branch, against the *live* launchpad and locker
@@ -377,7 +377,7 @@ A Solidity audit will not catch these. Commission an economic review as well:
   run out of reserves to lend?
 - Emissions plus rebase plus bond issuance simultaneously at maximum configured rates — what is the
   worst-case supply growth the parameters permit?
-- Governance attack economics: what does it cost to acquire enough gHOODZ to pass a proposal, versus
+- Governance attack economics: what does it cost to acquire enough gHOOD to pass a proposal, versus
   what the treasury holds? **If the treasury is worth more than the cost of a governance attack,
   the protocol is not economically secure**, regardless of code quality.
 
@@ -443,7 +443,7 @@ the deployment checklist in [`DEPLOYMENT.md`](DEPLOYMENT.md) for exactly this re
 ### 5.4 The first fifteen minutes
 
 1. **Contain.** Guardian disables the affected module. Do not wait for consensus on the diagnosis.
-2. **Assess.** Is HOODZ still minting? Are reserves still leaving? Those two questions first.
+2. **Assess.** Is HOOD still minting? Are reserves still leaving? Those two questions first.
 3. **Broaden.** If the vector could reach other modules, disable those too. Over-containing costs
    yield; under-containing costs the treasury.
 4. **Communicate.** Say what is known and what is not. Do not publish exploit details while a fix
@@ -456,12 +456,12 @@ the deployment checklist in [`DEPLOYMENT.md`](DEPLOYMENT.md) for exactly this re
 
 Be clear-eyed about this list — it is the residual risk after every lever has been pulled.
 
-* **HOODZ transfers.** There is no pause and there will never be one: PONS requires a clean
-  permissionless ERC20, and a currency with a pause switch is not a currency. If HOODZ itself is
+* **HOOD transfers.** There is no pause and there will never be one: PONS requires a clean
+  permissionless ERC20, and a currency with a pause switch is not a currency. If HOOD itself is
   broken, there is no lever.
 * **The locked LP position.** Permanent means permanent. No unlock, no timelock, no governance
   override. This is an **accepted risk**, not an oversight.
-* **The sHOODZ rebase mechanism.** Halting the distributor stops new rewards; the index cannot be
+* **The sHOOD rebase mechanism.** Halting the distributor stops new rewards; the index cannot be
   rolled back.
 * **Bonds already vesting.** Existing positions vest and redeem regardless.
 * **Existing loan positions.** By design: shutting down Hoodz Loans stops *new* lending. Borrowers
@@ -511,10 +511,10 @@ Alerts, not dashboards. Every line below should page a human.
 
 | Signal                                              | Threshold                       | Severity |
 | --------------------------------------------------- | ------------------------------- | -------- |
-| `HOODZ.totalSupply()` jumps                          | > expected epoch issuance       | **P0**   |
+| `HOOD.totalSupply()` jumps                          | > expected epoch issuance       | **P0**   |
 | Any `Transfer` from `address(0)` not from the treasury | any                          | **P0**   |
 | `authority.vault()` changes                         | any                             | **P0**   |
-| `HOODZ.totalSupply()` changes while the guard holds `vault` | ever — this must be impossible | **P0** |
+| `HOOD.totalSupply()` changes while the guard holds `vault` | ever — this must be impossible | **P0** |
 | `hoodzLaunchGuard.arm()` is called                   | any                             | **P1**   |
 | `authority.governor()` / `guardian()` / `policy()` changes | any                      | **P0**   |
 | A treasury permission is granted                    | any                             | **P1**   |
@@ -560,11 +560,11 @@ Six were high severity. All six are fixed; the rest are recorded here as known a
 
 | Severity | Where | What was wrong |
 | -------- | ----- | -------------- |
-| High | `tokens/gHOODZ.sol` | `INDEX_SCALE` was `1e9` instead of `10**decimals()` (`1e18`), so `balanceFrom`/`balanceTo` were off by 1e9 against the 18-decimal denomination. Every absolute constant written in gHOODZ terms broke: the governor's 1,000 gHOODZ proposal threshold became unreachable for **every** account forever, and the Clearinghouse oLTC was mis-scaled by the same factor. Round-trips stayed self-consistent, which is why relative-only tests missed it. |
-| High | `tokens/sHOODZ.sol` | `circulatingSupply()` omitted the sHOODZ parked in staking warmup, so `HoodzStaking.rebase()` read every warmup deposit as distributable surplus and paid it to existing stakers. The depositor's principal was then unbacked and permanently unrecoverable once others unstaked. Only reachable with a non-zero warmup, which the deploy script supports. |
+| High | `tokens/gHOOD.sol` | `INDEX_SCALE` was `1e9` instead of `10**decimals()` (`1e18`), so `balanceFrom`/`balanceTo` were off by 1e9 against the 18-decimal denomination. Every absolute constant written in gHOOD terms broke: the governor's 1,000 gHOOD proposal threshold became unreachable for **every** account forever, and the Clearinghouse oLTC was mis-scaled by the same factor. Round-trips stayed self-consistent, which is why relative-only tests missed it. |
+| High | `tokens/sHOOD.sol` | `circulatingSupply()` omitted the sHOOD parked in staking warmup, so `HoodzStaking.rebase()` read every warmup deposit as distributable surplus and paid it to existing stakers. The depositor's principal was then unbacked and permanently unrecoverable once others unstaked. Only reachable with a non-zero warmup, which the deploy script supports. |
 | High | `HoodzAuthority.sol` | `pushVault` was plain `onlyGovernor` and never consulted the launch guard, so the governor could hand mint authority to the treasury in one transaction and skip graduation entirely. The guard was decorative. |
 | High | `pons/HoodzLaunchGuard.sol` | `releaseToTreasury()` was unreachable in every possible deployment: it is `onlyGovernor` on the guard **and** called `HoodzAuthority.pushVault`, which is `onlyGovernor` on the authority. The guard would have had to be the governor and not be the governor at the same time. |
-| High | `loans/Clearinghouse.sol` | `claimDefaulted` checked only that the escrow came from the trusted factory, never that this policy was the loan's lender. A keeper could point it at defaults on someone else's loans and collect a gHOODZ reward out of our balance for collateral we never receive. |
+| High | `loans/Clearinghouse.sol` | `claimDefaulted` checked only that the escrow came from the trusted factory, never that this policy was the loan's lender. A keeper could point it at defaults on someone else's loans and collect a gHOOD reward out of our balance for collateral we never receive. |
 | High | `loans/Cooler.sol` | `clearRequest` called the lender-supplied `ICoolerCallback.isCoolerCallback()` hook **before** deactivating the request, so a malicious lender could re-enter and clear the same request twice — two loans against one lot of collateral. |
 
 The first four are fixed by a single design change plus one constant:
@@ -582,7 +582,7 @@ than a bug an attacker can reach unaided:
 
 * `Distributor.setAdjustment` — a downward ramp whose target sits *above* the current rate snaps the
   rate to the target on the first `_adjust`, defeating the guardian's 2.5% step limiter.
-* `NoteKeeper.addNote` — books the note's gHOODZ payout at the pre-rebase index while the staking
+* `NoteKeeper.addNote` — books the note's gHOOD payout at the pre-rebase index while the staking
   call that follows mints at the post-rebase index, so epoch-straddling bonds are over-credited by
   roughly one epoch's rebase.
 * `HoodzTreasury.tokenValue` — prices an ERC-4626 savings-vault share at face value.

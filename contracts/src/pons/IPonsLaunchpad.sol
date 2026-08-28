@@ -14,7 +14,7 @@ pragma solidity ^0.8.24;
         trading fees, never out of new supply - there is no mint.
 
         Web    https://hoodz.finance
-        X      https://x.com/Hoodzfinancial
+        X      https://x.com/Hoodzfinance
         Code   https://github.com/averageballer13/Hoodz
 
         UNAUDITED. This code has never been audited. Read it before you
@@ -62,7 +62,7 @@ interface IPonsLaunchpad {
 
     /// @notice Launch a token on a fresh PONS bonding curve.
     /// @dev Non-custodial: the caller signs this transaction; the launchpad takes custody of nothing
-    ///      beyond the curve escrow it deploys. For HOODZ the token is pre-deployed by Hoodz and
+    ///      beyond the curve escrow it deploys. For HOOD the token is pre-deployed by Hoodz and
     ///      passed in via `params.token`, so that the ERC20 is a clean, permissionless, tax-free token.
     /// @param params The launch parameters, see {TokenParams}.
     /// @return token The launched ERC20.

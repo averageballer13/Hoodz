@@ -65,8 +65,8 @@ contract DeployRobinhood is Deploy {
 
         console2.log("");
         console2.log("PONS launch checklist:");
-        console2.log("  1. Launch HOODZ on PONS against the curve at", cfg.ponsCurve);
-        console2.log("  2. Trade the curve until isGraduated(HOODZ) is true");
+        console2.log("  1. Launch HOOD on PONS against the curve at", cfg.ponsCurve);
+        console2.log("  2. Trade the curve until isGraduated(HOOD) is true");
         console2.log("  3. HoodzLaunchGuard.verifyGraduation()  ->", dep.launchGuard);
         console2.log("  4. HoodzLaunchGuard.arm(), then wait out the 48h transfer delay");
         console2.log("  5. HoodzLaunchGuard.releaseToTreasury() -> vault role moves to", dep.treasury);

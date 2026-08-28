@@ -15,7 +15,7 @@ pragma solidity ^0.8.24;
         trading fees, never out of new supply - there is no mint.
 
         Web    https://hoodz.finance
-        X      https://x.com/Hoodzfinancial
+        X      https://x.com/Hoodzfinance
         Code   https://github.com/averageballer13/Hoodz
 
         UNAUDITED. This code has never been audited. Read it before you
@@ -30,24 +30,24 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol
 
 import {HoodzAccessControlled} from "../types/HoodzAccessControlled.sol";
 import {IHoodzAuthority} from "../interfaces/IHoodzAuthority.sol";
-import {IHOODZ} from "../interfaces/IHOODZ.sol";
+import {IHOOD} from "../interfaces/IHOOD.sol";
 import {ITreasury} from "../interfaces/ITreasury.sol";
 import {IConvertibleDepository} from "../interfaces/IConvertibleDepository.sol";
 
 /// @title  ConvertibleDepository
 /// @notice The Hoodz Convertible Deposit (CD) facility. A depositor locks reserve tokens and
-///         receives a position that may be converted into HOODZ at a fixed strike until it
+///         receives a position that may be converted into HOOD at a fixed strike until it
 ///         expires. While a position is open its reserve sits in a yield bearing ERC4626 vault
 ///         and the yield accrues to the DAO. Converting sends the reserve to the treasury and
-///         mints HOODZ against it; letting the position expire simply gives the reserve back, so
-///         the depositor is never exposed to HOODZ unless they choose to be.
+///         mints HOOD against it; letting the position expire simply gives the reserve back, so
+///         the depositor is never exposed to HOOD unless they choose to be.
 /// @dev    UNAUDITED. Do not use in production without a full audit.
 ///
-///         SCALING. Reserve amounts are raw 1e18 units, HOODZ amounts raw 1e9 units.
-///         `conversionPrice` is whole reserve tokens per ONE WHOLE HOODZ in 1e18 fixed point, so
-///             hoodzOut(1e9) = amount(1e18) * HOODZ_SCALE(1e9) / conversionPrice(1e18)
-///         converts a reserve amount into HOODZ: the 1e18 numerator and denominator cancel and
-///         the 1e9 factor puts the result in HOODZ's own units.
+///         SCALING. Reserve amounts are raw 1e18 units, HOOD amounts raw 1e9 units.
+///         `conversionPrice` is whole reserve tokens per ONE WHOLE HOOD in 1e18 fixed point, so
+///             hoodzOut(1e9) = amount(1e18) * HOOD_SCALE(1e9) / conversionPrice(1e18)
+///         converts a reserve amount into HOOD: the 1e18 numerator and denominator cancel and
+///         the 1e9 factor puts the result in HOOD's own units.
 ///         `reclaimRate` is 1e18 fixed point, `1e18` meaning 100% of principal returned.
 ///
 ///         ACCESS. Position creation is `onlyPolicy` - positions come out of the DAO's CD
@@ -61,22 +61,22 @@ contract ConvertibleDepository is IConvertibleDepository, HoodzAccessControlled,
 
     /// @notice Fixed point unit for every ratio in this contract (1.0).
     uint256 internal constant ONE = 1e18;
-    /// @notice Raw unit of the HOODZ token, which carries 9 decimals.
-    uint256 internal constant HOODZ_SCALE = 1e9;
+    /// @notice Raw unit of the HOOD token, which carries 9 decimals.
+    uint256 internal constant HOOD_SCALE = 1e9;
     /// @notice Decimals the reserve asset must carry for the scaling above to hold.
     uint8 internal constant RESERVE_DECIMALS = 18;
-    /// @notice Decimals the HOODZ token must carry for the scaling above to hold.
-    uint8 internal constant HOODZ_DECIMALS = 9;
+    /// @notice Decimals the HOOD token must carry for the scaling above to hold.
+    uint8 internal constant HOOD_DECIMALS = 9;
 
     /* ======================================= IMMUTABLES ======================================= */
 
-    /// @notice The HOODZ token minted on conversion.
-    IHOODZ public immutable hoodz;
+    /// @notice The HOOD token minted on conversion.
+    IHOOD public immutable hoodz;
     /// @notice Reserve asset deposited by users, 18 decimals.
     IERC20 public immutable reserve;
     /// @notice ERC4626 vault wrapping `reserve`; holds deposits while positions are open.
     IERC4626 public immutable sReserve;
-    /// @notice Hoodz Treasury: receives converted reserves and mints the HOODZ.
+    /// @notice Hoodz Treasury: receives converted reserves and mints the HOOD.
     ITreasury public immutable treasury;
 
     /* ========================================== STATE ========================================= */
@@ -95,14 +95,14 @@ contract ConvertibleDepository is IConvertibleDepository, HoodzAccessControlled,
 
     /// @notice Wire the convertible depository into the protocol.
     /// @param authority_   Hoodz authority holding the governor / guardian / policy / vault roles.
-    /// @param hoodz_        HOODZ token, must report 9 decimals.
+    /// @param hoodz_        HOOD token, must report 9 decimals.
     /// @param reserve_     Reserve asset, must report 18 decimals.
     /// @param sReserve_    ERC4626 vault whose asset is `reserve_`.
     /// @param treasury_    Hoodz Treasury.
     /// @param reclaimRate_ Initial early exit rate, 1e18 fixed point, in `(0, 1e18]`.
     constructor(
         IHoodzAuthority authority_,
-        IHOODZ hoodz_,
+        IHOOD hoodz_,
         IERC20 reserve_,
         IERC4626 sReserve_,
         ITreasury treasury_,
@@ -120,8 +120,8 @@ contract ConvertibleDepository is IConvertibleDepository, HoodzAccessControlled,
             revert CD_UnexpectedDecimals(address(reserve_), RESERVE_DECIMALS, reserveDecimals);
         }
         uint8 hoodzDecimals = IERC20Metadata(address(hoodz_)).decimals();
-        if (hoodzDecimals != HOODZ_DECIMALS) {
-            revert CD_UnexpectedDecimals(address(hoodz_), HOODZ_DECIMALS, hoodzDecimals);
+        if (hoodzDecimals != HOOD_DECIMALS) {
+            revert CD_UnexpectedDecimals(address(hoodz_), HOOD_DECIMALS, hoodzDecimals);
         }
 
         hoodz = hoodz_;
@@ -171,8 +171,8 @@ contract ConvertibleDepository is IConvertibleDepository, HoodzAccessControlled,
     }
 
     /// @inheritdoc IConvertibleDepository
-    /// @dev The reserve is booked into the treasury as pure profit (no HOODZ minted against it)
-    ///      and the HOODZ owed is minted separately, so the two legs are always accounted for at
+    /// @dev The reserve is booked into the treasury as pure profit (no HOOD minted against it)
+    ///      and the HOOD owed is minted separately, so the two legs are always accounted for at
     ///      the strike rather than at the treasury's own valuation of the deposit.
     function convert(uint256 positionId, uint256 amount) external nonReentrant returns (uint256 hoodzOut) {
         Position storage position = _position(positionId);
@@ -180,7 +180,7 @@ contract ConvertibleDepository is IConvertibleDepository, HoodzAccessControlled,
         if (block.timestamp >= position.expiry) revert CD_PositionExpired(positionId, position.expiry);
         if (amount == 0 || amount > position.remainingDeposit) revert CD_InvalidAmount(amount);
 
-        hoodzOut = (amount * HOODZ_SCALE) / position.conversionPrice;
+        hoodzOut = (amount * HOOD_SCALE) / position.conversionPrice;
         if (hoodzOut == 0) revert CD_NothingToConvert();
 
         position.remainingDeposit -= amount;
@@ -270,7 +270,7 @@ contract ConvertibleDepository is IConvertibleDepository, HoodzAccessControlled,
         Position storage position = _positions[positionId];
         if (amount > position.remainingDeposit) revert CD_InvalidAmount(amount);
         // hoodzOut(1e9) = amount(1e18) * 1e9 / conversionPrice(1e18)
-        hoodzOut = (amount * HOODZ_SCALE) / position.conversionPrice;
+        hoodzOut = (amount * HOOD_SCALE) / position.conversionPrice;
     }
 
     /// @inheritdoc IConvertibleDepository
@@ -313,9 +313,9 @@ contract ConvertibleDepository is IConvertibleDepository, HoodzAccessControlled,
     }
 
     /// @dev Book reserves into the treasury without minting: `ITreasury.deposit` mints
-    ///      `value - profit` HOODZ to the caller, so passing `profit == value` (both 9 decimal
-    ///      HOODZ terms, as returned by `tokenValue`) credits the full amount and mints nothing.
-    ///      HOODZ owed to a converter is minted separately, at the position's strike.
+    ///      `value - profit` HOOD to the caller, so passing `profit == value` (both 9 decimal
+    ///      HOOD terms, as returned by `tokenValue`) credits the full amount and mints nothing.
+    ///      HOOD owed to a converter is minted separately, at the position's strike.
     /// @param amount Reserve to book, raw 1e18 units.
     function _bookToTreasury(uint256 amount) internal {
         if (amount == 0) return;

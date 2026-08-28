@@ -15,7 +15,7 @@ pragma solidity ^0.8.24;
         trading fees, never out of new supply - there is no mint.
 
         Web    https://hoodz.finance
-        X      https://x.com/Hoodzfinancial
+        X      https://x.com/Hoodzfinance
         Code   https://github.com/averageballer13/Hoodz
 
         UNAUDITED. This code has never been audited. Read it before you
@@ -24,21 +24,21 @@ pragma solidity ^0.8.24;
 
 /// @title  IConvertibleDepository
 /// @notice Interface of the Hoodz Convertible Deposit (CD) facility. A depositor locks
-///         reserve tokens and receives a position that may be converted into HOODZ at a fixed
+///         reserve tokens and receives a position that may be converted into HOOD at a fixed
 ///         strike until it expires. Deposits that are never converted are simply returned,
 ///         so the depositor is only ever exposed to the reserve.
 /// @dev    UNAUDITED. Do not use in production without a full audit.
 ///
 ///         FIXED POINT CONVENTIONS
 ///         - `remainingDeposit` is raw reserve units (1e18).
-///         - `conversionPrice` is whole reserve tokens per ONE WHOLE HOODZ, 1e18 fixed point.
+///         - `conversionPrice` is whole reserve tokens per ONE WHOLE HOOD, 1e18 fixed point.
 ///         - Conversion: `hoodzOut(1e9) = amount(1e18) * 1e9 / conversionPrice(1e18)`.
 ///         - `reclaimRate` is 1e18 fixed point, `1e18` == 100% returned on an early exit.
 interface IConvertibleDepository {
     /// @notice A single convertible deposit position.
     /// @param owner            Only address allowed to convert, redeem or reclaim.
     /// @param remainingDeposit Reserve still locked in the position, raw 1e18 units.
-    /// @param conversionPrice  Strike: whole reserve per whole HOODZ, 1e18.
+    /// @param conversionPrice  Strike: whole reserve per whole HOOD, 1e18.
     /// @param expiry           Unix timestamp after which conversion is closed and reclaim opens.
     /// @param createdAt        Unix timestamp the position was created.
     struct Position {
@@ -55,7 +55,7 @@ interface IConvertibleDepository {
     event PositionCreated(
         uint256 indexed positionId, address indexed owner, uint256 amount, uint256 conversionPrice, uint48 expiry
     );
-    /// @notice Emitted when a depositor converts part of a position into HOODZ.
+    /// @notice Emitted when a depositor converts part of a position into HOOD.
     event Converted(uint256 indexed positionId, address indexed owner, uint256 amount, uint256 hoodzOut);
     /// @notice Emitted when a depositor exits early at the reclaim rate.
     event Redeemed(uint256 indexed positionId, address indexed owner, uint256 amount, uint256 reserveOut);
@@ -86,17 +86,17 @@ interface IConvertibleDepository {
     /// @notice Mint a convertible deposit position for `account`, pulling their reserve.
     /// @param account         Depositor; must have approved this contract for `amount`.
     /// @param amount          Reserve to lock, raw 1e18 units.
-    /// @param conversionPrice Strike, whole reserve per whole HOODZ, 1e18.
+    /// @param conversionPrice Strike, whole reserve per whole HOOD, 1e18.
     /// @param expiry          Unix timestamp at which conversion closes.
     /// @return positionId Identifier of the new position.
     function create(address account, uint256 amount, uint256 conversionPrice, uint48 expiry)
         external
         returns (uint256 positionId);
 
-    /// @notice Convert part of a position into HOODZ at its strike, before expiry.
+    /// @notice Convert part of a position into HOOD at its strike, before expiry.
     /// @param positionId Position to convert.
     /// @param amount     Reserve to convert, raw 1e18 units.
-    /// @return hoodzOut HOODZ minted to the position owner, raw 1e9 units.
+    /// @return hoodzOut HOOD minted to the position owner, raw 1e9 units.
     function convert(uint256 positionId, uint256 amount) external returns (uint256 hoodzOut);
 
     /// @notice Exit a position early, before expiry, at the reclaim rate.
@@ -126,10 +126,10 @@ interface IConvertibleDepository {
     /// @return ids Position identifiers, including fully spent positions.
     function positionsFor(address account) external view returns (uint256[] memory ids);
 
-    /// @notice HOODZ that converting `amount` of `positionId` would mint right now.
+    /// @notice HOOD that converting `amount` of `positionId` would mint right now.
     /// @param positionId Position to price.
     /// @param amount     Reserve to convert, raw 1e18 units.
-    /// @return hoodzOut HOODZ out, raw 1e9 units.
+    /// @return hoodzOut HOOD out, raw 1e9 units.
     function previewConvert(uint256 positionId, uint256 amount) external view returns (uint256 hoodzOut);
 
     /// @notice Read a full position.

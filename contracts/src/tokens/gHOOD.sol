@@ -15,7 +15,7 @@ pragma solidity ^0.8.24;
         trading fees, never out of new supply - there is no mint.
 
         Web    https://hoodz.finance
-        X      https://x.com/Hoodzfinancial
+        X      https://x.com/Hoodzfinance
         Code   https://github.com/averageballer13/Hoodz
 
         UNAUDITED. This code has never been audited. Read it before you
@@ -27,56 +27,56 @@ import {ERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20P
 import {ERC20Votes} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 import {Nonces} from "@openzeppelin/contracts/utils/Nonces.sol";
 
-import {IgHOODZ} from "../interfaces/IgHOODZ.sol";
-import {IsHOODZ} from "../interfaces/IsHOODZ.sol";
+import {IgHOOD} from "../interfaces/IgHOOD.sol";
+import {IsHOOD} from "../interfaces/IsHOOD.sol";
 import {IHoodzAuthority} from "../interfaces/IHoodzAuthority.sol";
 import {HoodzAccessControlled} from "../types/HoodzAccessControlled.sol";
 
-/// @title  gHOODZ
-/// @notice Governance HOODZ: the non-rebasing, index-adjusted wrapper around sHOODZ (18 decimals).
+/// @title  gHOOD
+/// @notice Governance HOOD: the non-rebasing, index-adjusted wrapper around sHOOD (18 decimals).
 /// @dev    UNAUDITED. Do not use in production without a full audit.
 ///
-///         A gHOODZ balance is constant while the sHOODZ it represents grows with the index:
+///         A gHOOD balance is constant while the sHOOD it represents grows with the index:
 ///
-///             balanceFrom(g) = g * index / 1e18     gHOODZ (18dp) -> sHOODZ (9dp)
-///             balanceTo(s)   = s * 1e18 / index     sHOODZ  (9dp) -> gHOODZ (18dp)
+///             balanceFrom(g) = g * index / 1e18     gHOOD (18dp) -> sHOOD (9dp)
+///             balanceTo(s)   = s * 1e18 / index     sHOOD  (9dp) -> gHOOD (18dp)
 ///
-///         The divisor is 10**decimals() of THIS token (1e18), not of sHOODZ. That is what makes
-///         one whole gHOODZ equal `index` whole sHOODZ, so at genesis (index = 1e9 = 1.0) one
-///         gHOODZ is one sHOODZ. Using 1e9 here would still round-trip, but every absolute
-///         constant written in gHOODZ terms - the governor proposal threshold, the Clearinghouse
+///         The divisor is 10**decimals() of THIS token (1e18), not of sHOOD. That is what makes
+///         one whole gHOOD equal `index` whole sHOOD, so at genesis (index = 1e9 = 1.0) one
+///         gHOOD is one sHOOD. Using 1e9 here would still round-trip, but every absolute
+///         constant written in gHOOD terms - the governor proposal threshold, the Clearinghouse
 ///         oLTC - would be off by a factor of 1e9.
 ///
-///         Because balances never rebase, gHOODZ can carry ERC20Votes checkpoints and be bridged
+///         Because balances never rebase, gHOOD can carry ERC20Votes checkpoints and be bridged
 ///         or used as collateral. Only the staking contract may mint or burn it.
 ///
 ///         Voting uses the DEFAULT OpenZeppelin clock: block numbers (not timestamps).
-contract gHOODZ is IgHOODZ, ERC20, ERC20Permit, ERC20Votes, HoodzAccessControlled {
+contract gHOOD is IgHOOD, ERC20, ERC20Permit, ERC20Votes, HoodzAccessControlled {
     /* ========================================= ERRORS ========================================= */
 
     /// @notice Caller is not the staking contract.
-    error gHOODZ_OnlyStaking(address caller);
+    error gHOOD_OnlyStaking(address caller);
     /// @notice A zero address was supplied where a real address is required.
-    error gHOODZ_ZeroAddress();
+    error gHOOD_ZeroAddress();
     /// @notice migrate() is a one-shot and has already run.
-    error gHOODZ_AlreadyMigrated();
+    error gHOOD_AlreadyMigrated();
 
     /* ========================================= EVENTS ========================================= */
 
-    /// @notice Emitted once, when the staking contract and sHOODZ token are wired in.
-    event Migrated(address staking, address sHOODZ);
+    /// @notice Emitted once, when the staking contract and sHOOD token are wired in.
+    event Migrated(address staking, address sHOOD);
 
     /* ======================================== CONSTANTS ======================================= */
 
-    /// @dev 10**decimals() of gHOODZ. Mirrors gOHM, which divides by `10 ** decimals()`.
+    /// @dev 10**decimals() of gHOOD. Mirrors gOHM, which divides by `10 ** decimals()`.
     uint256 private constant INDEX_SCALE = 1e18;
 
     /* ========================================== STATE ========================================= */
 
     /// @notice The rebasing token this wrapper is indexed against.
-    IsHOODZ public sHOODZ;
+    IsHOOD public sHOOD;
 
-    /// @notice The staking contract: the only minter and burner of gHOODZ.
+    /// @notice The staking contract: the only minter and burner of gHOOD.
     address public staking;
 
     /// @notice True once migrate() has wired the staking contract in.
@@ -86,74 +86,74 @@ contract gHOODZ is IgHOODZ, ERC20, ERC20Permit, ERC20Votes, HoodzAccessControlle
 
     /// @dev Restricts to the staking contract.
     modifier onlyStaking() {
-        if (msg.sender != staking) revert gHOODZ_OnlyStaking(msg.sender);
+        if (msg.sender != staking) revert gHOOD_OnlyStaking(msg.sender);
         _;
     }
 
     /* ======================================= CONSTRUCTOR ====================================== */
 
     /// @param _authority Address of the HoodzAuthority.
-    /// @param _sHOODZ     Address of sHOODZ; may be the zero address if sHOODZ is deployed after
-    ///                   gHOODZ, in which case migrate() supplies it.
-    constructor(IHoodzAuthority _authority, address _sHOODZ)
-        ERC20("Governance HOODZ", "gHOODZ")
-        ERC20Permit("Governance HOODZ")
+    /// @param _sHOOD     Address of sHOOD; may be the zero address if sHOOD is deployed after
+    ///                   gHOOD, in which case migrate() supplies it.
+    constructor(IHoodzAuthority _authority, address _sHOOD)
+        ERC20("Governance HOOD", "gHOOD")
+        ERC20Permit("Governance HOOD")
         HoodzAccessControlled(_authority)
     {
-        if (_sHOODZ != address(0)) sHOODZ = IsHOODZ(_sHOODZ);
+        if (_sHOOD != address(0)) sHOOD = IsHOOD(_sHOOD);
     }
 
     /* ===================================== INITIALISATION ===================================== */
 
-    /// @notice One-shot wiring of the staking contract and the sHOODZ token.
-    /// @dev    Until this runs, gHOODZ can neither be minted nor burned.
+    /// @notice One-shot wiring of the staking contract and the sHOOD token.
+    /// @dev    Until this runs, gHOOD can neither be minted nor burned.
     /// @param _staking Address of the Hoodz staking contract.
-    /// @param _sHOODZ   Address of the sHOODZ token.
-    function migrate(address _staking, address _sHOODZ) external onlyGovernor {
-        if (migrated) revert gHOODZ_AlreadyMigrated();
-        if (_staking == address(0) || _sHOODZ == address(0)) revert gHOODZ_ZeroAddress();
+    /// @param _sHOOD   Address of the sHOOD token.
+    function migrate(address _staking, address _sHOOD) external onlyGovernor {
+        if (migrated) revert gHOOD_AlreadyMigrated();
+        if (_staking == address(0) || _sHOOD == address(0)) revert gHOOD_ZeroAddress();
 
         migrated = true;
         staking = _staking;
-        sHOODZ = IsHOODZ(_sHOODZ);
+        sHOOD = IsHOOD(_sHOOD);
 
-        emit Migrated(_staking, _sHOODZ);
+        emit Migrated(_staking, _sHOOD);
     }
 
     /* ========================================= MUTATIVE ======================================= */
 
-    /// @notice Mint gHOODZ against sHOODZ wrapped by a staker. Restricted to the staking contract.
+    /// @notice Mint gHOOD against sHOOD wrapped by a staker. Restricted to the staking contract.
     /// @param to_     Recipient.
-    /// @param amount_ gHOODZ amount, 18 decimals.
+    /// @param amount_ gHOOD amount, 18 decimals.
     function mint(address to_, uint256 amount_) external override onlyStaking {
         _mint(to_, amount_);
     }
 
-    /// @notice Burn gHOODZ when a staker unwraps. Restricted to the staking contract.
+    /// @notice Burn gHOOD when a staker unwraps. Restricted to the staking contract.
     /// @param from_   Account to burn from.
-    /// @param amount_ gHOODZ amount, 18 decimals.
+    /// @param amount_ gHOOD amount, 18 decimals.
     function burn(address from_, uint256 amount_) external override onlyStaking {
         _burn(from_, amount_);
     }
 
     /* ========================================== VIEWS ========================================= */
 
-    /// @notice The current sHOODZ index this wrapper is denominated against.
+    /// @notice The current sHOOD index this wrapper is denominated against.
     /// @return The index, 9 decimals.
     function index() public view override returns (uint256) {
-        return sHOODZ.index();
+        return sHOOD.index();
     }
 
-    /// @notice Convert gHOODZ into the sHOODZ amount it currently represents.
-    /// @param amount_ gHOODZ amount, 18 decimals.
-    /// @return The equivalent sHOODZ amount, 9 decimals.
+    /// @notice Convert gHOOD into the sHOOD amount it currently represents.
+    /// @param amount_ gHOOD amount, 18 decimals.
+    /// @return The equivalent sHOOD amount, 9 decimals.
     function balanceFrom(uint256 amount_) public view override returns (uint256) {
         return (amount_ * index()) / INDEX_SCALE;
     }
 
-    /// @notice Convert sHOODZ into the gHOODZ amount it currently represents.
-    /// @param amount_ sHOODZ amount, 9 decimals.
-    /// @return The equivalent gHOODZ amount, 18 decimals.
+    /// @notice Convert sHOOD into the gHOOD amount it currently represents.
+    /// @param amount_ sHOOD amount, 9 decimals.
+    /// @return The equivalent gHOOD amount, 18 decimals.
     function balanceTo(uint256 amount_) public view override returns (uint256) {
         return (amount_ * INDEX_SCALE) / index();
     }

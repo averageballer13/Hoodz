@@ -14,7 +14,7 @@ pragma solidity ^0.8.24;
         trading fees, never out of new supply - there is no mint.
 
         Web    https://hoodz.finance
-        X      https://x.com/Hoodzfinancial
+        X      https://x.com/Hoodzfinance
         Code   https://github.com/averageballer13/Hoodz
 
         UNAUDITED. This code has never been audited. Read it before you
@@ -27,9 +27,9 @@ import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 import {IBondingCalculator} from "./interfaces/IBondingCalculator.sol";
 import {IUniswapV2Pair} from "./interfaces/IUniswapV2Pair.sol";
 
-/// @notice Thrown when the constructor is handed the zero address for HOODZ.
+/// @notice Thrown when the constructor is handed the zero address for HOOD.
 error HoodzBondingCalculator_ZeroAddress();
-/// @notice Thrown when a pair is valued that does not contain HOODZ on either side.
+/// @notice Thrown when a pair is valued that does not contain HOOD on either side.
 error HoodzBondingCalculator_InvalidPair();
 /// @notice Thrown when an LP token reports a zero total supply, making a share undefined.
 error HoodzBondingCalculator_ZeroSupply();
@@ -50,9 +50,9 @@ error HoodzBondingCalculator_FixedPointOverflow();
 contract HoodzBondingCalculator is IBondingCalculator {
     // ========= CONSTANTS ========= //
 
-    /// @notice Decimals of the HOODZ token. Fixed at 9 for Olympus parity; every valuation
+    /// @notice Decimals of the HOOD token. Fixed at 9 for Olympus parity; every valuation
     ///         returned by this contract is denominated in these units.
-    uint256 internal constant HOODZ_DECIMALS = 9;
+    uint256 internal constant HOOD_DECIMALS = 9;
 
     /// @dev UQ112x112 scaling factor, `2**112`.
     uint256 internal constant Q112 = 2 ** 112;
@@ -63,15 +63,15 @@ contract HoodzBondingCalculator is IBondingCalculator {
 
     // ========= STATE ========= //
 
-    /// @notice The HOODZ token this calculator marks liquidity against.
-    address public immutable HOODZ;
+    /// @notice The HOOD token this calculator marks liquidity against.
+    address public immutable HOOD;
 
     // ========= CONSTRUCTOR ========= //
 
-    /// @param _hoodz Address of the HOODZ token.
+    /// @param _hoodz Address of the HOOD token.
     constructor(address _hoodz) {
         if (_hoodz == address(0)) revert HoodzBondingCalculator_ZeroAddress();
-        HOODZ = _hoodz;
+        HOOD = _hoodz;
     }
 
     // ========= VIEWS ========= //
@@ -114,23 +114,23 @@ contract HoodzBondingCalculator is IBondingCalculator {
 
     /// @inheritdoc IBondingCalculator
     /// @dev Returns `2 * reserveOfNonHoodzSide * 10**9 / getTotalValue(pair)`. For a balanced
-    ///      pool this equals the marginal price of HOODZ in the paired asset, which the treasury
+    ///      pool this equals the marginal price of HOOD in the paired asset, which the treasury
     ///      uses to mark an LP position down from its spot value to its defensible value.
     function markdown(address _LP) external view override returns (uint256) {
         (uint112 reserve0, uint112 reserve1,) = IUniswapV2Pair(_LP).getReserves();
 
         uint256 reserve;
-        if (IUniswapV2Pair(_LP).token0() == HOODZ) {
+        if (IUniswapV2Pair(_LP).token0() == HOOD) {
             reserve = uint256(reserve1);
         } else {
-            if (IUniswapV2Pair(_LP).token1() != HOODZ) revert HoodzBondingCalculator_InvalidPair();
+            if (IUniswapV2Pair(_LP).token1() != HOOD) revert HoodzBondingCalculator_InvalidPair();
             reserve = uint256(reserve0);
         }
 
         uint256 totalValue = getTotalValue(_LP);
         if (totalValue == 0) revert HoodzBondingCalculator_ZeroLiquidity();
 
-        return Math.mulDiv(reserve, 2 * (10 ** HOODZ_DECIMALS), totalValue);
+        return Math.mulDiv(reserve, 2 * (10 ** HOOD_DECIMALS), totalValue);
     }
 
     // ========= FIXED POINT ========= //

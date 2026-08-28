@@ -14,7 +14,7 @@ pragma solidity ^0.8.24;
         trading fees, never out of new supply - there is no mint.
 
         Web    https://hoodz.finance
-        X      https://x.com/Hoodzfinancial
+        X      https://x.com/Hoodzfinance
         Code   https://github.com/averageballer13/Hoodz
 
         UNAUDITED. This code has never been audited. Read it before you
@@ -25,8 +25,8 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 /// @title  HoodzBurn
-/// @notice Burning HOODZ when HOODZ has no burn function.
-/// @dev    HOODZ is deployed by the PONS launchpad, not by this repo: a plain fixed-supply ERC20
+/// @notice Burning HOOD when HOOD has no burn function.
+/// @dev    HOOD is deployed by the PONS launchpad, not by this repo: a plain fixed-supply ERC20
 ///         with no `burn`, no `mint` and no owner. So "burn" here means the only thing that works
 ///         on an arbitrary ERC20 - an ordinary transfer to an address whose private key cannot
 ///         exist. The supply figure reported by the token does not move; the circulating supply

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Docs — Hoodz</title>
-<meta name="description" content="How the Hoodz protocol works: HOODZ, sHOODZ, gHOODZ, staking, bonds, Hoodz Loans, automated monetary policy, governance and the PONS launch.">
+<meta name="description" content="How the Hoodz protocol works: HOOD, sHOOD, gHOOD, staking, bonds, Hoodz Loans, automated monetary policy, governance and the PONS launch.">
 <meta name="theme-color" content="#141722">
 <link rel="canonical" href="https://hoodz.finance/docs">
 <meta property="og:url" content="https://hoodz.finance/docs">
@@ -67,7 +67,7 @@
 
       <div class="docs-hero">
         <h1 class="mar-bot-24">Documentation</h1>
-        <p class="max-width-80ch">Hoodz is an Olympus-equivalent reserve protocol. HOODZ is backed by
+        <p class="max-width-80ch">Hoodz is an Olympus-equivalent reserve protocol. HOOD is backed by
           assets the DAO owns, staking distributes the growth in those assets, bonds and emissions
           expand supply only when the market pays a premium over backing, and Hoodz Loans let you
           borrow against the reserves without a liquidation risk.</p>
@@ -102,13 +102,13 @@
 
           <section id="overview">
             <h2>Overview</h2>
-            <p>Every HOODZ in circulation is supported by reserves held in the Hoodz treasury. The
+            <p>Every HOOD in circulation is supported by reserves held in the Hoodz treasury. The
               protocol never promises a peg. What it defends is <em>backing</em>: the reserve value
               attributable to each token. Policy expands supply only when the market pays more than
-              backing, and buys HOODZ back when it pays less.</p>
+              backing, and buys HOOD back when it pays less.</p>
             <div class="docs-callout">
-              <strong>The loop in one sentence.</strong> Bonds and emissions sell HOODZ for reserves at
-              a premium → reserves grow faster than supply → backing per HOODZ rises → stakers receive
+              <strong>The loop in one sentence.</strong> Bonds and emissions sell HOOD for reserves at
+              a premium → reserves grow faster than supply → backing per HOOD rises → stakers receive
               the difference as a rebase.
             </div>
           </section>
@@ -119,28 +119,28 @@
               <table class="docs-table">
                 <thead><tr><th>Token</th><th>Decimals</th><th>Behaviour</th><th>Used for</th></tr></thead>
                 <tbody>
-                  <tr><td><code>HOODZ</code></td><td>9</td><td>Fixed balance</td>
+                  <tr><td><code>HOOD</code></td><td>9</td><td>Fixed balance</td>
                       <td>The reserve currency. Trades, bonds, treasury accounting.</td></tr>
-                  <tr><td><code>sHOODZ</code></td><td>9</td><td>Rebasing</td>
-                      <td>Staked HOODZ. Balance grows every epoch; price tracks HOODZ 1:1.</td></tr>
-                  <tr><td><code>gHOODZ</code></td><td>18</td><td>Fixed balance, rising index</td>
-                      <td>Wrapped sHOODZ. Governance voting power, loan collateral, bond vesting unit.</td></tr>
+                  <tr><td><code>sHOOD</code></td><td>9</td><td>Rebasing</td>
+                      <td>Staked HOOD. Balance grows every epoch; price tracks HOOD 1:1.</td></tr>
+                  <tr><td><code>gHOOD</code></td><td>18</td><td>Fixed balance, rising index</td>
+                      <td>Wrapped sHOOD. Governance voting power, loan collateral, bond vesting unit.</td></tr>
                 </tbody>
               </table>
             </div>
-            <p>gHOODZ is sHOODZ with the rebase folded into an index instead of the balance:
-              <code>gHOODZ = sHOODZ × 1e9 / index</code>. That makes it safe to use inside contracts
+            <p>gHOOD is sHOOD with the rebase folded into an index instead of the balance:
+              <code>gHOOD = sHOOD × 1e9 / index</code>. That makes it safe to use inside contracts
               that would otherwise be confused by a balance that changes underneath them.</p>
           </section>
 
           <section id="staking">
             <h2>Staking &amp; rebases</h2>
-            <p>Staking locks HOODZ in the staking contract and mints sHOODZ 1:1. Once per epoch the
+            <p>Staking locks HOOD in the staking contract and mints sHOOD 1:1. Once per epoch the
               staking contract calls <code>rebase()</code>, which:</p>
             <ol class="docs-list">
               <li>asks the Distributor to mint the epoch's reward into the staking contract;</li>
               <li>computes <code>distribute = contractBalance − circulatingStaked</code>;</li>
-              <li>calls <code>sHOODZ.rebase(distribute, epochNumber)</code>, which raises total supply
+              <li>calls <code>sHOOD.rebase(distribute, epochNumber)</code>, which raises total supply
                   and re-prices every gon;</li>
               <li>advances <code>epoch.end</code> and <code>epoch.number</code>.</li>
             </ol>
@@ -155,7 +155,7 @@
                 <thead><tr><th>Supply band</th><th>Rate (1e6)</th><th>Per epoch</th><th>APY</th></tr></thead>
                 <tbody>
                   <tr><td>Bootstrap (2021 launch rate)</td><td><code>5750</code></td><td>0.5750%</td><td>53,184%</td></tr>
-                  <tr><td>&lt; 1M HOODZ <em>(default)</em></td><td><code>3058</code></td><td>0.3058%</td><td>2,732%</td></tr>
+                  <tr><td>&lt; 1M HOOD <em>(default)</em></td><td><code>3058</code></td><td>0.3058%</td><td>2,732%</td></tr>
                   <tr><td>1M – 10M</td><td><code>1587</code></td><td>0.1587%</td><td>468%</td></tr>
                   <tr><td>10M – 100M</td><td><code>1186</code></td><td>0.1186%</td><td>266%</td></tr>
                   <tr><td>100M – 1B</td><td><code>793</code></td><td>0.0793%</td><td>138%</td></tr>
@@ -168,21 +168,21 @@
               stakers are paid most and the emission slows as the protocol matures.</p>
             <div class="docs-callout docs-callout--warn">
               <strong>Read this before you get excited about the APY.</strong> That yield is paid in
-              <em>newly minted HOODZ</em>, not in revenue. Your share of the supply only grows if you
+              <em>newly minted HOOD</em>, not in revenue. Your share of the supply only grows if you
               stake; in value terms you gain nothing unless the treasury grows faster than the supply.
               The money that funds it comes from bond buyers — people paying above backing for
-              discounted HOODZ. When bond demand stops, the premium collapses and the price falls
+              discounted HOOD. When bond demand stops, the premium collapses and the price falls
               toward backing. That is exactly what happened to OHM in early 2022, and it is why
               Olympus itself has since taken this rate to 0%. Hoodz ships the 2021 model on purpose,
-              but the rate is a governance parameter: <code>HOODZ_REWARD_RATE=0</code> switches it off.
+              but the rate is a governance parameter: <code>HOOD_REWARD_RATE=0</code> switches it off.
             </div>
           </section>
 
           <section id="treasury">
             <h2>Treasury &amp; backing</h2>
-            <p>The treasury is the only contract allowed to mint HOODZ, and it only does so against
+            <p>The treasury is the only contract allowed to mint HOOD, and it only does so against
               value received. <code>deposit(amount, token, profit)</code> takes in a reserve asset,
-              values it in 9-decimal HOODZ terms, and mints <code>value − profit</code>; the
+              values it in 9-decimal HOOD terms, and mints <code>value − profit</code>; the
               <code>profit</code> slice is what accrues to backing.</p>
             <p>Excess reserves — the buffer available for policy and loans — is
               <code>totalReserves − (baseSupply − totalDebt)</code>. Every privileged role
@@ -192,17 +192,17 @@
 
           <section id="bonds">
             <h2>Bond markets</h2>
-            <p>A bond market sells HOODZ at a discount in exchange for a reserve asset, vesting over a
+            <p>A bond market sells HOOD at a discount in exchange for a reserve asset, vesting over a
               fixed term. Price is driven by a control variable that decays with time and is retuned
               toward a target debt level, so the discount widens when demand is weak and narrows when
               it is strong.</p>
-            <p>Payouts are recorded as notes denominated in gHOODZ, so a bonder keeps earning the
+            <p>Payouts are recorded as notes denominated in gHOOD, so a bonder keeps earning the
               staking rebase while their bond vests.</p>
           </section>
 
           <section id="loans">
             <h2>Hoodz Loans</h2>
-            <p>Hoodz Loans let a holder escrow gHOODZ and borrow the reserve asset against the liquid
+            <p>Hoodz Loans let a holder escrow gHOOD and borrow the reserve asset against the liquid
               backing underneath it.</p>
             <div class="docs-table-wrap">
               <table class="docs-table">
@@ -210,12 +210,12 @@
                   <tr><th>Interest</th><td>0.5% fixed, annualised — <code>principal × rate × duration / 365d / 1e18</code></td></tr>
                   <tr><th>Liquidations</th><td>None. Price cannot force a close.</td></tr>
                   <tr><th>Term</th><td>121 days, rollable indefinitely</td></tr>
-                  <tr><th>Collateral</th><td>gHOODZ, held in a per-borrower escrow contract</td></tr>
+                  <tr><th>Collateral</th><td>gHOOD, held in a per-borrower escrow contract</td></tr>
                   <tr><th>oLTC</th><td>Origination loan-to-collateral, dripping upward as backing grows</td></tr>
                 </tbody>
               </table>
             </div>
-            <p>If a loan expires unpaid, the lender claims the escrowed gHOODZ. That is the only
+            <p>If a loan expires unpaid, the lender claims the escrowed gHOOD. That is the only
               way a position closes against the borrower's will — and it depends on time, never
               on price.</p>
           </section>
@@ -230,25 +230,25 @@ emission = supply × (premium − minimumPremium) / (1 + premium) × baseEmissio
             <p>Below the floor it emits nothing, so supply never expands into weakness.</p>
             <h3 class="docs-h3">Yield Repurchase Facility</h3>
             <p>Reserves earn yield. Each week the YRF opens a market that spends that yield buying
-              HOODZ back, which raises backing per token for everyone who did not sell.</p>
+              HOOD back, which raises backing per token for everyone who did not sell.</p>
             <h3 class="docs-h3">Convertible Deposits</h3>
-            <p>Depositors hand over reserves for a right to convert into HOODZ at a strike before an
+            <p>Depositors hand over reserves for a right to convert into HOOD at a strike before an
               expiry. If they do not convert, the reserves come back. The DAO gets a cheap option on
               permanent capital; the depositor gets upside without dilution risk.</p>
           </section>
 
           <section id="governance">
             <h2>Governance</h2>
-            <p>gHOODZ is an <code>ERC20Votes</code> token, so voting power is checkpointed and
+            <p>gHOOD is an <code>ERC20Votes</code> token, so voting power is checkpointed and
               delegable. Proposals run through an OpenZeppelin Governor into a
               <code>TimelockController</code>.</p>
             <div class="docs-table-wrap">
               <table class="docs-table">
                 <tbody>
-                  <tr><th>Proposal threshold</th><td>1,000 gHOODZ</td></tr>
+                  <tr><th>Proposal threshold</th><td>1,000 gHOOD</td></tr>
                   <tr><th>Voting delay</th><td>43,200 blocks (~1 day)</td></tr>
                   <tr><th>Voting period</th><td>216,000 blocks (~5 days)</td></tr>
-                  <tr><th>Quorum</th><td>4% of gHOODZ supply</td></tr>
+                  <tr><th>Quorum</th><td>4% of gHOOD supply</td></tr>
                   <tr><th>Timelock</th><td>2 days before execution</td></tr>
                 </tbody>
               </table>
@@ -257,15 +257,15 @@ emission = supply × (premium − minimumPremium) / (1 + premium) × baseEmissio
 
           <section id="pons-launch">
             <h2>The PONS launch</h2>
-            <p>HOODZ was distributed through PONS, the non-custodial launchpad native to Robinhood
+            <p>HOOD was distributed through PONS, the non-custodial launchpad native to Robinhood
               Chain. Under the V2 model every token starts on a bonding curve rather than an instant
               liquidity pool, and graduation migrates the curve reserves into a permanently locked
               Uniswap&nbsp;v4 position.</p>
-            <p>The protocol cannot mint a single HOODZ until that has demonstrably happened.
+            <p>The protocol cannot mint a single HOOD until that has demonstrably happened.
               <code>HoodzLaunchGuard</code> holds the vault role and will only hand it to the treasury
               when all three conditions hold simultaneously:</p>
             <ol class="docs-list">
-              <li><code>IPonsLaunchpad.isGraduated(HOODZ)</code> is true;</li>
+              <li><code>IPonsLaunchpad.isGraduated(HOOD)</code> is true;</li>
               <li>the graduated LP position is verified locked with no unlock path;</li>
               <li>a governor-signed <code>arm()</code> happened at least 48 hours earlier.</li>
             </ol>
@@ -273,7 +273,7 @@ emission = supply × (premium − minimumPremium) / (1 + premium) × baseEmissio
               release is one-way and one-shot, and the treasury address is immutable — governance
               chooses <em>when</em>, never <em>where</em>.</p>
             <p>The protocol's share of PONS trading fees flows into <code>FeeRouterBuyback</code>,
-              which buys HOODZ on the graduated pool and burns it.</p>
+              which buys HOOD on the graduated pool and burns it.</p>
           </section>
 
           <section id="contracts">
@@ -304,13 +304,13 @@ emission = supply × (premium − minimumPremium) / (1 + premium) × baseEmissio
               until it has been through a full audit.
             </div>
             <ul class="docs-list">
-              <li><strong>Price risk.</strong> HOODZ is not a stablecoin. Backing sets a floor in
+              <li><strong>Price risk.</strong> HOOD is not a stablecoin. Backing sets a floor in
                 theory, not a guarantee in practice.</li>
               <li><strong>Dilution.</strong> Emissions increase supply. If the premium assumption is
                 wrong, stakers are paid in tokens rather than value.</li>
               <li><strong>Oracle risk.</strong> The Emissions Manager reads a price feed. A stale or
                 manipulated feed mis-sizes emissions.</li>
-              <li><strong>Governance risk.</strong> A sufficiently large gHOODZ holder can pass a
+              <li><strong>Governance risk.</strong> A sufficiently large gHOOD holder can pass a
                 proposal. The timelock is the only delay between a decision and its execution.</li>
               <li><strong>Launch risk.</strong> A bonding-curve distribution is open to anyone,
                 including a well-capitalised buyer taking a large share of the curve.</li>

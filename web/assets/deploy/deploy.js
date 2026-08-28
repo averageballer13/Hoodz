@@ -8,7 +8,7 @@
 (function () {
   'use strict';
 
-  var DEV_WALLET = '0xf66f85ddE0f123e0EE8100eaDFa637b4eA1FD0e9'.toLowerCase();
+  var DEV_WALLET = '0xeC356d64974709BAF17F5418016f81703a1876F0'.toLowerCase();
 
   var NETWORKS = {
     4663: {

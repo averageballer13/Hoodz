@@ -15,7 +15,7 @@ pragma solidity ^0.8.24;
         trading fees, never out of new supply - there is no mint.
 
         Web    https://hoodz.finance
-        X      https://x.com/Hoodzfinancial
+        X      https://x.com/Hoodzfinance
         Code   https://github.com/averageballer13/Hoodz
 
         UNAUDITED. This code has never been audited. Read it before you
@@ -24,8 +24,8 @@ pragma solidity ^0.8.24;
 
 /// @title  IPriceFeed
 /// @notice Minimal Chainlink-compatible price feed consumed by Hoodz's automated
-///         monetary policy. Every feed used by the protocol quotes ONE whole HOODZ in
-///         whole units of the reserve asset (e.g. `12.34` reserve per HOODZ).
+///         monetary policy. Every feed used by the protocol quotes ONE whole HOOD in
+///         whole units of the reserve asset (e.g. `12.34` reserve per HOOD).
 /// @dev    UNAUDITED. Do not use in production without a full audit.
 ///
 ///         Scaling contract: the raw `latestAnswer()` carries `decimals()` decimals and is
@@ -33,7 +33,7 @@ pragma solidity ^0.8.24;
 ///         `price18 = uint256(latestAnswer()) * 10 ** (18 - decimals())`.
 ///         Feeds with more than 18 decimals are rejected at deployment time.
 interface IPriceFeed {
-    /// @notice Latest price of one whole HOODZ denominated in whole reserve tokens.
+    /// @notice Latest price of one whole HOOD denominated in whole reserve tokens.
     /// @return answer Price carrying `decimals()` decimals. Consumers MUST reject `answer <= 0`.
     function latestAnswer() external view returns (int256 answer);
 

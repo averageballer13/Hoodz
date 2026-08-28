@@ -92,7 +92,7 @@ contract MockPonsBondingCurve is IPonsBondingCurve {
 /// @title  MockPonsLaunchpad
 /// @notice Stand-in for the PONS launchpad registry: maps a token to its curve and its graduated
 ///         pool, and answers `isGraduated`, the first of the three questions `HoodzLaunchGuard`
-///         gates HOODZ mint authority on.
+///         gates HOOD mint authority on.
 /// @dev    Non-custodial by construction, mirroring PONS V2 - it never takes user funds.
 contract MockPonsLaunchpad is IPonsLaunchpad {
     /// @inheritdoc IPonsLaunchpad
@@ -113,7 +113,7 @@ contract MockPonsLaunchpad is IPonsLaunchpad {
     error LaunchpadDown();
 
     /// @inheritdoc IPonsLaunchpad
-    /// @dev HOODZ is pre-deployed and passed in via `params.token`; this mock only registers it
+    /// @dev HOOD is pre-deployed and passed in via `params.token`; this mock only registers it
     ///      against the curve the test already deployed with {register}.
     function createToken(TokenParams calldata params) external payable override returns (address, address) {
         address curve = curveOf[params.token];

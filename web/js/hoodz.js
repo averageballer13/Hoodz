@@ -1,5 +1,5 @@
 /* ============================================================================
-   HOODZ — landing page behaviour
+   HOOD — landing page behaviour
    Zero dependencies. Everything degrades gracefully without JS.
    Mirrors the Olympus interaction set: scroll reveals, parallaxed decorative
    objects, rolling stat counters, height-animated FAQ, sticky nav, marquee.

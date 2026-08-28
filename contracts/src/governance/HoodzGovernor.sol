@@ -14,7 +14,7 @@ pragma solidity ^0.8.24;
         trading fees, never out of new supply - there is no mint.
 
         Web    https://hoodz.finance
-        X      https://x.com/Hoodzfinancial
+        X      https://x.com/Hoodzfinance
         Code   https://github.com/averageballer13/Hoodz
 
         UNAUDITED. This code has never been audited. Read it before you
@@ -34,14 +34,14 @@ import {HoodzTimelock} from "./HoodzTimelock.sol";
 
 /**
  * @title HoodzGovernor
- * @notice On-chain governance for Hoodz. Voting power is gHOODZ (`ERC20Votes`), the index-bearing
- *         wrapper around staked HOODZ, so voting weight tracks a share of the staking pool and is
- *         immune to sHOODZ rebases.
+ * @notice On-chain governance for Hoodz. Voting power is gHOOD (`ERC20Votes`), the index-bearing
+ *         wrapper around staked HOOD, so voting weight tracks a share of the staking pool and is
+ *         immune to sHOOD rebases.
  * @dev OpenZeppelin v5 Governor composed of:
  *      `Governor` + `GovernorSettings` + `GovernorCountingSimple` + `GovernorVotes` +
  *      `GovernorVotesQuorumFraction` + `GovernorTimelockControl`.
  *
- *      CLOCK. gHOODZ does not override `clock()` / `CLOCK_MODE()`, so it uses the ERC-6372 default
+ *      CLOCK. gHOOD does not override `clock()` / `CLOCK_MODE()`, so it uses the ERC-6372 default
  *      block-number clock (`mode=blocknumber&from=default`). `GovernorVotes.clock()` mirrors the
  *      token, which means every window below is denominated in BLOCKS, not seconds. Robinhood Chain
  *      (chainId 4663) produces a block every ~2 seconds, hence:
@@ -50,8 +50,8 @@ import {HoodzTimelock} from "./HoodzTimelock.sol";
  *      | ------------------ | ----------------------------- | ---------- |
  *      | votingDelay        | 43,200 blocks                 | ~1 day     |
  *      | votingPeriod       | 216,000 blocks                | ~5 days    |
- *      | proposalThreshold  | 1,000e18 gHOODZ                | -          |
- *      | quorum             | 4% of gHOODZ past total supply | -          |
+ *      | proposalThreshold  | 1,000e18 gHOOD                | -          |
+ *      | quorum             | 4% of gHOOD past total supply | -          |
  *      | timelock minDelay  | 2 days, seconds-based         | ~2 days    |
  *
  *      Should Robinhood Chain change its block cadence, governance can re-tune the three
@@ -77,7 +77,7 @@ contract HoodzGovernor is
                                  ERRORS
     //////////////////////////////////////////////////////////////*/
 
-    /// @notice Thrown when the gHOODZ token or the timelock is the zero address.
+    /// @notice Thrown when the gHOOD token or the timelock is the zero address.
     error HoodzGovernor__ZeroAddress();
 
     /*//////////////////////////////////////////////////////////////
@@ -97,10 +97,10 @@ contract HoodzGovernor is
     /// @notice Blocks the poll stays open: ~5 days at 2s blocks.
     uint32 public constant INITIAL_VOTING_PERIOD = 216_000;
 
-    /// @notice gHOODZ voting power required to submit a proposal.
+    /// @notice gHOOD voting power required to submit a proposal.
     uint256 public constant INITIAL_PROPOSAL_THRESHOLD = 1_000e18;
 
-    /// @notice Quorum as a percentage of the gHOODZ total supply at the proposal snapshot.
+    /// @notice Quorum as a percentage of the gHOOD total supply at the proposal snapshot.
     uint256 public constant INITIAL_QUORUM_NUMERATOR = 4;
 
     /*//////////////////////////////////////////////////////////////
@@ -109,22 +109,22 @@ contract HoodzGovernor is
 
     /**
      * @notice Deploys the Hoodz governor.
-     * @param gHOODZ The gHOODZ token (`ERC20Votes`, default block-number clock) used for voting power.
+     * @param gHOOD The gHOOD token (`ERC20Votes`, default block-number clock) used for voting power.
      * @param timelock The {HoodzTimelock} that queues and executes successful proposals. This
      *        governor must hold `PROPOSER_ROLE` (and ideally `CANCELLER_ROLE`) on it.
      */
-    constructor(IVotes gHOODZ, HoodzTimelock timelock)
+    constructor(IVotes gHOOD, HoodzTimelock timelock)
         Governor(GOVERNOR_NAME)
         GovernorSettings(INITIAL_VOTING_DELAY, INITIAL_VOTING_PERIOD, INITIAL_PROPOSAL_THRESHOLD)
-        GovernorVotes(gHOODZ)
+        GovernorVotes(gHOOD)
         GovernorVotesQuorumFraction(INITIAL_QUORUM_NUMERATOR)
         GovernorTimelockControl(timelock)
     {
-        if (address(gHOODZ) == address(0) || address(timelock) == address(0)) revert HoodzGovernor__ZeroAddress();
+        if (address(gHOOD) == address(0) || address(timelock) == address(0)) revert HoodzGovernor__ZeroAddress();
     }
 
     /*//////////////////////////////////////////////////////////////
-                          HOODZ CONVENIENCE VIEWS
+                          HOOD CONVENIENCE VIEWS
     //////////////////////////////////////////////////////////////*/
 
     /**
@@ -149,7 +149,7 @@ contract HoodzGovernor is
      * @notice Quorum that a proposal created in this block would have to clear.
      * @dev Evaluated at `clock() - 1` because ERC-5805 checkpoint lookups are only defined for
      *      timepoints strictly in the past.
-     * @return quorumVotes gHOODZ votes required for such a proposal to be quorate.
+     * @return quorumVotes gHOOD votes required for such a proposal to be quorate.
      */
     function currentQuorum() external view returns (uint256 quorumVotes) {
         uint48 timepoint = clock();
@@ -177,9 +177,9 @@ contract HoodzGovernor is
     }
 
     /**
-     * @notice gHOODZ votes required at the snapshot for a proposal to be quorate.
+     * @notice gHOOD votes required at the snapshot for a proposal to be quorate.
      * @param timepoint Block number of the proposal snapshot.
-     * @return The quorum, i.e. 4% of the gHOODZ total supply at `timepoint`.
+     * @return The quorum, i.e. 4% of the gHOOD total supply at `timepoint`.
      */
     function quorum(uint256 timepoint) public view override(Governor, GovernorVotesQuorumFraction) returns (uint256) {
         return super.quorum(timepoint);
@@ -209,8 +209,8 @@ contract HoodzGovernor is
     }
 
     /**
-     * @notice gHOODZ voting power an account must hold at the previous block to submit a proposal.
-     * @return The proposal threshold in gHOODZ (18 decimals).
+     * @notice gHOOD voting power an account must hold at the previous block to submit a proposal.
+     * @return The proposal threshold in gHOOD (18 decimals).
      */
     function proposalThreshold() public view override(Governor, GovernorSettings) returns (uint256) {
         return super.proposalThreshold();

@@ -15,7 +15,7 @@ pragma solidity ^0.8.24;
         trading fees, never out of new supply - there is no mint.
 
         Web    https://hoodz.finance
-        X      https://x.com/Hoodzfinancial
+        X      https://x.com/Hoodzfinance
         Code   https://github.com/averageballer13/Hoodz
 
         UNAUDITED. This code has never been audited. Read it before you
@@ -34,7 +34,7 @@ pragma solidity ^0.8.24;
 ///         expressed as an 18-decimal fixed point number (1e18 == "1 quote per payout").
 ///         The auctioneer is responsible for converting that into raw token units using
 ///         the two tokens' `decimals()`. Capacity is always denominated in RAW payout-token
-///         units (1e9 for HOODZ, 1e18 for the reserve).
+///         units (1e9 for HOOD, 1e18 for the reserve).
 ///
 ///         A market owner must approve `getTeller()` for `capacity` payout tokens before
 ///         calling `createMarket`; the teller pulls the payout as bids settle.

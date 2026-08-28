@@ -11,9 +11,9 @@ import {ISwapRouter} from "../../src/pons/FeeRouterBuyback.sol";
 
 /// @title  MockSwapRouter
 /// @notice Fixed-rate {ISwapRouter}: the router facade in front of the permanently locked
-///         Uniswap v4 pool that `FeeRouterBuyback` buys HOODZ on before burning it.
+///         Uniswap v4 pool that `FeeRouterBuyback` buys HOOD on before burning it.
 /// @dev    The rate is set per direction and normalised for the two tokens' decimals, so a
-///         reserve/HOODZ pair (18 vs 9 decimals) behaves the way the real pool would. Output
+///         reserve/HOOD pair (18 vs 9 decimals) behaves the way the real pool would. Output
 ///         inventory must be funded up front by the test - the mock never mints. {setPayoutBps}
 ///         lets a test under-deliver so the buyback's slippage guard can be exercised.
 contract MockSwapRouter is ISwapRouter {

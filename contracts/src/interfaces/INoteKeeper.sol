@@ -14,7 +14,7 @@ pragma solidity ^0.8.24;
         trading fees, never out of new supply - there is no mint.
 
         Web    https://hoodz.finance
-        X      https://x.com/Hoodzfinancial
+        X      https://x.com/Hoodzfinance
         Code   https://github.com/averageballer13/Hoodz
 
         UNAUDITED. This code has never been audited. Read it before you
@@ -27,7 +27,7 @@ pragma solidity ^0.8.24;
  * @notice Vesting-note bookkeeping shared by every Hoodz bond market.
  * @dev    Port of the Olympus V2 `INoteKeeper`. A Note is an isolated vesting position
  *         created when a user deposits into a bond market. Payout is denominated in
- *         gHOODZ so that a maturing bond keeps compounding at the staking index while
+ *         gHOOD so that a maturing bond keeps compounding at the staking index while
  *         it vests.
  *
  *         Extra bond-market types that do not belong in `IBondDepository` live here.
@@ -36,7 +36,7 @@ interface INoteKeeper {
     /* ========== TYPES ========== */
 
     /// @notice A single vesting position owned by a user.
-    /// @param payout   gHOODZ amount remaining to be paid out.
+    /// @param payout   gHOOD amount remaining to be paid out.
     /// @param created  Timestamp the note was minted.
     /// @param matured  Timestamp the note becomes redeemable.
     /// @param redeemed Timestamp the note was redeemed (0 while outstanding).
@@ -68,15 +68,15 @@ interface INoteKeeper {
     /// @notice Redeem a specific set of matured notes for `_user`.
     /// @param _user     Owner of the notes.
     /// @param _indexes  Indexes (into the owner's note array) to redeem.
-    /// @param _sendgHOODZ True to receive gHOODZ, false to unstake into HOODZ.
-    /// @return payout_  Total gHOODZ credited (before an optional unstake).
-    function redeem(address _user, uint256[] memory _indexes, bool _sendgHOODZ) external returns (uint256 payout_);
+    /// @param _sendgHOOD True to receive gHOOD, false to unstake into HOOD.
+    /// @return payout_  Total gHOOD credited (before an optional unstake).
+    function redeem(address _user, uint256[] memory _indexes, bool _sendgHOOD) external returns (uint256 payout_);
 
     /// @notice Redeem every outstanding note held by `_user`.
     /// @param _user     Owner of the notes.
-    /// @param _sendgHOODZ True to receive gHOODZ, false to unstake into HOODZ.
-    /// @return payout_  Total gHOODZ credited (before an optional unstake).
-    function redeemAll(address _user, bool _sendgHOODZ) external returns (uint256 payout_);
+    /// @param _sendgHOOD True to receive gHOOD, false to unstake into HOOD.
+    /// @return payout_  Total gHOOD credited (before an optional unstake).
+    function redeemAll(address _user, bool _sendgHOOD) external returns (uint256 payout_);
 
     /// @notice Offer one of the caller's notes to `_to`.
     /// @param _to    Address allowed to pull the note.
@@ -99,7 +99,7 @@ interface INoteKeeper {
     /// @notice Payout and maturity status of a single note.
     /// @param _user  Note owner.
     /// @param _index Index of the note.
-    /// @return payout_  gHOODZ owed by the note.
+    /// @return payout_  gHOOD owed by the note.
     /// @return matured_ True when the note is redeemable right now.
     function pendingFor(address _user, uint256 _index) external view returns (uint256 payout_, bool matured_);
 }

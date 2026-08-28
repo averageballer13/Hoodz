@@ -14,7 +14,7 @@ pragma solidity ^0.8.24;
         trading fees, never out of new supply - there is no mint.
 
         Web    https://hoodz.finance
-        X      https://x.com/Hoodzfinancial
+        X      https://x.com/Hoodzfinance
         Code   https://github.com/averageballer13/Hoodz
 
         UNAUDITED. This code has never been audited. Read it before you
@@ -25,28 +25,28 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import {IHOODZ} from "./interfaces/IHOODZ.sol";
-import {IsHOODZ} from "./interfaces/IsHOODZ.sol";
+import {IHOOD} from "./interfaces/IHOOD.sol";
+import {IsHOOD} from "./interfaces/IsHOOD.sol";
 import {ITreasury} from "./interfaces/ITreasury.sol";
 import {IBondingCalculator} from "./interfaces/IBondingCalculator.sol";
 import {IHoodzAuthority} from "./interfaces/IHoodzAuthority.sol";
 import {HoodzAccessControlled} from "./types/HoodzAccessControlled.sol";
 
-/// @title IsHOODZDebt
-/// @notice The debt-accounting surface of sHOODZ, used to collateralise treasury debt with
+/// @title IsHOODDebt
+/// @notice The debt-accounting surface of sHOOD, used to collateralise treasury debt with
 ///         a debtor's staked position.
-/// @dev Declared here because the shared {IsHOODZ} interface only covers the rebasing surface.
-///      `HoodzStaking`'s sHOODZ implements these two members (mirroring `sOHM`).
-interface IsHOODZDebt {
-    /// @notice Increase or decrease the recorded debt of `debtor`, locking their sHOODZ.
-    /// @param amount Debt delta, in HOODZ terms.
+/// @dev Declared here because the shared {IsHOOD} interface only covers the rebasing surface.
+///      `HoodzStaking`'s sHOOD implements these two members (mirroring `sOHM`).
+interface IsHOODDebt {
+    /// @notice Increase or decrease the recorded debt of `debtor`, locking their sHOOD.
+    /// @param amount Debt delta, in HOOD terms.
     /// @param debtor Account whose debt balance changes.
     /// @param add True to incur debt, false to repay it.
     function changeDebt(uint256 amount, address debtor, bool add) external;
 
     /// @notice Outstanding debt recorded against an account.
     /// @param debtor Account to query.
-    /// @return The debt balance in HOODZ terms.
+    /// @return The debt balance in HOOD terms.
     function debtBalances(address debtor) external view returns (uint256);
 }
 
@@ -60,12 +60,12 @@ error HoodzTreasury_NotApproved();
 error HoodzTreasury_InvalidToken();
 /// @notice Thrown when an action would consume more than the treasury's excess reserves.
 error HoodzTreasury_InsufficientReserves();
-/// @notice The treasury does not hold enough HOODZ to make this payout. Fixed supply: it can only
+/// @notice The treasury does not hold enough HOOD to make this payout. Fixed supply: it can only
 ///         ever distribute what it already owns.
 error HoodzTreasury_InsufficientInventory(uint256 requested, uint256 held);
 /// @notice Thrown when a debtor's position would exceed their configured debt limit.
 error HoodzTreasury_ExceedsDebtLimit();
-/// @notice Thrown when sHOODZ has not been registered yet but debt accounting was requested.
+/// @notice Thrown when sHOOD has not been registered yet but debt accounting was requested.
 error HoodzTreasury_SHoodzNotSet();
 /// @notice Thrown when a timelocked-only path is used while the timelock is disabled.
 error HoodzTreasury_TimelockDisabled();
@@ -91,10 +91,10 @@ error HoodzTreasury_MissingCalculator();
 /// @title Hoodz Treasury
 /// @author Hoodz
 /// @notice Balance sheet of Hoodz. It custodies every reserve and liquidity asset, mints
-///         HOODZ against incoming value, and is the only contract permitted to expand supply.
+///         HOOD against incoming value, and is the only contract permitted to expand supply.
 /// @dev Faithful port of `OlympusTreasury` to Solidity 0.8 / OpenZeppelin v5 with custom errors.
 ///      Access is delegated to {HoodzAuthority} via {HoodzAccessControlled}; the treasury itself is
-///      the `vault` role for HOODZ, so `HOODZ.mint` only ever succeeds from here.
+///      the `vault` role for HOOD, so `HOOD.mint` only ever succeeds from here.
 ///
 ///      Every privileged address is registered under a {STATUS} in a two-mapping registry:
 ///      `permissions` is the authoritative flag, `registry` is the enumerable list used by
@@ -106,19 +106,19 @@ contract HoodzTreasury is HoodzAccessControlled, ITreasury {
 
     // ========= EVENTS ========= //
 
-    /// @notice Emitted when an asset is deposited and HOODZ is minted against it.
+    /// @notice Emitted when an asset is deposited and HOOD is minted against it.
     event Deposit(address indexed token, uint256 amount, uint256 value);
-    /// @notice Emitted when HOODZ is burned to redeem a reserve asset.
+    /// @notice Emitted when HOOD is burned to redeem a reserve asset.
     event Withdrawal(address indexed token, uint256 amount, uint256 value);
     /// @notice Emitted when a debtor draws against their staked collateral.
     event CreateDebt(address indexed debtor, address indexed token, uint256 amount, uint256 value);
-    /// @notice Emitted when a debtor repays, in reserves or in HOODZ.
+    /// @notice Emitted when a debtor repays, in reserves or in HOOD.
     event RepayDebt(address indexed debtor, address indexed token, uint256 amount, uint256 value);
     /// @notice Emitted when a manager withdraws assets to deploy them.
     event Managed(address indexed token, uint256 amount);
     /// @notice Emitted when reserves are recomputed from live balances.
     event ReservesAudited(uint256 indexed totalReserves);
-    /// @notice Emitted when a reward manager mints HOODZ out of excess reserves.
+    /// @notice Emitted when a reward manager mints HOOD out of excess reserves.
     event PaidOut(address indexed caller, address indexed recipient, uint256 amount);
     /// @notice Emitted when a permission change enters the timelock queue.
     event PermissionQueued(STATUS indexed status, address queued);
@@ -128,7 +128,7 @@ contract HoodzTreasury is HoodzAccessControlled, ITreasury {
     event QueueNullified(uint256 indexed index);
     /// @notice Emitted when a debtor's ceiling is set.
     event DebtLimitSet(address indexed debtor, uint256 limit);
-    /// @notice Emitted when the sHOODZ contract used for debt collateral is set.
+    /// @notice Emitted when the sHOOD contract used for debt collateral is set.
     event SHoodzSet(address indexed sHoodz);
     /// @notice Emitted when the on-chain governance countdown for toggling the timelock starts.
     event TimelockOrdered(uint256 indexed timelockEndBlock);
@@ -139,8 +139,8 @@ contract HoodzTreasury is HoodzAccessControlled, ITreasury {
 
     /// @notice Permission classes the treasury recognises.
     /// @dev RESERVEDEPOSITOR/SPENDER/TOKEN/MANAGER govern stable reserves; the LIQUIDITY*
-    ///      variants govern LP positions; RESERVEDEBTOR and HOODZDEBTOR govern sHOODZ-collateralised
-    ///      borrowing; REWARDMANAGER may mint from excess reserves; SHOODZ registers the staked
+    ///      variants govern LP positions; RESERVEDEBTOR and HOODDEBTOR govern sHOOD-collateralised
+    ///      borrowing; REWARDMANAGER may mint from excess reserves; SHOOD registers the staked
     ///      token used as debt collateral.
     enum STATUS {
         RESERVEDEPOSITOR,
@@ -152,8 +152,8 @@ contract HoodzTreasury is HoodzAccessControlled, ITreasury {
         LIQUIDITYMANAGER,
         RESERVEDEBTOR,
         REWARDMANAGER,
-        SHOODZ,
-        HOODZDEBTOR
+        SHOOD,
+        HOODDEBTOR
     }
 
     /// @notice A pending permission change waiting out the timelock.
@@ -168,9 +168,9 @@ contract HoodzTreasury is HoodzAccessControlled, ITreasury {
 
     // ========= CONSTANTS ========= //
 
-    /// @notice Decimals of HOODZ. Fixed at 9 for Olympus parity; every value the treasury books
+    /// @notice Decimals of HOOD. Fixed at 9 for Olympus parity; every value the treasury books
     ///         (`totalReserves`, `totalDebt`, `tokenValue`) is denominated in these units.
-    uint256 internal constant HOODZ_DECIMALS = 9;
+    uint256 internal constant HOOD_DECIMALS = 9;
 
     /// @dev Multiplier applied to `blocksNeededForQueue` for roles that can move assets out.
     uint256 internal constant MANAGER_TIMELOCK_MULTIPLIER = 2;
@@ -180,14 +180,14 @@ contract HoodzTreasury is HoodzAccessControlled, ITreasury {
 
     // ========= STATE ========= //
 
-    /// @notice The HOODZ token. The treasury holds the `vault` role and is its only minter.
-    IHOODZ public immutable HOODZ;
+    /// @notice The HOOD token. The treasury holds the `vault` role and is its only minter.
+    IHOOD public immutable HOOD;
 
     /// @notice Blocks a queued permission change must wait before it can be executed.
     uint256 public immutable blocksNeededForQueue;
 
-    /// @notice Staked HOODZ, used to collateralise treasury debt.
-    IsHOODZ public sHOODZ;
+    /// @notice Staked HOOD, used to collateralise treasury debt.
+    IsHOOD public sHOOD;
 
     /// @notice Enumerable list of addresses ever registered under each status.
     mapping(STATUS => address[]) public registry;
@@ -198,16 +198,16 @@ contract HoodzTreasury is HoodzAccessControlled, ITreasury {
     /// @notice Bonding calculator used to value each registered liquidity token.
     mapping(address => address) public bondCalculator;
 
-    /// @notice Maximum debt, in HOODZ terms, each debtor may carry.
+    /// @notice Maximum debt, in HOOD terms, each debtor may carry.
     mapping(address => uint256) public debtLimit;
 
-    /// @notice Total booked value of treasury assets, in HOODZ terms.
+    /// @notice Total booked value of treasury assets, in HOOD terms.
     uint256 public totalReserves;
 
-    /// @notice Total outstanding debt, in HOODZ terms.
+    /// @notice Total outstanding debt, in HOOD terms.
     uint256 public totalDebt;
 
-    /// @notice Portion of `totalDebt` that was drawn as freshly minted HOODZ.
+    /// @notice Portion of `totalDebt` that was drawn as freshly minted HOOD.
     uint256 public hoodzDebt;
 
     /// @notice Every permission change ever queued, executed or not.
@@ -224,14 +224,14 @@ contract HoodzTreasury is HoodzAccessControlled, ITreasury {
 
     // ========= CONSTRUCTOR ========= //
 
-    /// @param _hoodz Address of the HOODZ token.
+    /// @param _hoodz Address of the HOOD token.
     /// @param _timelock Blocks a queued permission change must wait.
     /// @param _authority Address of {HoodzAuthority}.
     constructor(address _hoodz, uint256 _timelock, address _authority)
         HoodzAccessControlled(IHoodzAuthority(_authority))
     {
         if (_hoodz == address(0)) revert HoodzTreasury_ZeroAddress();
-        HOODZ = IHOODZ(_hoodz);
+        HOOD = IHOOD(_hoodz);
 
         blocksNeededForQueue = _timelock;
         timelockEnabled = false;
@@ -240,14 +240,14 @@ contract HoodzTreasury is HoodzAccessControlled, ITreasury {
 
     // ========= BALANCE SHEET ========= //
 
-    /// @notice Deposit an accepted asset and mint HOODZ against its value.
+    /// @notice Deposit an accepted asset and mint HOOD against its value.
     /// @dev Caller must hold the depositor permission matching the token class. `_profit` is the
     ///      slice of the deposited value retained by the treasury rather than paid to the
     ///      depositor — this is what funds staking rewards.
     /// @param _amount Amount of `_token` to pull from the caller.
     /// @param _token Asset being deposited.
-    /// @param _profit Value withheld from the caller, in HOODZ terms.
-    /// @return send_ HOODZ minted to the caller (`value - profit`).
+    /// @param _profit Value withheld from the caller, in HOOD terms.
+    /// @return send_ HOOD minted to the caller (`value - profit`).
     function deposit(uint256 _amount, address _token, uint256 _profit)
         external
         override
@@ -267,7 +267,7 @@ contract HoodzTreasury is HoodzAccessControlled, ITreasury {
 
         // Pay the depositor out of treasury inventory; the withheld profit stays as excess
         // reserves. Under the fixed-supply model this is a transfer, not a mint: if the treasury
-        // does not hold enough HOODZ the deposit reverts rather than silently under-paying.
+        // does not hold enough HOOD the deposit reverts rather than silently under-paying.
         send_ = value - _profit;
         _payFromInventory(msg.sender, send_);
 
@@ -276,7 +276,7 @@ contract HoodzTreasury is HoodzAccessControlled, ITreasury {
         emit Deposit(_token, _amount, value);
     }
 
-    /// @notice Burn HOODZ to redeem a reserve asset one-for-one on value.
+    /// @notice Burn HOOD to redeem a reserve asset one-for-one on value.
     /// @dev Only reserve tokens are redeemable; liquidity positions are not.
     /// @param _amount Amount of `_token` to send to the caller.
     /// @param _token Reserve asset to redeem.
@@ -285,9 +285,9 @@ contract HoodzTreasury is HoodzAccessControlled, ITreasury {
         if (!permissions[STATUS.RESERVESPENDER][msg.sender]) revert HoodzTreasury_NotApproved();
 
         uint256 value = tokenValue(_token, _amount);
-        // Fixed supply: the HOODZ returns to inventory instead of being destroyed, which is
+        // Fixed supply: the HOOD returns to inventory instead of being destroyed, which is
         // strictly better - it can be paid out again without anyone having to buy it back.
-        IERC20(address(HOODZ)).safeTransferFrom(msg.sender, address(this), value);
+        IERC20(address(HOOD)).safeTransferFrom(msg.sender, address(this), value);
 
         totalReserves -= value;
 
@@ -296,8 +296,8 @@ contract HoodzTreasury is HoodzAccessControlled, ITreasury {
         emit Withdrawal(_token, _amount, value);
     }
 
-    /// @notice Withdraw assets to deploy them, without burning HOODZ.
-    /// @dev Only the excess reserves — value above what is needed to back circulating HOODZ —
+    /// @notice Withdraw assets to deploy them, without burning HOOD.
+    /// @dev Only the excess reserves — value above what is needed to back circulating HOOD —
     ///      may be managed. Unregistered tokens (airdrops, stray transfers) are not booked as
     ///      reserves and so are swept without touching `totalReserves`.
     /// @param _token Asset to withdraw.
@@ -320,14 +320,14 @@ contract HoodzTreasury is HoodzAccessControlled, ITreasury {
         emit Managed(_token, _amount);
     }
 
-    /// @notice Pay HOODZ out of treasury inventory, backed by excess reserves.
-    /// @dev Replaces Olympus's `mint`. HOODZ has a fixed supply set by PONS, so the protocol can
+    /// @notice Pay HOOD out of treasury inventory, backed by excess reserves.
+    /// @dev Replaces Olympus's `mint`. HOOD has a fixed supply set by PONS, so the protocol can
     ///      only ever distribute what it already owns. The `excessReserves` ceiling is kept and
-    ///      still means the same thing: releasing treasury-held HOODZ raises the circulating supply
+    ///      still means the same thing: releasing treasury-held HOOD raises the circulating supply
     ///      against unchanged reserves, so it dilutes backing per token exactly as a mint would.
     ///      The distributor and the bond depository hold this permission.
-    /// @param _recipient Address to receive the HOODZ.
-    /// @param _amount Amount of HOODZ to send, 9 decimals.
+    /// @param _recipient Address to receive the HOOD.
+    /// @param _amount Amount of HOOD to send, 9 decimals.
     function payout(address _recipient, uint256 _amount) external override {
         if (!permissions[STATUS.REWARDMANAGER][msg.sender]) revert HoodzTreasury_NotApproved();
         if (_amount > excessReserves()) revert HoodzTreasury_InsufficientReserves();
@@ -337,34 +337,34 @@ contract HoodzTreasury is HoodzAccessControlled, ITreasury {
         emit PaidOut(msg.sender, _recipient, _amount);
     }
 
-    /// @notice HOODZ held by the treasury and available to pay out.
-    /// @return The treasury's HOODZ balance, 9 decimals.
+    /// @notice HOOD held by the treasury and available to pay out.
+    /// @return The treasury's HOOD balance, 9 decimals.
     function inventory() public view override returns (uint256) {
-        return HOODZ.balanceOf(address(this));
+        return HOOD.balanceOf(address(this));
     }
 
-    /// @dev Single choke point for every HOODZ payout, so the inventory check can never be skipped.
+    /// @dev Single choke point for every HOOD payout, so the inventory check can never be skipped.
     function _payFromInventory(address _recipient, uint256 _amount) internal {
         if (_amount == 0) return;
-        uint256 held = HOODZ.balanceOf(address(this));
+        uint256 held = HOOD.balanceOf(address(this));
         if (_amount > held) revert HoodzTreasury_InsufficientInventory(_amount, held);
-        IERC20(address(HOODZ)).safeTransfer(_recipient, _amount);
+        IERC20(address(HOOD)).safeTransfer(_recipient, _amount);
     }
 
     // ========= DEBT ========= //
 
-    /// @notice Borrow against a staked (sHOODZ) position.
-    /// @dev Borrowing HOODZ mints it and books it under `hoodzDebt`; borrowing a reserve asset
+    /// @notice Borrow against a staked (sHOOD) position.
+    /// @dev Borrowing HOOD mints it and books it under `hoodzDebt`; borrowing a reserve asset
     ///      sends the asset out and reduces `totalReserves`. Either way the debt is recorded on
-    ///      sHOODZ, which locks the debtor's stake, and is checked against their {debtLimit}.
+    ///      sHOOD, which locks the debtor's stake, and is checked against their {debtLimit}.
     /// @param _amount Amount of `_token` to borrow.
-    /// @param _token Asset to borrow — HOODZ itself, or a registered reserve token.
+    /// @param _token Asset to borrow — HOOD itself, or a registered reserve token.
     function incurDebt(uint256 _amount, address _token) external {
-        if (address(sHOODZ) == address(0)) revert HoodzTreasury_SHoodzNotSet();
+        if (address(sHOOD) == address(0)) revert HoodzTreasury_SHoodzNotSet();
 
         uint256 value;
-        if (_token == address(HOODZ)) {
-            if (!permissions[STATUS.HOODZDEBTOR][msg.sender]) revert HoodzTreasury_NotApproved();
+        if (_token == address(HOOD)) {
+            if (!permissions[STATUS.HOODDEBTOR][msg.sender]) revert HoodzTreasury_NotApproved();
             value = _amount;
         } else {
             if (!permissions[STATUS.RESERVEDEBTOR][msg.sender]) revert HoodzTreasury_NotApproved();
@@ -373,13 +373,13 @@ contract HoodzTreasury is HoodzAccessControlled, ITreasury {
         }
         if (value == 0) revert HoodzTreasury_InvalidToken();
 
-        IsHOODZDebt(address(sHOODZ)).changeDebt(value, msg.sender, true);
-        if (IsHOODZDebt(address(sHOODZ)).debtBalances(msg.sender) > debtLimit[msg.sender]) {
+        IsHOODDebt(address(sHOOD)).changeDebt(value, msg.sender, true);
+        if (IsHOODDebt(address(sHOOD)).debtBalances(msg.sender) > debtLimit[msg.sender]) {
             revert HoodzTreasury_ExceedsDebtLimit();
         }
         totalDebt += value;
 
-        if (_token == address(HOODZ)) {
+        if (_token == address(HOOD)) {
             _payFromInventory(msg.sender, value);
             hoodzDebt += value;
         } else {
@@ -394,39 +394,39 @@ contract HoodzTreasury is HoodzAccessControlled, ITreasury {
     /// @param _amount Amount of `_token` to repay.
     /// @param _token Reserve asset used to repay.
     function repayDebtWithReserve(uint256 _amount, address _token) external {
-        if (address(sHOODZ) == address(0)) revert HoodzTreasury_SHoodzNotSet();
+        if (address(sHOOD) == address(0)) revert HoodzTreasury_SHoodzNotSet();
         if (!permissions[STATUS.RESERVEDEBTOR][msg.sender]) revert HoodzTreasury_NotApproved();
         if (!permissions[STATUS.RESERVETOKEN][_token]) revert HoodzTreasury_NotAccepted();
 
         IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
 
         uint256 value = tokenValue(_token, _amount);
-        IsHOODZDebt(address(sHOODZ)).changeDebt(value, msg.sender, false);
+        IsHOODDebt(address(sHOOD)).changeDebt(value, msg.sender, false);
         totalDebt -= value;
         totalReserves += value;
 
         emit RepayDebt(msg.sender, _token, _amount, value);
     }
 
-    /// @notice Repay debt by burning HOODZ.
-    /// @param _amount Amount of HOODZ to burn against the caller's debt.
-    function repayDebtWithHOODZ(uint256 _amount) external {
-        if (address(sHOODZ) == address(0)) revert HoodzTreasury_SHoodzNotSet();
-        if (!permissions[STATUS.RESERVEDEBTOR][msg.sender] && !permissions[STATUS.HOODZDEBTOR][msg.sender]) {
+    /// @notice Repay debt by burning HOOD.
+    /// @param _amount Amount of HOOD to burn against the caller's debt.
+    function repayDebtWithHOOD(uint256 _amount) external {
+        if (address(sHOOD) == address(0)) revert HoodzTreasury_SHoodzNotSet();
+        if (!permissions[STATUS.RESERVEDEBTOR][msg.sender] && !permissions[STATUS.HOODDEBTOR][msg.sender]) {
             revert HoodzTreasury_NotApproved();
         }
 
         // Returns to inventory rather than being burned - see {withdraw}.
-        IERC20(address(HOODZ)).safeTransferFrom(msg.sender, address(this), _amount);
+        IERC20(address(HOOD)).safeTransferFrom(msg.sender, address(this), _amount);
 
-        IsHOODZDebt(address(sHOODZ)).changeDebt(_amount, msg.sender, false);
+        IsHOODDebt(address(sHOOD)).changeDebt(_amount, msg.sender, false);
         totalDebt -= _amount;
         hoodzDebt -= _amount;
 
-        emit RepayDebt(msg.sender, address(HOODZ), _amount, _amount);
+        emit RepayDebt(msg.sender, address(HOOD), _amount, _amount);
     }
 
-    /// @notice Set the maximum debt an address may carry, in HOODZ terms.
+    /// @notice Set the maximum debt an address may carry, in HOOD terms.
     /// @param _address Debtor to configure.
     /// @param _limit New ceiling.
     function setDebtLimit(address _address, uint256 _limit) external onlyGovernor {
@@ -438,7 +438,7 @@ contract HoodzTreasury is HoodzAccessControlled, ITreasury {
 
     /// @notice Grant a permission immediately. Only available while the timelock is off.
     /// @param _status Permission class to grant.
-    /// @param _address Address to permit, or the sHOODZ contract when `_status` is SHOODZ.
+    /// @param _address Address to permit, or the sHOOD contract when `_status` is SHOOD.
     /// @param _calculator Bonding calculator, required when `_status` is LIQUIDITYTOKEN.
     function enable(STATUS _status, address _address, address _calculator) external onlyGovernor {
         if (timelockEnabled) revert HoodzTreasury_TimelockEnabled();
@@ -587,18 +587,18 @@ contract HoodzTreasury is HoodzAccessControlled, ITreasury {
 
     // ========= ACCOUNTING ========= //
 
-    /// @notice Supply of HOODZ used as the denominator of protocol accounting.
-    /// @return Total HOODZ in existence.
+    /// @notice Supply of HOOD used as the denominator of protocol accounting.
+    /// @return Total HOOD in existence.
     function baseSupply() external view override returns (uint256) {
-        return HOODZ.totalSupply();
+        return HOOD.totalSupply();
     }
 
-    /// @notice Reserves held above what is required to back every circulating HOODZ one-for-one.
+    /// @notice Reserves held above what is required to back every circulating HOOD one-for-one.
     /// @dev `totalReserves - (baseSupply - totalDebt)`. Reverts if the treasury is under water,
     ///      which by construction blocks {mint} and {manage}.
-    /// @return The excess reserves, in HOODZ terms.
+    /// @return The excess reserves, in HOOD terms.
     function excessReserves() public view override returns (uint256) {
-        return totalReserves - (HOODZ.totalSupply() - totalDebt);
+        return totalReserves - (HOOD.totalSupply() - totalDebt);
     }
 
     /// @notice Recompute `totalReserves` from the treasury's live balances.
@@ -629,15 +629,15 @@ contract HoodzTreasury is HoodzAccessControlled, ITreasury {
         emit ReservesAudited(reserves);
     }
 
-    /// @notice Value of `_amount` of `_token` in HOODZ terms (9 decimals).
+    /// @notice Value of `_amount` of `_token` in HOOD terms (9 decimals).
     /// @dev Reserve tokens are a pure decimal renormalisation — one dollar of a stable reserve
-    ///      is one HOODZ of backing. Liquidity tokens are routed to their bonding calculator,
+    ///      is one HOOD of backing. Liquidity tokens are routed to their bonding calculator,
     ///      which prices them at risk-free value rather than spot.
     /// @param _token Asset to value.
     /// @param _amount Amount of the asset.
-    /// @return value_ The value in HOODZ terms.
+    /// @return value_ The value in HOOD terms.
     function tokenValue(address _token, uint256 _amount) public view override returns (uint256 value_) {
-        value_ = (_amount * (10 ** HOODZ_DECIMALS)) / (10 ** IERC20Metadata(_token).decimals());
+        value_ = (_amount * (10 ** HOOD_DECIMALS)) / (10 ** IERC20Metadata(_token).decimals());
 
         if (permissions[STATUS.LIQUIDITYTOKEN][_token]) {
             value_ = IBondingCalculator(bondCalculator[_token]).valuation(_token, _amount);
@@ -650,9 +650,9 @@ contract HoodzTreasury is HoodzAccessControlled, ITreasury {
     ///      it from the other, so a pair can be reclassified without being counted twice by
     ///      {auditReserves}.
     function _enable(STATUS _status, address _address, address _calculator) internal {
-        if (_status == STATUS.SHOODZ) {
+        if (_status == STATUS.SHOOD) {
             if (_address == address(0)) revert HoodzTreasury_ZeroAddress();
-            sHOODZ = IsHOODZ(_address);
+            sHOOD = IsHOOD(_address);
             emit SHoodzSet(_address);
             emit Permissioned(_address, _status, true);
             return;

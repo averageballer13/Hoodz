@@ -15,7 +15,7 @@ pragma solidity ^0.8.24;
         trading fees, never out of new supply - there is no mint.
 
         Web    https://hoodz.finance
-        X      https://x.com/Hoodzfinancial
+        X      https://x.com/Hoodzfinance
         Code   https://github.com/averageballer13/Hoodz
 
         UNAUDITED. This code has never been audited. Read it before you
@@ -24,8 +24,8 @@ pragma solidity ^0.8.24;
 
 /// @title  IYieldRepurchaseFacility
 /// @notice Interface of the Hoodz Yield Repurchase Facility (YRF): every week the DAO
-///         measures the yield its reserves earned and spends exactly that yield buying HOODZ
-///         back off the market through daily bond markets. The HOODZ bought is burned.
+///         measures the yield its reserves earned and spends exactly that yield buying HOOD
+///         back off the market through daily bond markets. The HOOD bought is burned.
 /// @dev    UNAUDITED. Do not use in production without a full audit.
 ///
 ///         EPOCH ARITHMETIC
@@ -34,7 +34,7 @@ pragma solidity ^0.8.24;
 ///           epoch, i.e. 7 markets per week, each spending `nextYield / 7`.
 ///
 ///         FIXED POINT CONVENTIONS
-///         - Reserve amounts are raw 1e18 units, HOODZ amounts raw 1e9 units.
+///         - Reserve amounts are raw 1e18 units, HOOD amounts raw 1e9 units.
 ///         - `lastConversionRate` is `sReserve.previewRedeem(1e18)`: reserve assets per 1e18
 ///           vault shares, 1e18 fixed point. Yield is derived from its growth.
 interface IYieldRepurchaseFacility {
@@ -50,7 +50,7 @@ interface IYieldRepurchaseFacility {
     event NextYieldAdjusted(uint256 oldNextYield, uint256 newNextYield);
     /// @notice Emitted when a daily repurchase market is opened.
     event MarketOpened(uint256 indexed marketId, uint256 bidAmount, uint256 minimumPrice);
-    /// @notice Emitted when repurchased HOODZ is burned.
+    /// @notice Emitted when repurchased HOOD is burned.
     event HoodzBurned(uint256 amount);
     /// @notice Emitted when unspent reserves are returned to the treasury.
     event ReservesReturned(uint256 amount);
@@ -72,7 +72,7 @@ interface IYieldRepurchaseFacility {
 
     /// @notice Heartbeat hook, called once per 8 hour staking epoch by the heart policy.
     /// @dev    Silent no-op while shut down. On every third epoch it settles the previous
-    ///         market, burns the HOODZ it bought and opens the next daily market.
+    ///         market, burns the HOOD it bought and opens the next daily market.
     function endEpoch() external;
 
     /* ----------------------------------------------------------- configuration */
@@ -88,7 +88,7 @@ interface IYieldRepurchaseFacility {
     /// @param newNextYield New weekly budget in raw reserve units.
     function adjustNextYield(uint256 newNextYield) external;
 
-    /// @notice Wind the facility down: close the live market, burn HOODZ, return reserves.
+    /// @notice Wind the facility down: close the live market, burn HOOD, return reserves.
     function shutdown() external;
 
     /* ------------------------------------------------------------------- views */

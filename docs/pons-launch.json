@@ -1,6 +1,6 @@
 {
   "manifestVersion": "0.1.0",
-  "description": "Hoodz - HOODZ launch manifest for the PONS launchpad on Robinhood Chain. Every value below is a PLACEHOLDER until the corresponding step of docs/PONS_LAUNCH.md has actually executed on-chain. Addresses are the zero address, uint256 amounts are decimal STRINGS in base units (never JS numbers), and anything not yet known is null. The deploy script rewrites this file in place and every value must be re-read from the chain before it is trusted.",
+  "description": "Hoodz - HOOD launch manifest for the PONS launchpad on Robinhood Chain. Every value below is a PLACEHOLDER until the corresponding step of docs/PONS_LAUNCH.md has actually executed on-chain. Addresses are the zero address, uint256 amounts are decimal STRINGS in base units (never JS numbers), and anything not yet known is null. The deploy script rewrites this file in place and every value must be re-read from the chain before it is trusted.",
   "status": "UNLAUNCHED",
   "generatedAt": null,
   "generatedBy": "contracts/script/DeployPonsLaunch.s.sol",
@@ -41,7 +41,7 @@
   },
   "token": {
     "name": "Hoodz",
-    "symbol": "HOODZ",
+    "symbol": "HOOD",
     "decimals": 9,
     "address": "0x0000000000000000000000000000000000000000",
     "launchSupply": "0",
@@ -103,19 +103,19 @@
   },
   "contracts": {
     "HoodzAuthority": "0x0000000000000000000000000000000000000000",
-    "HOODZ": "0x0000000000000000000000000000000000000000",
+    "HOOD": "0x0000000000000000000000000000000000000000",
     "PonsLaunchConfig": "0x0000000000000000000000000000000000000000",
     "HoodzLaunchGuard": "0x0000000000000000000000000000000000000000",
     "HoodzTreasury": "0x0000000000000000000000000000000000000000",
     "FeeRouterBuyback": "0x0000000000000000000000000000000000000000",
-    "sHOODZ": "0x0000000000000000000000000000000000000000",
-    "gHOODZ": "0x0000000000000000000000000000000000000000",
+    "sHOOD": "0x0000000000000000000000000000000000000000",
+    "gHOOD": "0x0000000000000000000000000000000000000000",
     "HoodzStaking": "0x0000000000000000000000000000000000000000",
     "Distributor": "0x0000000000000000000000000000000000000000",
     "BondDepository": "0x0000000000000000000000000000000000000000",
     "deployedAfterRelease": [
-      "sHOODZ",
-      "gHOODZ",
+      "sHOOD",
+      "gHOOD",
       "HoodzStaking",
       "Distributor",
       "BondDepository"
@@ -161,7 +161,7 @@
       }
     ],
     "initialIndex": "1000000000",
-    "initialIndexNote": "1e9, matching HOODZ's 9 decimals.",
+    "initialIndexNote": "1e9, matching HOOD's 9 decimals.",
     "epochLengthSeconds": 28800,
     "firstEpochNumber": 0,
     "firstEpochTime": null,
@@ -178,7 +178,7 @@
     "mintAuthorityAtTreasury": false
   },
   "creator": {
-    "devWallet": "0xf66f85ddE0f123e0EE8100eaDFa637b4eA1FD0e9",
+    "devWallet": "0xeC356d64974709BAF17F5418016f81703a1876F0",
     "feeSplitBps": {
       "stakers": 3300,
       "burn": 3300,

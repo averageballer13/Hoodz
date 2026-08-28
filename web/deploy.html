@@ -209,19 +209,19 @@
      a literal  used as-is                                              */
   var PLAN = {
     HoodzAuthority:       ['self', 'cfg:guardian', 'cfg:policy', 'self'],
-    sHOODZ:               ['dep:HoodzAuthority'],
-    gHOODZ:               ['dep:HoodzAuthority', 'dep:sHOODZ'],
+    sHOOD:               ['dep:HoodzAuthority'],
+    gHOOD:               ['dep:HoodzAuthority', 'dep:sHOOD'],
     HoodzTreasury:        ['cfg:hoodz', 'cfg:treasuryTimelock', 'dep:HoodzAuthority'],
     HoodzBondingCalculator: ['cfg:hoodz'],
-    HoodzStaking:         ['cfg:hoodz', 'dep:sHOODZ', 'dep:gHOODZ', 'cfg:epochLength',
+    HoodzStaking:         ['cfg:hoodz', 'dep:sHOOD', 'dep:gHOOD', 'cfg:epochLength',
                            'cfg:firstEpochNumber', 'cfg:firstEpochTime', 'dep:HoodzAuthority'],
     Distributor:          ['dep:HoodzTreasury', 'cfg:hoodz', 'dep:HoodzStaking', 'dep:HoodzAuthority'],
-    BondDepository:       ['dep:HoodzAuthority', 'cfg:hoodz', 'dep:gHOODZ', 'dep:HoodzStaking', 'dep:HoodzTreasury'],
+    BondDepository:       ['dep:HoodzAuthority', 'cfg:hoodz', 'dep:gHOOD', 'dep:HoodzStaking', 'dep:HoodzTreasury'],
     CoolerFactory:        [],
-    Clearinghouse:        ['dep:gHOODZ', 'cfg:hoodz', 'dep:HoodzStaking', 'cfg:reserve',
+    Clearinghouse:        ['dep:gHOOD', 'cfg:hoodz', 'dep:HoodzStaking', 'cfg:reserve',
                            'cfg:sReserve', 'dep:HoodzTreasury', 'dep:CoolerFactory', 'dep:HoodzAuthority'],
     HoodzTimelock:        ['cfg:proposers', 'cfg:executors', 'self'],
-    HoodzGovernor:        ['dep:gHOODZ', 'dep:HoodzTimelock'],
+    HoodzGovernor:        ['dep:gHOOD', 'dep:HoodzTimelock'],
     PonsLaunchConfig:     ['cfg:hoodz', 'cfg:reserve', 'cfg:ponsCurve', 'cfg:targetRaise',
                            'cfg:graduationThreshold', 'cfg:lpFeeTier', 'cfg:lockBeneficiary', 'cfg:launchTimestamp'],
     HoodzLaunchGuard:     ['dep:HoodzAuthority', 'dep:PonsLaunchConfig', 'cfg:ponsLaunchpad',
@@ -259,7 +259,7 @@
   var ZERO = '0x0000000000000000000000000000000000000000';
 
   var FIELDS = [
-    ['hoodz', 'HOODZ token (from PONS)', ZERO, 'required', 'The launchpad deploys it. Paste the address it produced.'],
+    ['hoodz', 'HOOD token (from PONS)', ZERO, 'required', 'The launchpad deploys it. Paste the address it produced.'],
     ['guardian', 'Guardian', '', '', 'Defaults to your account.'],
     ['policy', 'Policy', '', '', 'Defaults to your account.'],
     ['reserve', 'Reserve token', ZERO, '', 'Stablecoin the treasury holds.'],
@@ -284,7 +284,7 @@
     ['burnBps', 'Fee split · burn (bps)', '3300', '', ''],
     ['treasuryBps', 'Fee split · treasury (bps)', '3400', '', 'The three must total 10000.'],
     ['auctioneer', 'Bond auctioneer', ZERO, '', ''],
-    ['priceFeed', 'HOODZ price feed', ZERO, '', ''],
+    ['priceFeed', 'HOOD price feed', ZERO, '', ''],
     ['maxPriceAge', 'Max price age (seconds)', '86400', '', ''],
     ['reclaimRate', 'CD reclaim rate', '9900', '', ''],
     ['proposers', 'Timelock proposers', '', '', 'Comma-separated. Defaults to your account.'],
@@ -415,7 +415,7 @@
       el.className = 'status ok';
       el.innerHTML = '<b>Ready — ' + willDeploy + ' of ' + total + ' contracts will deploy.</b>' +
         (noToken
-          ? '· No HOODZ token set, so everything that depends on one is skipped. The rest deploy and verify fine.'
+          ? '· No HOOD token set, so everything that depends on one is skipped. The rest deploy and verify fine.'
           : '· The remainder are skipped for missing parameters, listed as skipped once you run.');
       return true;
     }

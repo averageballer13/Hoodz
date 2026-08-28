@@ -14,7 +14,7 @@ pragma solidity ^0.8.24;
         trading fees, never out of new supply - there is no mint.
 
         Web    https://hoodz.finance
-        X      https://x.com/Hoodzfinancial
+        X      https://x.com/Hoodzfinance
         Code   https://github.com/averageballer13/Hoodz
 
         UNAUDITED. This code has never been audited. Read it before you
@@ -31,7 +31,7 @@ import {HoodzAccessControlled} from "./HoodzAccessControlled.sol";
  * @title  FrontEndRewarder
  * @author Hoodz
  * @notice Referral / DAO reward accounting for Hoodz bond markets.
- * @dev    Port of the Olympus V2 `FrontEndRewarder`. Rewards are denominated in HOODZ and
+ * @dev    Port of the Olympus V2 `FrontEndRewarder`. Rewards are denominated in HOOD and
  *         accrue as a pull-payment balance; they are minted alongside the bond payout by
  *         the inheriting NoteKeeper, so this contract never needs a funding step.
  *
@@ -78,20 +78,20 @@ abstract contract FrontEndRewarder is HoodzAccessControlled {
     /// @notice Share of every bond payout minted to a whitelisted referrer, out of `RATE_DENOMINATOR`.
     uint256 public refReward;
 
-    /// @notice Unclaimed HOODZ rewards per recipient.
+    /// @notice Unclaimed HOOD rewards per recipient.
     mapping(address => uint256) public rewards;
 
     /// @notice Front end operators approved to earn `refReward`.
     mapping(address => bool) public whitelisted;
 
-    /// @notice The reward token (HOODZ).
+    /// @notice The reward token (HOOD).
     IERC20 internal immutable hoodz;
 
     /* ========== CONSTRUCTOR ========== */
 
     /**
      * @param _authority Hoodz authority contract.
-     * @param _hoodz      HOODZ token used to pay rewards.
+     * @param _hoodz      HOOD token used to pay rewards.
      */
     constructor(IHoodzAuthority _authority, IERC20 _hoodz) HoodzAccessControlled(_authority) {
         if (address(_hoodz) == address(0)) revert FrontEndRewarder_ZeroAddress();
@@ -101,9 +101,9 @@ abstract contract FrontEndRewarder is HoodzAccessControlled {
     /* ========== EXTERNAL ========== */
 
     /**
-     * @notice Claim all HOODZ rewards accrued by the caller.
+     * @notice Claim all HOOD rewards accrued by the caller.
      * @dev    Pull payment: the balance is zeroed before the transfer.
-     * @return reward_ Amount of HOODZ transferred to the caller.
+     * @return reward_ Amount of HOOD transferred to the caller.
      */
     function getReward() external returns (uint256 reward_) {
         reward_ = rewards[msg.sender];
@@ -151,9 +151,9 @@ abstract contract FrontEndRewarder is HoodzAccessControlled {
     /**
      * @notice Book the DAO and referral rewards owed on a bond payout.
      * @dev    The DAO receives both shares when the referrer is not whitelisted.
-     * @param _payout   Bond payout, in HOODZ.
+     * @param _payout   Bond payout, in HOOD.
      * @param _referral Front end operator that referred the deposit.
-     * @return Total HOODZ that must be minted on top of `_payout` to cover the rewards.
+     * @return Total HOOD that must be minted on top of `_payout` to cover the rewards.
      */
     function _giveRewards(uint256 _payout, address _referral) internal returns (uint256) {
         uint256 toDAO = (_payout * daoReward) / RATE_DENOMINATOR;

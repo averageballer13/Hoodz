@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Stake — Hoodz</title>
-<meta name="description" content="Stake HOODZ for rebasing sHOODZ or wrap into gHOODZ. Rewards compound three times a day on Robinhood Chain.">
+<meta name="description" content="Stake HOOD for rebasing sHOOD or wrap into gHOOD. Rewards compound three times a day on Robinhood Chain.">
 <meta name="color-scheme" content="dark">
 <link rel="icon" href="/assets/img/favicon.svg?v=2" type="image/svg+xml">
 <link rel="icon" href="/assets/img/favicon-32.png?v=2" sizes="32x32">
@@ -94,10 +94,10 @@
 
       <div class="page-head">
         <div>
-          <h2 class="metric__value">Stake HOODZ, earn HOODZ</h2>
-          <p class="muted">Staked HOODZ becomes rebasing sHOODZ. The supply of sHOODZ grows
+          <h2 class="metric__value">Stake HOOD, earn HOOD</h2>
+          <p class="muted">Staked HOOD becomes rebasing sHOOD. The supply of sHOOD grows
             <span data-bind="rebasesPerDay">&mdash;</span>&times; a day, so your balance compounds without a claim.
-            Wrap into gHOODZ for a fixed-balance token that travels and votes.</p>
+            Wrap into gHOOD for a fixed-balance token that travels and votes.</p>
         </div>
       </div>
 
@@ -121,13 +121,13 @@
               <div class="field">
                 <label class="field__label" for="stake-amount">
                   <span>Amount</span>
-                  <span class="field__hint">Available <span data-stake-available>— HOODZ</span></span>
+                  <span class="field__hint">Available <span data-stake-available>— HOOD</span></span>
                 </label>
                 <div class="input-pill">
                   <input id="stake-amount" name="amount" type="text" inputmode="decimal"
                          autocomplete="off" spellcheck="false" placeholder="0.000000000"
                          aria-describedby="stake-amount-usd">
-                  <span class="input-pill__unit" data-stake-unit>HOODZ</span>
+                  <span class="input-pill__unit" data-stake-unit>HOOD</span>
                   <button class="btn-max" type="button" id="stake-max">Max</button>
                 </div>
                 <p class="field__hint" id="stake-amount-usd">≈ <span data-stake-usd>—</span></p>
@@ -140,43 +140,43 @@
               <label class="switch" for="wrap-toggle">
                 <input type="checkbox" id="wrap-toggle" role="switch">
                 <span class="switch__text">
-                  Wrap to gHOODZ
+                  Wrap to gHOOD
                   <small>Receive a non-rebasing, transferable token that carries your voting power.</small>
                 </span>
               </label>
 
               <p class="notice" data-wrap-note hidden>
                 <span class="notice__mark" aria-hidden="true">i</span>
-                <span>gHOODZ balances never change — the <b>index</b> does. One gHOODZ is worth
-                  <span data-bind="index">&mdash;</span> HOODZ today and more after every rebase.</span>
+                <span>gHOOD balances never change — the <b>index</b> does. One gHOOD is worth
+                  <span data-bind="index">&mdash;</span> HOOD today and more after every rebase.</span>
               </p>
 
               <dl class="kv">
                 <div class="kv__row">
                   <dt>You will receive</dt>
-                  <dd><span data-stake-out>0.0000 sHOODZ</span></dd>
+                  <dd><span data-stake-out>0.0000 sHOOD</span></dd>
                 </div>
                 <div class="kv__row">
                   <dt>Next reward amount</dt>
-                  <dd><span data-next-reward>0.1984 sHOODZ</span></dd>
+                  <dd><span data-next-reward>0.1984 sHOOD</span></dd>
                 </div>
                 <div class="kv__row">
                   <dt>Balance after this epoch</dt>
-                  <dd><span data-projected-balance>— sHOODZ</span></dd>
+                  <dd><span data-projected-balance>— sHOOD</span></dd>
                 </div>
               </dl>
 
               <button class="btn-pr dark btn-block" type="submit" id="stake-submit">
                 <span class="btn-text-cont">
-                  <span class="btn-text-ghost" aria-hidden="true">Stake HOODZ</span>
-                  <span class="btn-text">Stake HOODZ</span>
+                  <span class="btn-text-ghost" aria-hidden="true">Stake HOOD</span>
+                  <span class="btn-text">Stake HOOD</span>
                 </span>
               </button>
 
               <p class="notice">
                 <span class="notice__mark" aria-hidden="true">0</span>
                 <span><b>No warmup.</b> The warmup period is currently set to
-                  <b>0 epochs</b>, so staked HOODZ earns from the very next rebase and can be
+                  <b>0 epochs</b>, so staked HOOD earns from the very next rebase and can be
                   unstaked at any time. If governance raises it, new deposits sit in warmup and
                   must be claimed before they rebase.</span>
               </p>
@@ -190,9 +190,9 @@
           <article class="app-card">
             <div class="card-head"><h3 class="card-title">Your stake</h3></div>
             <dl class="kv">
-              <div class="kv__row"><dt>HOODZ</dt><dd><span data-bind="walletHoodz">&mdash;</span></dd></div>
-              <div class="kv__row"><dt>sHOODZ</dt><dd><span data-bind="walletSHoodz">&mdash;</span></dd></div>
-              <div class="kv__row"><dt>gHOODZ</dt><dd><span data-bind="walletGHoodz">&mdash;</span></dd></div>
+              <div class="kv__row"><dt>HOOD</dt><dd><span data-bind="walletHoodz">&mdash;</span></dd></div>
+              <div class="kv__row"><dt>sHOOD</dt><dd><span data-bind="walletSHoodz">&mdash;</span></dd></div>
+              <div class="kv__row"><dt>gHOOD</dt><dd><span data-bind="walletGHoodz">&mdash;</span></dd></div>
               <div class="kv__row is-total"><dt>Staked value</dt><dd class="kv__v" data-bind="stakedUsd">&mdash;</dd></div>
             </dl>
           </article>
@@ -211,7 +211,7 @@
                 <tbody>
                   <tr>
                     <th scope="row">Next reward amount</th>
-                    <td data-label="Next reward amount" class="num-strong"><span data-next-reward>0.1984 sHOODZ</span></td>
+                    <td data-label="Next reward amount" class="num-strong"><span data-next-reward>0.1984 sHOOD</span></td>
                   </tr>
                   <tr>
                     <th scope="row">Next reward yield</th>
@@ -223,7 +223,7 @@
                   </tr>
                   <tr>
                     <th scope="row">5-day reward</th>
-                    <td data-label="5-day reward" class="num-strong"><span data-five-day>2.9773 sHOODZ</span></td>
+                    <td data-label="5-day reward" class="num-strong"><span data-five-day>2.9773 sHOOD</span></td>
                   </tr>
                   <tr>
                     <th scope="row">APY</th>
@@ -240,7 +240,7 @@
               <div class="kv__row"><dt>Current index</dt><dd data-bind="index">&mdash;</dd></div>
               <div class="kv__row"><dt>Epoch</dt><dd data-bind="epochNumber">&mdash;</dd></div>
               <div class="kv__row"><dt>Epoch length</dt><dd data-bind="epochLength">&mdash;</dd></div>
-              <div class="kv__row"><dt>Total staked</dt><dd><span data-bind="stakedSupply">&mdash;</span> HOODZ</dd></div>
+              <div class="kv__row"><dt>Total staked</dt><dd><span data-bind="stakedSupply">&mdash;</span> HOOD</dd></div>
               <div class="kv__row"><dt>Staking ratio</dt><dd data-bind="stakingRatio">&mdash;</dd></div>
             </dl>
           </article>

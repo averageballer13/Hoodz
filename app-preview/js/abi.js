@@ -1,6 +1,6 @@
 /* ============================================================================
-   HOODZ — minimal ABIs + address book
-   No build step, no modules: everything hangs off window.HOODZ_ABI / HOODZ_NET.
+   HOOD — minimal ABIs + address book
+   No build step, no modules: everything hangs off window.HOOD_ABI / HOOD_NET.
    Addresses are 0x0 placeholders until deployment writes docs/deploy.json.
    ========================================================================== */
 (function (global) {
@@ -31,7 +31,7 @@
       U32 = "uint32", U16 = "uint16", U8 = "uint8", B = "bool",
       B32 = "bytes32", BYTES = "bytes", STR = "string";
 
-  /* ERC20 surface shared by HOODZ / sHOODZ / gHOODZ */
+  /* ERC20 surface shared by HOOD / sHOOD / gHOOD */
   var ERC20 = [
     fn("name", [], [p("", STR)], "view"),
     fn("symbol", [], [p("", STR)], "view"),
@@ -48,18 +48,18 @@
 
   function extend(base, extra) { return base.concat(extra); }
 
-  /* ------------------------------------------------------------ 1. HOODZ */
-  /* IHOODZ = IERC20 + mint/burn/burnFrom (9 decimals, like OHM) */
-  var HOODZ = extend(ERC20, [
+  /* ------------------------------------------------------------ 1. HOOD */
+  /* IHOOD = IERC20 + mint/burn/burnFrom (9 decimals, like OHM) */
+  var HOOD = extend(ERC20, [
     fn("mint", [p("account_", A), p("amount_", U256)]),
     fn("burn", [p("amount", U256)]),
     fn("burnFrom", [p("account_", A), p("amount_", U256)]),
     fn("vault", [], [p("", A)], "view")
   ]);
 
-  /* ----------------------------------------------------------- 2. sHOODZ */
-  /* Rebasing staked HOODZ. Balances are gon-denominated internally. */
-  var sHOODZ = extend(ERC20, [
+  /* ----------------------------------------------------------- 2. sHOOD */
+  /* Rebasing staked HOOD. Balances are gon-denominated internally. */
+  var sHOOD = extend(ERC20, [
     fn("rebase", [p("profit_", U256), p("epoch_", U256)], [p("", U256)]),
     fn("circulatingSupply", [], [p("", U256)], "view"),
     fn("gonsForBalance", [p("amount", U256)], [p("", U256)], "view"),
@@ -70,9 +70,9 @@
     ev("LogRebase", [p("epoch", U256, true), p("rebase", U256), p("index", U256)])
   ]);
 
-  /* ----------------------------------------------------------- 3. gHOODZ */
+  /* ----------------------------------------------------------- 3. gHOOD */
   /* Non-rebasing wrapper + ERC20Votes governance surface. */
-  var gHOODZ = extend(ERC20, [
+  var gHOOD = extend(ERC20, [
     fn("mint", [p("_to", A), p("_amount", U256)]),
     fn("burn", [p("_from", A), p("_amount", U256)]),
     fn("index", [], [p("", U256)], "view"),
@@ -162,7 +162,7 @@
   ];
 
   /* ------------------------------------------- 7. Clearinghouse (Hoodz Loans) */
-  /* Cooler-style: gHOODZ collateral, reserve debt, fixed rate, no liquidation. */
+  /* Cooler-style: gHOOD collateral, reserve debt, fixed rate, no liquidation. */
   var Clearinghouse = [
     fn("lendToCooler", [p("cooler_", A), p("amount_", U256)], [p("", U256)]),
     fn("extendLoan", [p("cooler_", A), p("loanID_", U256), p("times_", U8)]),
@@ -271,9 +271,9 @@
   function book() {
     return {
       authority:      ZERO,
-      HOODZ:           ZERO,
-      sHOODZ:          ZERO,
-      gHOODZ:          ZERO,
+      HOOD:           ZERO,
+      sHOOD:          ZERO,
+      gHOOD:          ZERO,
       staking:        ZERO,
       distributor:    ZERO,
       treasury:       ZERO,
@@ -318,7 +318,7 @@
     }
   };
 
-  var DECIMALS = { HOODZ: 9, sHOODZ: 9, gHOODZ: 18, reserve: 18 };
+  var DECIMALS = { HOOD: 9, sHOOD: 9, gHOOD: 18, reserve: 18 };
 
   /* OpenZeppelin Governor ProposalState enum → label */
   var PROPOSAL_STATE = [
@@ -326,10 +326,10 @@
     "Succeeded", "Queued", "Expired", "Executed"
   ];
 
-  global.HOODZ_ABI = {
-    HOODZ: HOODZ,
-    sHOODZ: sHOODZ,
-    gHOODZ: gHOODZ,
+  global.HOOD_ABI = {
+    HOOD: HOOD,
+    sHOOD: sHOOD,
+    gHOOD: gHOOD,
     Staking: Staking,
     Treasury: Treasury,
     BondDepository: BondDepository,
@@ -339,7 +339,7 @@
     ERC20: ERC20
   };
 
-  global.HOODZ_NET = {
+  global.HOOD_NET = {
     ZERO_ADDRESS: ZERO,
     DEFAULT_CHAIN_ID: 4663,
     ADDRESSES: ADDRESSES,

@@ -5,39 +5,39 @@ pragma solidity ^0.8.24;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import {IsHOODZ} from "../../src/interfaces/IsHOODZ.sol";
+import {IsHOOD} from "../../src/interfaces/IsHOOD.sol";
 
 /// @title  MockStaking
-/// @notice The bare minimum sHOODZ needs from a staking contract, so the rebase and gons maths
+/// @notice The bare minimum sHOOD needs from a staking contract, so the rebase and gons maths
 ///         can be tested without standing the whole protocol up.
-/// @dev    `sHOODZ.initialize` grants its entire gon supply to the staking contract, and
-///         `circulatingSupply()` is `totalSupply - balanceOf(staking) + gHOODZ float +
+/// @dev    `sHOOD.initialize` grants its entire gon supply to the staking contract, and
+///         `circulatingSupply()` is `totalSupply - balanceOf(staking) + gHOOD float +
 ///         staking.supplyInWarmup()`. This mock owns that float and hands it out with
-///         {transferTo}, which is how a test puts sHOODZ "in circulation".
+///         {transferTo}, which is how a test puts sHOOD "in circulation".
 contract MockStaking {
-    /// @notice The sHOODZ token this mock drives.
-    IsHOODZ public sHoodz;
+    /// @notice The sHOOD token this mock drives.
+    IsHOOD public sHoodz;
 
-    /// @notice Value reported to sHOODZ as sitting in staking warmup.
+    /// @notice Value reported to sHOOD as sitting in staking warmup.
     uint256 public supplyInWarmup;
 
     /// @notice Thrown before {setSHoodz} has been called.
     error NotInitialized();
 
-    /// @notice Points the mock at an sHOODZ deployment.
-    /// @param sHoodz_ The sHOODZ token.
+    /// @notice Points the mock at an sHOOD deployment.
+    /// @param sHoodz_ The sHOOD token.
     function setSHoodz(address sHoodz_) external {
-        sHoodz = IsHOODZ(sHoodz_);
+        sHoodz = IsHOOD(sHoodz_);
     }
 
-    /// @notice Sets the warmup float reported to sHOODZ.
+    /// @notice Sets the warmup float reported to sHOOD.
     /// @param amount_ Amount considered "in warmup".
     function setSupplyInWarmup(uint256 amount_) external {
         supplyInWarmup = amount_;
     }
 
     /// @notice Triggers a rebase as the staking contract.
-    /// @param profit_ Rebase profit, in sHOODZ units (9 decimals).
+    /// @param profit_ Rebase profit, in sHOOD units (9 decimals).
     /// @param epoch_ Epoch number to stamp on the rebase.
     /// @return The new total supply.
     function rebase(uint256 profit_, uint256 epoch_) external returns (uint256) {
@@ -45,15 +45,15 @@ contract MockStaking {
         return sHoodz.rebase(profit_, epoch_);
     }
 
-    /// @notice Moves sHOODZ out of the staking float, simulating a stake.
+    /// @notice Moves sHOOD out of the staking float, simulating a stake.
     /// @param to_ Recipient.
-    /// @param amount_ Amount of sHOODZ to send.
+    /// @param amount_ Amount of sHOOD to send.
     function transferTo(address to_, uint256 amount_) external {
         if (address(sHoodz) == address(0)) revert NotInitialized();
         IERC20(address(sHoodz)).transfer(to_, amount_);
     }
 
-    /// @notice The current sHOODZ index.
+    /// @notice The current sHOOD index.
     /// @return The index, 9 decimals.
     function index() external view returns (uint256) {
         return sHoodz.index();

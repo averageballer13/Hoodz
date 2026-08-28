@@ -2,7 +2,7 @@
   "name": "@hoodz/contracts",
   "version": "0.1.0",
   "private": true,
-  "description": "Hoodz Solidity contracts - Olympus-equivalent staking/treasury/bonding stack for Robinhood Chain, PONS-launched HOODZ token.",
+  "description": "Hoodz Solidity contracts - Olympus-equivalent staking/treasury/bonding stack for Robinhood Chain, PONS-launched HOOD token.",
   "license": "AGPL-3.0-or-later",
   "engines": {
     "node": ">=18"

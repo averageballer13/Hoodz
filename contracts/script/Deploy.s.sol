@@ -11,8 +11,8 @@ import {IERC4626} from "@openzeppelin/contracts/interfaces/IERC4626.sol";
 import {IVotes} from "@openzeppelin/contracts/governance/utils/IVotes.sol";
 
 import {IHoodzAuthority} from "../src/interfaces/IHoodzAuthority.sol";
-import {IHOODZ} from "../src/interfaces/IHOODZ.sol";
-import {IgHOODZ} from "../src/interfaces/IgHOODZ.sol";
+import {IHOOD} from "../src/interfaces/IHOOD.sol";
+import {IgHOOD} from "../src/interfaces/IgHOOD.sol";
 import {IStaking} from "../src/interfaces/IStaking.sol";
 import {ITreasury} from "../src/interfaces/ITreasury.sol";
 import {IHoodzBondAuctioneer} from "../src/interfaces/IHoodzBondAuctioneer.sol";
@@ -23,8 +23,8 @@ import {HoodzTreasury} from "../src/HoodzTreasury.sol";
 import {HoodzStaking} from "../src/HoodzStaking.sol";
 import {HoodzBondingCalculator} from "../src/HoodzBondingCalculator.sol";
 
-import {sHOODZ} from "../src/tokens/sHOODZ.sol";
-import {gHOODZ} from "../src/tokens/gHOODZ.sol";
+import {sHOOD} from "../src/tokens/sHOOD.sol";
+import {gHOOD} from "../src/tokens/gHOOD.sol";
 
 import {Distributor} from "../src/policies/Distributor.sol";
 import {BondDepository} from "../src/policies/BondDepository.sol";
@@ -57,13 +57,13 @@ import {IUniswapV4PoolManager} from "../src/pons/IUniswapV4PoolManager.sol";
 ///
 ///         Two parts of the stack are optional and are skipped - with a log line, never silently -
 ///         when their external dependencies are not configured:
-///           * `EmissionsManager` + `YieldRepurchaseFacility` need a bond auctioneer and a HOODZ
-///             price feed (`HOODZ_BOND_AUCTIONEER`, `HOODZ_PRICE_FEED`);
+///           * `EmissionsManager` + `YieldRepurchaseFacility` need a bond auctioneer and a HOOD
+///             price feed (`HOOD_BOND_AUCTIONEER`, `HOOD_PRICE_FEED`);
 ///           * `Clearinghouse` needs the reserve token and its ERC-4626 savings vault;
 ///           * the PONS trio needs the launchpad, curve, position locker, fee router and a swap
 ///             router for the graduated pool.
 contract Deploy is Script {
-    /// @notice HOODZ_TOKEN was not set. Launch on PONS first, then deploy against that address.
+    /// @notice HOOD_TOKEN was not set. Launch on PONS first, then deploy against that address.
     error HoodzTokenNotSet();
 
     /*//////////////////////////////////////////////////////////////
@@ -77,13 +77,13 @@ contract Deploy is Script {
         address guardian;
         address policy;
         // --- protocol ---
-        address hoodzToken; // the PONS-deployed HOODZ. Required: this repo never deploys it.
+        address hoodzToken; // the PONS-deployed HOOD. Required: this repo never deploys it.
         address reserveToken; // treasury / bonding reserve asset
         address savingsVault; // ERC-4626 wrapper of `reserveToken`; its asset() must match
         uint256 epochLength; // seconds per rebase epoch (Olympus used 28800 = 8h)
         uint256 firstEpochNumber;
         uint256 firstEpochTime; // 0 => now + epochLength
-        uint256 initialIndex; // sHOODZ launch index, 9 decimals
+        uint256 initialIndex; // sHOOD launch index, 9 decimals
         uint256 warmupLength; // staking warmup, in epochs
         uint256 stakingRewardRate; // per-epoch emission, 1e6 denominator (3000 = 0.30%)
         uint256 treasuryTimelock; // blocks a queued treasury permission must wait
@@ -145,9 +145,9 @@ contract Deploy is Script {
 
     // Typed handles; `d` mirrors them as plain addresses for the manifest.
     HoodzAuthority internal authority;
-    IHOODZ internal hoodz;
-    sHOODZ internal sHoodz;
-    gHOODZ internal gHoodz;
+    IHOOD internal hoodz;
+    sHOOD internal sHoodz;
+    gHOOD internal gHoodz;
     HoodzTreasury internal treasury;
     HoodzBondingCalculator internal bondingCalculator;
     HoodzStaking internal staking;
@@ -217,40 +217,40 @@ contract Deploy is Script {
     function configFromEnv() public view returns (Config memory cfg) {
         address self = vm.envOr("DEPLOYER_ADDRESS", msg.sender);
 
-        cfg.governor = vm.envOr("HOODZ_GOVERNOR", self);
-        cfg.guardian = vm.envOr("HOODZ_GUARDIAN", self);
-        cfg.policy = vm.envOr("HOODZ_POLICY", self);
+        cfg.governor = vm.envOr("HOOD_GOVERNOR", self);
+        cfg.guardian = vm.envOr("HOOD_GUARDIAN", self);
+        cfg.policy = vm.envOr("HOOD_POLICY", self);
 
-        cfg.hoodzToken = vm.envOr("HOODZ_TOKEN", address(0));
+        cfg.hoodzToken = vm.envOr("HOOD_TOKEN", address(0));
         cfg.reserveToken = vm.envOr("RESERVE_TOKEN", vm.envOr("PONS_RESERVE_TOKEN", address(0)));
         cfg.savingsVault = vm.envOr("RESERVE_SAVINGS_VAULT", address(0));
 
-        cfg.epochLength = vm.envOr("HOODZ_EPOCH_LENGTH", uint256(28800));
-        cfg.firstEpochNumber = vm.envOr("HOODZ_FIRST_EPOCH_NUMBER", uint256(1));
-        cfg.firstEpochTime = vm.envOr("HOODZ_FIRST_EPOCH_TIME", uint256(0));
-        cfg.initialIndex = vm.envOr("HOODZ_INITIAL_INDEX", uint256(1e9));
-        cfg.warmupLength = vm.envOr("HOODZ_WARMUP_LENGTH", uint256(0));
+        cfg.epochLength = vm.envOr("HOOD_EPOCH_LENGTH", uint256(28800));
+        cfg.firstEpochNumber = vm.envOr("HOOD_FIRST_EPOCH_NUMBER", uint256(1));
+        cfg.firstEpochTime = vm.envOr("HOOD_FIRST_EPOCH_TIME", uint256(0));
+        cfg.initialIndex = vm.envOr("HOOD_INITIAL_INDEX", uint256(1e9));
+        cfg.warmupLength = vm.envOr("HOOD_WARMUP_LENGTH", uint256(0));
         // Per-epoch emission, 1e6 denominator. Default 3058 = 0.3058%/epoch, the tier-1 rate of
         // Olympus's OIP-18 reward framework. With 8h epochs that is 1095 compounds a year:
         //
         //   supply band        rate   %/epoch    APY
         //   bootstrap          5750   0.5750%    53,184%   <- the 2021 launch rate
-        //   < 1M HOODZ         3058   0.3058%     2,732%   <- default
+        //   < 1M HOOD         3058   0.3058%     2,732%   <- default
         //   1M - 10M           1587   0.1587%       468%
         //   10M - 100M         1186   0.1186%       266%
         //   100M - 1B           793   0.0793%       138%
         //   1B - 10B            397   0.0397%        54%
         //   > 10B               198   0.0198%        24%
         //
-        // Set HOODZ_REWARD_RATE=0 to run with rebasing switched off, which is what Olympus itself
+        // Set HOOD_REWARD_RATE=0 to run with rebasing switched off, which is what Olympus itself
         // does today. Above 0 you are running the original 2021 model: the APY is paid in newly
-        // minted HOODZ, so it only creates value while the treasury grows faster than supply.
-        cfg.stakingRewardRate = vm.envOr("HOODZ_REWARD_RATE", uint256(3058));
-        cfg.treasuryTimelock = vm.envOr("HOODZ_TREASURY_TIMELOCK", uint256(0));
+        // minted HOOD, so it only creates value while the treasury grows faster than supply.
+        cfg.stakingRewardRate = vm.envOr("HOOD_REWARD_RATE", uint256(3058));
+        cfg.treasuryTimelock = vm.envOr("HOOD_TREASURY_TIMELOCK", uint256(0));
 
-        cfg.bondAuctioneer = vm.envOr("HOODZ_BOND_AUCTIONEER", address(0));
-        cfg.priceFeed = vm.envOr("HOODZ_PRICE_FEED", address(0));
-        cfg.maxPriceAge = uint48(vm.envOr("HOODZ_MAX_PRICE_AGE", uint256(1 days)));
+        cfg.bondAuctioneer = vm.envOr("HOOD_BOND_AUCTIONEER", address(0));
+        cfg.priceFeed = vm.envOr("HOOD_PRICE_FEED", address(0));
+        cfg.maxPriceAge = uint48(vm.envOr("HOOD_MAX_PRICE_AGE", uint256(1 days)));
 
         cfg.ponsLaunchpad = vm.envOr("PONS_LAUNCHPAD", address(0));
         cfg.ponsCurve = vm.envOr("PONS_CURVE", vm.envOr("PONS_BONDING_CURVE", address(0)));
@@ -265,7 +265,7 @@ contract Deploy is Script {
         cfg.launchTimestamp = uint64(vm.envOr("PONS_LAUNCH_TIMESTAMP", uint256(0)));
 
         cfg.graduated = vm.envOr("PONS_GRADUATED", false);
-        cfg.transferGovernance = vm.envOr("HOODZ_TRANSFER_GOVERNANCE", false);
+        cfg.transferGovernance = vm.envOr("HOOD_TRANSFER_GOVERNANCE", false);
     }
 
     /// @dev Fills in derived defaults. Never invents an external dependency.
@@ -310,19 +310,19 @@ contract Deploy is Script {
 
         IHoodzAuthority auth = IHoodzAuthority(address(authority));
 
-        // HOODZ is NOT deployed here. The PONS launchpad deploys it from its own factory when
+        // HOOD is NOT deployed here. The PONS launchpad deploys it from its own factory when
         // the launch form is submitted - fixed 1B supply, the whole amount sold on the bonding
         // curve, no mint function, no owner. This repo only ever holds a reference to it.
         if (cfg.hoodzToken == address(0)) revert HoodzTokenNotSet();
-        hoodz = IHOODZ(cfg.hoodzToken);
+        hoodz = IHOOD(cfg.hoodzToken);
         d.hoodz = cfg.hoodzToken;
 
-        sHoodz = new sHOODZ(auth);
-        _record("sHOODZ", abi.encode(address(authority)));
+        sHoodz = new sHOOD(auth);
+        _record("sHOOD", abi.encode(address(authority)));
         d.sHoodz = address(sHoodz);
 
-        gHoodz = new gHOODZ(auth, address(sHoodz));
-        _record("gHOODZ", abi.encode(address(authority), address(sHoodz)));
+        gHoodz = new gHOOD(auth, address(sHoodz));
+        _record("gHOOD", abi.encode(address(authority), address(sHoodz)));
         d.gHoodz = address(gHoodz);
 
         treasury = new HoodzTreasury(address(hoodz), cfg.treasuryTimelock, address(authority));
@@ -365,8 +365,8 @@ contract Deploy is Script {
 
         bondDepository = new BondDepository(
             IHoodzAuthority(address(authority)),
-            IHOODZ(address(hoodz)),
-            IgHOODZ(address(gHoodz)),
+            IHOOD(address(hoodz)),
+            IgHOOD(address(gHoodz)),
             IStaking(address(staking)),
             ITreasury(address(treasury))
         );
@@ -378,13 +378,13 @@ contract Deploy is Script {
 
         if (!_hasMonetaryPolicyDeps(cfg)) {
             console2.log("!! EmissionsManager + YieldRepurchaseFacility skipped.");
-            console2.log("   Set RESERVE_TOKEN, RESERVE_SAVINGS_VAULT, HOODZ_BOND_AUCTIONEER, HOODZ_PRICE_FEED.");
+            console2.log("   Set RESERVE_TOKEN, RESERVE_SAVINGS_VAULT, HOOD_BOND_AUCTIONEER, HOOD_PRICE_FEED.");
             return;
         }
 
         emissionsManager = new EmissionsManager(
             IHoodzAuthority(address(authority)),
-            IHOODZ(address(hoodz)),
+            IHOOD(address(hoodz)),
             IERC20(cfg.reserveToken),
             ITreasury(address(treasury)),
             IHoodzBondAuctioneer(cfg.bondAuctioneer),
@@ -407,7 +407,7 @@ contract Deploy is Script {
 
         yrf = new YieldRepurchaseFacility(
             IHoodzAuthority(address(authority)),
-            IHOODZ(address(hoodz)),
+            IHOOD(address(hoodz)),
             IERC20(cfg.reserveToken),
             IERC4626(cfg.savingsVault),
             ITreasury(address(treasury)),
@@ -431,7 +431,7 @@ contract Deploy is Script {
         d.yieldRepurchaseFacility = address(yrf);
     }
 
-    /// @dev 3. Hoodz Loans: the escrow factory and the clearinghouse that lends against gHOODZ.
+    /// @dev 3. Hoodz Loans: the escrow factory and the clearinghouse that lends against gHOOD.
     function _deployLoans(Config memory cfg) internal {
         coolerFactory = new CoolerFactory();
         _record("CoolerFactory", "");
@@ -468,7 +468,7 @@ contract Deploy is Script {
         d.clearinghouse = address(clearinghouse);
     }
 
-    /// @dev 4. Timelock + Governor over gHOODZ voting power.
+    /// @dev 4. Timelock + Governor over gHOOD voting power.
     ///      `HoodzTimelock` demands at least one proposer at construction and the governor does
     ///      not exist yet, so the deployer is bootstrapped in and swapped out in {_wireGovernance}.
     function _deployGovernance() internal {
@@ -553,10 +553,10 @@ contract Deploy is Script {
         d.feeRouterBuyback = address(feeRouterBuyback);
     }
 
-    /// @dev 6a. Index, gHOODZ/staking links, distributor recipient.
+    /// @dev 6a. Index, gHOOD/staking links, distributor recipient.
     function _wireTokens(Config memory cfg) internal {
         sHoodz.setIndex(cfg.initialIndex);
-        sHoodz.setgHOODZ(address(gHoodz));
+        sHoodz.setgHOOD(address(gHoodz));
         sHoodz.initialize(address(staking), address(treasury));
         gHoodz.migrate(address(staking), address(sHoodz));
 
@@ -567,7 +567,7 @@ contract Deploy is Script {
 
     /// @dev 6b. Treasury permissions. Everything that mints, spends or manages is registered here.
     function _wireTreasury(Config memory cfg) internal {
-        treasury.enable(HoodzTreasury.STATUS.SHOODZ, address(sHoodz), address(0));
+        treasury.enable(HoodzTreasury.STATUS.SHOOD, address(sHoodz), address(0));
         treasury.enable(HoodzTreasury.STATUS.REWARDMANAGER, address(distributor), address(0));
         treasury.enable(HoodzTreasury.STATUS.REWARDMANAGER, address(bondDepository), address(0));
 
@@ -612,9 +612,9 @@ contract Deploy is Script {
     }
 
     /// @dev 6d. Place the vault (mint) role, then hand over the governor role.
-    ///      Per §4 of the brief the protocol must not be able to mint HOODZ while the token is
+    ///      Per §4 of the brief the protocol must not be able to mint HOOD while the token is
     ///      still price-discovering on the PONS curve, so before graduation the vault role goes
-    ///      to {HoodzLaunchGuard}, which has no mint function - HOODZ supply is frozen at exactly
+    ///      to {HoodzLaunchGuard}, which has no mint function - HOOD supply is frozen at exactly
     ///      what the curve escrows.
     function _wireVaultRole(Config memory cfg) internal {
         if (cfg.graduated || d.launchGuard == address(0)) {
@@ -626,7 +626,7 @@ contract Deploy is Script {
             // HoodzLaunchGuard.releaseToTreasury(), which checks graduation and the LP lock live.
             // Using pushVault here would leave the governor free to skip the guard entirely.
             authority.lockVaultToGuard(d.launchGuard);
-            console2.log("vault role -> HoodzLaunchGuard, escrowed (HOODZ supply frozen)");
+            console2.log("vault role -> HoodzLaunchGuard, escrowed (HOOD supply frozen)");
             console2.log("  authority.pushVault is now disabled until the guard releases");
             console2.log("  post-graduation: verifyGraduation() -> arm() -> wait 48h -> releaseToTreasury()");
         }
@@ -637,7 +637,7 @@ contract Deploy is Script {
         } else {
             authority.pushGovernor(cfg.governor, true);
             console2.log("governor role ->", cfg.governor);
-            console2.log("  set HOODZ_TRANSFER_GOVERNANCE=true to hand it to the timelock instead");
+            console2.log("  set HOOD_TRANSFER_GOVERNANCE=true to hand it to the timelock instead");
         }
     }
 
@@ -674,9 +674,9 @@ contract Deploy is Script {
         vm.serializeAddress(obj, "savingsVault", cfg.savingsVault);
 
         vm.serializeAddress(obj, "HoodzAuthority", d.authority);
-        vm.serializeAddress(obj, "HOODZ", d.hoodz);
-        vm.serializeAddress(obj, "sHOODZ", d.sHoodz);
-        vm.serializeAddress(obj, "gHOODZ", d.gHoodz);
+        vm.serializeAddress(obj, "HOOD", d.hoodz);
+        vm.serializeAddress(obj, "sHOOD", d.sHoodz);
+        vm.serializeAddress(obj, "gHOOD", d.gHoodz);
         vm.serializeAddress(obj, "HoodzTreasury", d.treasury);
         vm.serializeAddress(obj, "HoodzBondingCalculator", d.bondingCalculator);
         vm.serializeAddress(obj, "HoodzStaking", d.staking);
@@ -706,7 +706,7 @@ contract Deploy is Script {
         vm.serializeUint(obj, "chainId", block.chainid);
         vm.serializeString(obj, "network", block.chainid == 4663 ? string("robinhood") : string("robinhood-testnet"));
         vm.serializeString(obj, "tokenName", "Hoodz");
-        vm.serializeString(obj, "tokenSymbol", "HOODZ");
+        vm.serializeString(obj, "tokenSymbol", "HOOD");
         vm.serializeUint(obj, "tokenDecimals", 9);
         vm.serializeAddress(obj, "token", d.hoodz);
         vm.serializeAddress(obj, "launchpad", cfg.ponsLaunchpad);
@@ -760,9 +760,9 @@ contract Deploy is Script {
     function _logAddresses() internal view {
         console2.log("---------------------------- addresses ------------------------------");
         console2.log("  HoodzAuthority         ", d.authority);
-        console2.log("  HOODZ                  ", d.hoodz);
-        console2.log("  sHOODZ                 ", d.sHoodz);
-        console2.log("  gHOODZ                 ", d.gHoodz);
+        console2.log("  HOOD                  ", d.hoodz);
+        console2.log("  sHOOD                 ", d.sHoodz);
+        console2.log("  gHOOD                 ", d.gHoodz);
         console2.log("  HoodzTreasury          ", d.treasury);
         console2.log("  HoodzBondingCalculator ", d.bondingCalculator);
         console2.log("  HoodzStaking           ", d.staking);
